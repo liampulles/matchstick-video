@@ -1,0 +1,24 @@
+Things that happen in the store:
+* Employees rent out videos to customers
+* Employees process returned videos
+* Customers take out accounts
+* Customers rent videos
+* Customers return videos
+
+Resources:
+* Inventory
+	* Create Videos to inventory
+	* Update video information
+	* Delete videos from inventory
+* Accounts
+	* Create Account
+	* Read Account information
+	* Update Account information
+	* Delete Account
+* Rentals
+	* Create rental (take out video)
+	* Read rental (who has taken out video)
+	* Delete rental (return video)
+* Receipts
+	* Create receipt (when renting out video)
+	* Read receipt (querying income).
