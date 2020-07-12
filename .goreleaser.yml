@@ -1,0 +1,59 @@
+before:
+  hooks:
+    - go mod download
+builds:
+- env:
+  # Static binary
+  - CGO_ENABLED=0
+  goos:
+    - linux
+    - freebsd
+    - netbsd
+    - windows
+    - darwin
+  goarch:
+    - 386
+    - amd64
+    - arm
+    - arm64
+archives:
+- replacements:
+    darwin: Darwin
+    linux: Linux
+    windows: Windows
+    386: i386
+    amd64: x86_64
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ .Tag }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+    - '^docs:'
+    - '^test:'
+release:
+  github:
+    owner: liampulles
+    name: matchstick-video
+  prerelease: auto
+dockers:
+  -
+    goos: linux
+    goarch: amd64
+    goarm: ''
+    binaries:
+    - matchstick-video
+    image_templates:
+    - "lpulles/matchstick-video:latest"
+    - "lpulles/matchstick-video:{{ .Tag }}"
+    - "lpulles/matchstick-video:v{{ .Major }}"
+    - "lpulles/matchstick-video:v{{ .Major }}.{{ .Minor }}"
+    dockerfile: Dockerfile
+    build_flag_templates:
+    - "--pull"
+    - "--label=org.opencontainers.image.created={{.Date}}"
+    - "--label=org.opencontainers.image.name={{.ProjectName}}"
+    - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+    - "--label=org.opencontainers.image.version={{.Version}}"
