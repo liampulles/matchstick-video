@@ -8,6 +8,8 @@ import (
 )
 
 func main() {
+	// Delegate logic to Run, since we can't easily
+	// test this function.
 	if err := run.Run(os.Args); err != nil {
 		fmt.Printf("ERROR: %v\n", err)
 		os.Exit(1)
