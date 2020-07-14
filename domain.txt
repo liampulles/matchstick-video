@@ -10,15 +10,18 @@ Resources:
 	* Create Videos to inventory
 	* Update video information
 	* Delete videos from inventory
+
 * Accounts
 	* Create Account
 	* Read Account information
 	* Update Account information
 	* Delete Account
+
 * Rentals
 	* Create rental (take out video)
 	* Read rental (who has taken out video)
 	* Delete rental (return video)
+
 * Receipts
 	* Create receipt (when renting out video)
 	* Read receipt (querying income).

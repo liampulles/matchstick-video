@@ -1,4 +1,4 @@
-<div align="center"><img src="drcaligari.png" alt="Photograph of a woman lying on a small house with another woman barred inside."></div>
+<div align="center"><img src="drcaligari.png" alt="Photograph of a woman lying on a diagonal plane."></div>
 <div align="center"><small><sup>Laura Albert as Mrs. Van Houten in <i>Dr. Caligari (1989)</i></sup></small></div>
 <h1 align="center">
   <b><i>Matchstick Video!</i></b>
