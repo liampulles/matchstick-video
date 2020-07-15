@@ -3,7 +3,6 @@ package inventory
 import (
 	"fmt"
 
-	"github.com/liampulles/matchstick-video/pkg/domain/commonerror"
 	"github.com/liampulles/matchstick-video/pkg/domain/entity"
 )
 
@@ -103,5 +102,19 @@ func (s *ServiceImpl) IsAvailable(id entity.ID) (bool, error) {
 
 // Checkout implements the Service interface
 func (s *ServiceImpl) Checkout(id entity.ID) error {
-	return commonerror.NewNotImplemented("inventory", "ServiceImpl", "IsAvailable")
+	found, err := s.inventoryRepository.FindByID(id)
+	if err != nil {
+		return fmt.Errorf("could not checkout inventory item - repository error: %w", err)
+	}
+
+	err = found.Checkout()
+	if err != nil {
+		return fmt.Errorf("could not checkout inventory item - entity error: %w", err)
+	}
+
+	_, err = s.inventoryRepository.Save(found)
+	if err != nil {
+		return fmt.Errorf("could not checkout inventory item - repository error: %w", err)
+	}
+	return nil
 }

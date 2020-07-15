@@ -93,7 +93,7 @@ func (suite *ServiceImplTestSuite) TestCreate_WhenDelegatesSucceed_ShouldReturnE
 	actual, err := suite.sut.Create(voFixture)
 
 	// Verify results
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(actual, mockEntity2)
 }
 
@@ -128,7 +128,7 @@ func (suite *ServiceImplTestSuite) TestRead_WhenDelegatesSucceed_ShouldReturnAsE
 	actual, err := suite.sut.Read(idFixture)
 
 	// Verify results
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(actual, mockEntity)
 }
 
@@ -217,7 +217,7 @@ func (suite *ServiceImplTestSuite) TestUpdate_WhenDelegatesSucceed_ShouldReturnA
 	err := suite.sut.Update(voFixture)
 
 	// Verify results
-	suite.Nil(err)
+	suite.NoError(err)
 }
 
 func (suite *ServiceImplTestSuite) TestDelete_WhenRepositoryFails_ShouldFail() {
@@ -249,7 +249,7 @@ func (suite *ServiceImplTestSuite) TestDelete_WhenDelegatesSucceed_ShouldReturnA
 	err := suite.sut.Delete(idFixture)
 
 	// Verify results
-	suite.Nil(err)
+	suite.NoError(err)
 }
 
 func (suite *ServiceImplTestSuite) TestIsAvailable_WhenRepositoryFails_ShouldFail() {
@@ -284,6 +284,82 @@ func (suite *ServiceImplTestSuite) TestIsAvailable_WhenDelegatesSucceed_ShouldRe
 	actual, err := suite.sut.IsAvailable(idFixture)
 
 	// Verify results
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.True(actual)
+}
+
+func (suite *ServiceImplTestSuite) TestCheckout_WhenRepositoryFindFails_ShouldFail() {
+	// Setup fixture
+	idFixture := entity.ID(101)
+
+	// Setup mocks
+	mockErr := fmt.Errorf("mock.error")
+	suite.mockRepository.On("FindByID", idFixture).Return(nil, mockErr)
+
+	// Setup expectations
+	expectedErr := "could not checkout inventory item - repository error: mock.error"
+
+	// Exercise SUT
+	err := suite.sut.Checkout(idFixture)
+
+	// Verify results
+	suite.EqualError(err, expectedErr)
+}
+
+func (suite *ServiceImplTestSuite) TestCheckout_WhenEntityFails_ShouldFail() {
+	// Setup fixture
+	idFixture := entity.ID(101)
+
+	// Setup mocks
+	mockEntity := &entityMocks.InventoryItemMock{Data: "some.data"}
+	mockErr := fmt.Errorf("mock.error")
+	suite.mockRepository.On("FindByID", idFixture).Return(mockEntity, nil)
+	mockEntity.On("Checkout").Return(mockErr)
+
+	// Setup expectations
+	expectedErr := "could not checkout inventory item - entity error: mock.error"
+
+	// Exercise SUT
+	err := suite.sut.Checkout(idFixture)
+
+	// Verify results
+	suite.EqualError(err, expectedErr)
+}
+
+func (suite *ServiceImplTestSuite) TestCheckout_WhenRepositorySaveFails_ShouldFail() {
+	// Setup fixture
+	idFixture := entity.ID(101)
+
+	// Setup mocks
+	mockEntity := &entityMocks.InventoryItemMock{Data: "some.data"}
+	mockErr := fmt.Errorf("mock.error")
+	suite.mockRepository.On("FindByID", idFixture).Return(mockEntity, nil)
+	mockEntity.On("Checkout").Return(nil)
+	suite.mockRepository.On("Save", mockEntity).Return(nil, mockErr)
+
+	// Setup expectations
+	expectedErr := "could not checkout inventory item - repository error: mock.error"
+
+	// Exercise SUT
+	err := suite.sut.Checkout(idFixture)
+
+	// Verify results
+	suite.EqualError(err, expectedErr)
+}
+
+func (suite *ServiceImplTestSuite) TestCheckout_WhenDelegatesSucceed_ShouldReturnAsExpected() {
+	// Setup fixture
+	idFixture := entity.ID(101)
+
+	// Setup mocks
+	mockEntity1 := &entityMocks.InventoryItemMock{Data: "some.data.1"}
+	suite.mockRepository.On("FindByID", idFixture).Return(mockEntity1, nil)
+	mockEntity1.On("Checkout").Return(nil)
+	suite.mockRepository.On("Save", mockEntity1).Return(nil, nil)
+
+	// Exercise SUT
+	err := suite.sut.Checkout(idFixture)
+
+	// Verify results
+	suite.NoError(err)
 }
