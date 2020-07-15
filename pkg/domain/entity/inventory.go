@@ -4,11 +4,39 @@ import "fmt"
 
 // InventoryItem defines a unique InventoryItem
 type InventoryItem struct {
-	ID       ID
 	Name     string
 	Location string
 
+	id        ID
 	available bool
+}
+
+// NewAvailableInventoryItem is a constructor
+func NewAvailableInventoryItem(id ID, name string, location string) *InventoryItem {
+	base := newBaseInventoryItem(id, name, location)
+	base.available = true
+	return base
+}
+
+// NewUnavailableInventoryItem is a constructor
+func NewUnavailableInventoryItem(id ID, name string, location string) *InventoryItem {
+	base := newBaseInventoryItem(id, name, location)
+	base.available = false
+	return base
+}
+
+func newBaseInventoryItem(id ID, name string, location string) *InventoryItem {
+	return &InventoryItem{
+		Name:     name,
+		Location: location,
+
+		id: id,
+	}
+}
+
+// ID returns the id.
+func (i *InventoryItem) ID() ID {
+	return i.id
 }
 
 // IsAvailable will return true if the inventory item may

@@ -8,11 +8,20 @@ import (
 	"github.com/liampulles/matchstick-video/pkg/domain/entity"
 )
 
+func TestInventoryItem_ID_ShouldReturnID(t *testing.T) {
+	// Setup fixture
+	fixture := entity.NewAvailableInventoryItem(101, "", "")
+
+	// Exercise SUT
+	actual := fixture.ID()
+
+	// Verify results
+	assert.Equal(t, actual, entity.ID(101))
+}
+
 func TestInventoryItem_IsAvailable_FalseCase(t *testing.T) {
 	// Setup fixture
-	fixture := &entity.InventoryItem{
-		Available: false,
-	}
+	fixture := entity.NewUnavailableInventoryItem(-1, "", "")
 
 	// Exercise SUT
 	actual := fixture.IsAvailable()
@@ -23,9 +32,7 @@ func TestInventoryItem_IsAvailable_FalseCase(t *testing.T) {
 
 func TestInventoryItem_IsAvailable_TrueCase(t *testing.T) {
 	// Setup fixture
-	fixture := &entity.InventoryItem{
-		Available: true,
-	}
+	fixture := entity.NewAvailableInventoryItem(-1, "", "")
 
 	// Exercise SUT
 	actual := fixture.IsAvailable()
@@ -36,9 +43,7 @@ func TestInventoryItem_IsAvailable_TrueCase(t *testing.T) {
 
 func TestInventoryItem_Checkout_WhenUnavailable_ShouldFail(t *testing.T) {
 	// Setup fixture
-	fixture := &entity.InventoryItem{
-		Available: false,
-	}
+	fixture := entity.NewUnavailableInventoryItem(-1, "", "")
 
 	// Exercise SUT
 	err := fixture.Checkout()
@@ -49,9 +54,7 @@ func TestInventoryItem_Checkout_WhenUnavailable_ShouldFail(t *testing.T) {
 
 func TestInventoryItem_Checkout_WhenAvailable_ShouldPass(t *testing.T) {
 	// Setup fixture
-	fixture := &entity.InventoryItem{
-		Available: true,
-	}
+	fixture := entity.NewAvailableInventoryItem(-1, "", "")
 
 	// Exercise SUT
 	err := fixture.Checkout()
@@ -62,9 +65,7 @@ func TestInventoryItem_Checkout_WhenAvailable_ShouldPass(t *testing.T) {
 
 func TestInventoryItem_CheckIn_WhenAvailable_ShouldFail(t *testing.T) {
 	// Setup fixture
-	fixture := &entity.InventoryItem{
-		Available: true,
-	}
+	fixture := entity.NewAvailableInventoryItem(-1, "", "")
 
 	// Exercise SUT
 	err := fixture.CheckIn()
@@ -75,9 +76,7 @@ func TestInventoryItem_CheckIn_WhenAvailable_ShouldFail(t *testing.T) {
 
 func TestInventoryItem_CheckIn_WhenUnavailable_ShouldPass(t *testing.T) {
 	// Setup fixture
-	fixture := &entity.InventoryItem{
-		Available: false,
-	}
+	fixture := entity.NewUnavailableInventoryItem(-1, "", "")
 
 	// Exercise SUT
 	err := fixture.CheckIn()
