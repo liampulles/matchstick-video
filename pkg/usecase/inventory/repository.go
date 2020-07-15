@@ -9,4 +9,5 @@ import (
 type Repository interface {
 	FindByID(entity.ID) (*entity.InventoryItem, error)
 	Save(*entity.InventoryItem) (*entity.InventoryItem, error)
+	DeleteByID(entity.ID) error
 }

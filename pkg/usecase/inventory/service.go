@@ -90,11 +90,10 @@ func (s *ServiceImpl) Update(vo *UpdateItemVO) error {
 
 // Delete implements the Service interface
 func (s *ServiceImpl) Delete(id entity.ID) error {
-	return &domain.NotImplementedError{
-		Package: "inventory",
-		Struct:  "ServiceImpl",
-		Method:  "Delete",
+	if err := s.inventoryRepository.DeleteByID(id); err != nil {
+		return fmt.Errorf("could not delete inventory item - repository error: %w", err)
 	}
+	return nil
 }
 
 // IsAvailable implements the Service interface

@@ -263,3 +263,35 @@ func (suite *ServiceImplTestSuite) TestUpdate_WhenDelegatesSucceed_ShouldReturnA
 	// Verify results
 	suite.Nil(err)
 }
+
+func (suite *ServiceImplTestSuite) TestDelete_WhenRepositoryFails_ShouldFail() {
+	// Setup fixture
+	idFixture := entity.ID(101)
+
+	// Setup mocks
+	mockErr := fmt.Errorf("mock.error")
+	suite.mockRepository.On("DeleteByID", idFixture).Return(mockErr)
+
+	// Setup expectations
+	expectedErr := "could not delete inventory item - repository error: mock.error"
+
+	// Exercise SUT
+	err := suite.sut.Delete(idFixture)
+
+	// Verify results
+	suite.EqualError(err, expectedErr)
+}
+
+func (suite *ServiceImplTestSuite) TestDelete_WhenDelegatesSucceed_ShouldReturnAsExpected() {
+	// Setup fixture
+	idFixture := entity.ID(101)
+
+	// Setup mocks
+	suite.mockRepository.On("DeleteByID", idFixture).Return(nil)
+
+	// Exercise SUT
+	err := suite.sut.Delete(idFixture)
+
+	// Verify results
+	suite.Nil(err)
+}

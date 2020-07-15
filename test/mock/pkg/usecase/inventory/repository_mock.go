@@ -25,3 +25,9 @@ func (m *MockRepository) Save(e *entity.InventoryItem) (*entity.InventoryItem, e
 	args := m.Called(e)
 	return args.Get(0).(*entity.InventoryItem), args.Error(1)
 }
+
+// DeleteByID is for mocking
+func (m *MockRepository) DeleteByID(id entity.ID) error {
+	args := m.Called(id)
+	return args.Error(0)
+}
