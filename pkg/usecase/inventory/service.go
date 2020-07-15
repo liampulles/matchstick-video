@@ -103,7 +103,7 @@ func (s *ServiceImpl) IsAvailable(id entity.ID) (bool, error) {
 		return false, fmt.Errorf("could not determine if inventory item is available - repository error: %w", err)
 	}
 
-	return found.Available, nil
+	return found.IsAvailable(), nil
 }
 
 // Checkout implements the Service interface
