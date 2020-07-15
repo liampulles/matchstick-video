@@ -98,11 +98,12 @@ func (s *ServiceImpl) Delete(id entity.ID) error {
 
 // IsAvailable implements the Service interface
 func (s *ServiceImpl) IsAvailable(id entity.ID) (bool, error) {
-	return false, &domain.NotImplementedError{
-		Package: "inventory",
-		Struct:  "ServiceImpl",
-		Method:  "IsAvailable",
+	found, err := s.inventoryRepository.FindByID(id)
+	if err != nil {
+		return false, fmt.Errorf("could not determine if inventory item is available - repository error: %w", err)
 	}
+
+	return found.Available, nil
 }
 
 // Checkout implements the Service interface
