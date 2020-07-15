@@ -141,7 +141,7 @@ func (suite *ServiceImplTestSuite) TestRead_WhenRepositoryFails_ShouldFail() {
 	suite.EqualError(err, expectedErr)
 }
 
-func (suite *ServiceImplTestSuite) TestRead_WhenDelegatesSucceed_ShouldReturnAsExcpected() {
+func (suite *ServiceImplTestSuite) TestRead_WhenDelegatesSucceed_ShouldReturnAsExpected() {
 	// Setup fixture
 	idFixture := entity.ID(101)
 
@@ -155,4 +155,111 @@ func (suite *ServiceImplTestSuite) TestRead_WhenDelegatesSucceed_ShouldReturnAsE
 	// Verify results
 	suite.Nil(err)
 	suite.Equal(actual, mockEntity)
+}
+
+func (suite *ServiceImplTestSuite) TestUpdate_WhenValidatorFails_ShouldFail() {
+	// Setup fixture
+	voFixture := &inventory.UpdateItemVO{
+		ID:   101,
+		Name: "new.name",
+	}
+
+	// Setup mocks
+	mockErr := fmt.Errorf("mock.error")
+	suite.mockValidator.On("ValidateUpdateItemVO", voFixture).Return(mockErr)
+
+	// Setup expectations
+	expectedErr := "could not update inventory item - validation error: mock.error"
+
+	// Exercise SUT
+	err := suite.sut.Update(voFixture)
+
+	// Verify results
+	suite.EqualError(err, expectedErr)
+}
+
+func (suite *ServiceImplTestSuite) TestUpdate_WhenRepositoryFindFails_ShouldFail() {
+	// Setup fixture
+	voFixture := &inventory.UpdateItemVO{
+		ID:   101,
+		Name: "new.name",
+	}
+
+	// Setup mocks
+	mockErr := fmt.Errorf("mock.error")
+	suite.mockValidator.On("ValidateUpdateItemVO", voFixture).Return(nil)
+	suite.mockRepository.On("FindByID", entity.ID(101)).Return(nilInventoryItem, mockErr)
+
+	// Setup expectations
+	expectedErr := "could not update inventory item - repository error: mock.error"
+
+	// Exercise SUT
+	err := suite.sut.Update(voFixture)
+
+	// Verify results
+	suite.EqualError(err, expectedErr)
+}
+
+func (suite *ServiceImplTestSuite) TestUpdate_WhenRepositorySaveFails_ShouldFail() {
+	// Setup fixture
+	voFixture := &inventory.UpdateItemVO{
+		ID:   101,
+		Name: "new.name",
+	}
+
+	// Setup expectations
+	expectedUpdatedEntity := &entity.InventoryItem{
+		ID:       101,
+		Location: "some.location",
+		Name:     "new.name",
+	}
+	expectedErr := "could not update inventory item - repository error: mock.error"
+
+	// Setup mocks
+	mockEntity := &entity.InventoryItem{
+		ID:       101,
+		Location: "some.location",
+		Name:     "some.name",
+	}
+	mockErr := fmt.Errorf("mock.error")
+	suite.mockValidator.On("ValidateUpdateItemVO", voFixture).Return(nil)
+	suite.mockRepository.On("FindByID", entity.ID(101)).Return(mockEntity, nil)
+	suite.mockRepository.On("Save", expectedUpdatedEntity).Return(nilInventoryItem, mockErr)
+
+	// Exercise SUT
+	err := suite.sut.Update(voFixture)
+
+	// Verify results
+	suite.EqualError(err, expectedErr)
+}
+
+func (suite *ServiceImplTestSuite) TestUpdate_WhenDelegatesSucceed_ShouldReturnAsExpected() {
+	// Setup fixture
+	voFixture := &inventory.UpdateItemVO{
+		ID:   101,
+		Name: "new.name",
+	}
+
+	// Setup expectations
+	expectedUpdatedEntity := &entity.InventoryItem{
+		ID:       101,
+		Location: "some.location",
+		Name:     "new.name",
+	}
+
+	// Setup mocks
+	mockEntity := &entity.InventoryItem{
+		ID:       101,
+		Location: "some.location",
+		Name:     "some.name",
+	}
+	suite.mockValidator.On("ValidateUpdateItemVO", voFixture).Return(nil)
+	suite.mockRepository.On("FindByID", entity.ID(101)).Return(mockEntity, nil)
+	suite.mockRepository.On("Save", expectedUpdatedEntity).Return(nilInventoryItem, nil)
+
+	// Exercise SUT
+	err := suite.sut.Update(voFixture)
+
+	// Verify results
+	suite.Nil(err)
 }

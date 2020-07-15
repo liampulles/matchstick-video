@@ -70,11 +70,22 @@ func (s *ServiceImpl) Read(id entity.ID) (*entity.InventoryItem, error) {
 
 // Update implements the Service interface
 func (s *ServiceImpl) Update(vo *UpdateItemVO) error {
-	return &domain.NotImplementedError{
-		Package: "inventory",
-		Struct:  "ServiceImpl",
-		Method:  "Update",
+	if err := s.validator.ValidateUpdateItemVO(vo); err != nil {
+		return fmt.Errorf("could not update inventory item - validation error: %w", err)
 	}
+
+	found, err := s.inventoryRepository.FindByID(vo.ID)
+	if err != nil {
+		return fmt.Errorf("could not update inventory item - repository error: %w", err)
+	}
+
+	update(found, vo)
+
+	_, err = s.inventoryRepository.Save(found)
+	if err != nil {
+		return fmt.Errorf("could not update inventory item - repository error: %w", err)
+	}
+	return nil
 }
 
 // Delete implements the Service interface
@@ -102,4 +113,8 @@ func (s *ServiceImpl) Checkout(id entity.ID) error {
 		Struct:  "ServiceImpl",
 		Method:  "IsAvailable",
 	}
+}
+
+func update(e *entity.InventoryItem, vo *UpdateItemVO) {
+	e.Name = vo.Name
 }
