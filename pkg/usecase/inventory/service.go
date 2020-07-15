@@ -3,14 +3,14 @@ package inventory
 import (
 	"fmt"
 
-	"github.com/liampulles/matchstick-video/pkg/domain"
+	"github.com/liampulles/matchstick-video/pkg/domain/commonerror"
 	"github.com/liampulles/matchstick-video/pkg/domain/entity"
 )
 
 // Service performs operations on inventories.
 type Service interface {
-	Create(*CreateItemVO) (*entity.InventoryItem, error)
-	Read(entity.ID) (*entity.InventoryItem, error)
+	Create(*CreateItemVO) (entity.InventoryItem, error)
+	Read(entity.ID) (entity.InventoryItem, error)
 	Update(*UpdateItemVO) error
 	Delete(entity.ID) error
 
@@ -20,31 +20,28 @@ type Service interface {
 
 // ServiceImpl implements Service
 type ServiceImpl struct {
-	validator           Validator
 	inventoryRepository Repository
 	entityFactory       EntityFactory
+	entityModifier      EntityModifier
 }
 
 // Make sure ServiceImpl implements Service!
 var _ Service = &ServiceImpl{}
 
 // NewServiceImpl is a constructor
-func NewServiceImpl(validator Validator,
+func NewServiceImpl(
 	inventoryRepository Repository,
-	entityFactory EntityFactory) *ServiceImpl {
+	entityFactory EntityFactory,
+	entityModifier EntityModifier) *ServiceImpl {
 	return &ServiceImpl{
-		validator:           validator,
 		inventoryRepository: inventoryRepository,
 		entityFactory:       entityFactory,
+		entityModifier:      entityModifier,
 	}
 }
 
 // Create implements the Service interface
-func (s *ServiceImpl) Create(vo *CreateItemVO) (*entity.InventoryItem, error) {
-	if err := s.validator.ValidateCreateItemVO(vo); err != nil {
-		return nil, fmt.Errorf("could not create inventory item - validation error: %w", err)
-	}
-
+func (s *ServiceImpl) Create(vo *CreateItemVO) (entity.InventoryItem, error) {
 	entity, err := s.entityFactory.CreateFromVO(vo)
 	if err != nil {
 		return nil, fmt.Errorf("could not create inventory item - factory error: %w", err)
@@ -59,7 +56,7 @@ func (s *ServiceImpl) Create(vo *CreateItemVO) (*entity.InventoryItem, error) {
 }
 
 // Read implements the Service interface
-func (s *ServiceImpl) Read(id entity.ID) (*entity.InventoryItem, error) {
+func (s *ServiceImpl) Read(id entity.ID) (entity.InventoryItem, error) {
 	found, err := s.inventoryRepository.FindByID(id)
 	if err != nil {
 		return nil, fmt.Errorf("could not read inventory item - repository error: %w", err)
@@ -70,16 +67,14 @@ func (s *ServiceImpl) Read(id entity.ID) (*entity.InventoryItem, error) {
 
 // Update implements the Service interface
 func (s *ServiceImpl) Update(vo *UpdateItemVO) error {
-	if err := s.validator.ValidateUpdateItemVO(vo); err != nil {
-		return fmt.Errorf("could not update inventory item - validation error: %w", err)
-	}
-
 	found, err := s.inventoryRepository.FindByID(vo.ID)
 	if err != nil {
 		return fmt.Errorf("could not update inventory item - repository error: %w", err)
 	}
 
-	update(found, vo)
+	if err := s.entityModifier.ModifyWithUpdateItemVO(found, vo); err != nil {
+		return fmt.Errorf("could not update inventory item - modifier error: %w", err)
+	}
 
 	_, err = s.inventoryRepository.Save(found)
 	if err != nil {
@@ -108,13 +103,5 @@ func (s *ServiceImpl) IsAvailable(id entity.ID) (bool, error) {
 
 // Checkout implements the Service interface
 func (s *ServiceImpl) Checkout(id entity.ID) error {
-	return &domain.NotImplementedError{
-		Package: "inventory",
-		Struct:  "ServiceImpl",
-		Method:  "IsAvailable",
-	}
-}
-
-func update(e *entity.InventoryItem, vo *UpdateItemVO) {
-	e.Name = vo.Name
+	return commonerror.NewNotImplemented("inventory", "ServiceImpl", "IsAvailable")
 }

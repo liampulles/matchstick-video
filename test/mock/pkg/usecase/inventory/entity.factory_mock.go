@@ -15,7 +15,7 @@ type MockEntityFactory struct {
 var _ inventory.EntityFactory = &MockEntityFactory{}
 
 // CreateFromVO is for mocking
-func (m *MockEntityFactory) CreateFromVO(vo *inventory.CreateItemVO) (*entity.InventoryItem, error) {
+func (m *MockEntityFactory) CreateFromVO(vo *inventory.CreateItemVO) (entity.InventoryItem, error) {
 	args := m.Called(vo)
-	return args.Get(0).(*entity.InventoryItem), args.Error(1)
+	return safeArgsGetInventoryItem(args, 0), args.Error(1)
 }
