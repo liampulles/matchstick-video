@@ -27,6 +27,12 @@ func (i *InventoryItemMock) Name() string {
 	return args.String(0)
 }
 
+// Location is for mocking
+func (i *InventoryItemMock) Location() string {
+	args := i.Called()
+	return args.String(0)
+}
+
 // IsAvailable is for mocking
 func (i *InventoryItemMock) IsAvailable() bool {
 	args := i.Called()
@@ -48,5 +54,11 @@ func (i *InventoryItemMock) CheckIn() error {
 // ChangeName is for mocking
 func (i *InventoryItemMock) ChangeName(name string) error {
 	args := i.Called(name)
+	return args.Error(0)
+}
+
+// ChangeLocation is for mocking
+func (i *InventoryItemMock) ChangeLocation(location string) error {
+	args := i.Called(location)
 	return args.Error(0)
 }

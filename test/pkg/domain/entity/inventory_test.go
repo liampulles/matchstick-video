@@ -30,6 +30,17 @@ func TestInventoryItem_Name_ShouldReturnName(t *testing.T) {
 	assert.Equal(t, actual, "some.name")
 }
 
+func TestInventoryItem_Location_ShouldReturnLocation(t *testing.T) {
+	// Setup fixture
+	fixture := entity.NewAvailableInventoryItem(0, "", "some.location")
+
+	// Exercise SUT
+	actual := fixture.Location()
+
+	// Verify results
+	assert.Equal(t, actual, "some.location")
+}
+
 func TestInventoryItem_IsAvailable_FalseCase(t *testing.T) {
 	// Setup fixture
 	fixture := entity.NewUnavailableInventoryItem(-1, "", "")

@@ -10,10 +10,12 @@ import (
 type InventoryItem interface {
 	ID() ID
 	Name() string
+	Location() string
 	IsAvailable() bool
 	Checkout() error
 	CheckIn() error
 	ChangeName(string) error
+	ChangeLocation(string) error
 }
 
 // InventoryItemImpl implements InventoryItem
@@ -59,6 +61,11 @@ func (i *InventoryItemImpl) Name() string {
 	return i.name
 }
 
+// Location returns the name.
+func (i *InventoryItemImpl) Location() string {
+	return i.location
+}
+
 // IsAvailable will return true if the inventory item may
 // be checked out - false otherwise.
 func (i *InventoryItemImpl) IsAvailable() bool {
@@ -92,4 +99,11 @@ func (i *InventoryItemImpl) CheckIn() error {
 // an error
 func (i *InventoryItemImpl) ChangeName(name string) error {
 	return commonerror.NewNotImplemented("entity", "InventoryItemImpl", "ChangeName")
+}
+
+// ChangeLocation will change the location of the inventory item,
+// if it is valid. If it is not valid, it will return
+// an error
+func (i *InventoryItemImpl) ChangeLocation(location string) error {
+	return commonerror.NewNotImplemented("entity", "InventoryItemImpl", "ChangeLocation")
 }
