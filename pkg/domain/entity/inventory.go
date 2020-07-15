@@ -9,6 +9,7 @@ import (
 // InventoryItem defines a unique entity
 type InventoryItem interface {
 	ID() ID
+	Name() string
 	IsAvailable() bool
 	Checkout() error
 	CheckIn() error
@@ -51,6 +52,11 @@ func newBaseInventoryItem(id ID, name string, location string) *InventoryItemImp
 // ID returns the id.
 func (i *InventoryItemImpl) ID() ID {
 	return i.id
+}
+
+// Name returns the name.
+func (i *InventoryItemImpl) Name() string {
+	return i.name
 }
 
 // IsAvailable will return true if the inventory item may

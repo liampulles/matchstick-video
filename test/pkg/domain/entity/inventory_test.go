@@ -19,6 +19,17 @@ func TestInventoryItem_ID_ShouldReturnID(t *testing.T) {
 	assert.Equal(t, actual, entity.ID(101))
 }
 
+func TestInventoryItem_Name_ShouldReturnName(t *testing.T) {
+	// Setup fixture
+	fixture := entity.NewAvailableInventoryItem(0, "some.name", "")
+
+	// Exercise SUT
+	actual := fixture.Name()
+
+	// Verify results
+	assert.Equal(t, actual, "some.name")
+}
+
 func TestInventoryItem_IsAvailable_FalseCase(t *testing.T) {
 	// Setup fixture
 	fixture := entity.NewUnavailableInventoryItem(-1, "", "")

@@ -21,6 +21,12 @@ func (i *InventoryItemMock) ID() entity.ID {
 	return args.Get(0).(entity.ID)
 }
 
+// Name is for mocking
+func (i *InventoryItemMock) Name() string {
+	args := i.Called()
+	return args.String(0)
+}
+
 // IsAvailable is for mocking
 func (i *InventoryItemMock) IsAvailable() bool {
 	args := i.Called()
