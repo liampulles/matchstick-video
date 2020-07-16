@@ -7,5 +7,6 @@ type CreateItemVO struct {
 
 // UpdateItemVO defines data that may be used to update an inventory item.
 type UpdateItemVO struct {
-	Name string
+	Name     string
+	Location string
 }
