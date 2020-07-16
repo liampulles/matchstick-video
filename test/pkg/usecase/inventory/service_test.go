@@ -134,8 +134,8 @@ func (suite *ServiceImplTestSuite) TestRead_WhenDelegatesSucceed_ShouldReturnAsE
 
 func (suite *ServiceImplTestSuite) TestUpdate_WhenRepositoryFindFails_ShouldFail() {
 	// Setup fixture
+	idFixture := entity.ID(101)
 	voFixture := &inventory.UpdateItemVO{
-		ID:   101,
 		Name: "new.name",
 	}
 
@@ -147,7 +147,7 @@ func (suite *ServiceImplTestSuite) TestUpdate_WhenRepositoryFindFails_ShouldFail
 	expectedErr := "could not update inventory item - repository error: mock.error"
 
 	// Exercise SUT
-	err := suite.sut.Update(voFixture)
+	err := suite.sut.Update(idFixture, voFixture)
 
 	// Verify results
 	suite.EqualError(err, expectedErr)
@@ -155,8 +155,8 @@ func (suite *ServiceImplTestSuite) TestUpdate_WhenRepositoryFindFails_ShouldFail
 
 func (suite *ServiceImplTestSuite) TestUpdate_WhenModifierFails_ShouldFail() {
 	// Setup fixture
+	idFixture := entity.ID(101)
 	voFixture := &inventory.UpdateItemVO{
-		ID:   101,
 		Name: "new.name",
 	}
 
@@ -170,7 +170,7 @@ func (suite *ServiceImplTestSuite) TestUpdate_WhenModifierFails_ShouldFail() {
 	expectedErr := "could not update inventory item - modifier error: mock.error"
 
 	// Exercise SUT
-	err := suite.sut.Update(voFixture)
+	err := suite.sut.Update(idFixture, voFixture)
 
 	// Verify results
 	suite.EqualError(err, expectedErr)
@@ -178,8 +178,8 @@ func (suite *ServiceImplTestSuite) TestUpdate_WhenModifierFails_ShouldFail() {
 
 func (suite *ServiceImplTestSuite) TestUpdate_WhenRepositorySaveFails_ShouldFail() {
 	// Setup fixture
+	idFixture := entity.ID(101)
 	voFixture := &inventory.UpdateItemVO{
-		ID:   101,
 		Name: "new.name",
 	}
 
@@ -194,7 +194,7 @@ func (suite *ServiceImplTestSuite) TestUpdate_WhenRepositorySaveFails_ShouldFail
 	suite.mockRepository.On("Save", mockEntity).Return(nil, mockErr)
 
 	// Exercise SUT
-	err := suite.sut.Update(voFixture)
+	err := suite.sut.Update(idFixture, voFixture)
 
 	// Verify results
 	suite.EqualError(err, expectedErr)
@@ -202,8 +202,8 @@ func (suite *ServiceImplTestSuite) TestUpdate_WhenRepositorySaveFails_ShouldFail
 
 func (suite *ServiceImplTestSuite) TestUpdate_WhenDelegatesSucceed_ShouldReturnAsExpected() {
 	// Setup fixture
+	idFixture := entity.ID(101)
 	voFixture := &inventory.UpdateItemVO{
-		ID:   101,
 		Name: "new.name",
 	}
 
@@ -214,7 +214,7 @@ func (suite *ServiceImplTestSuite) TestUpdate_WhenDelegatesSucceed_ShouldReturnA
 	suite.mockRepository.On("Save", mockEntity).Return(nil, nil)
 
 	// Exercise SUT
-	err := suite.sut.Update(voFixture)
+	err := suite.sut.Update(idFixture, voFixture)
 
 	// Verify results
 	suite.NoError(err)

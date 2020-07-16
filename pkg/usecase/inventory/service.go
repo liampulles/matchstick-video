@@ -10,7 +10,7 @@ import (
 type Service interface {
 	Create(*CreateItemVO) (entity.InventoryItem, error)
 	Read(entity.ID) (entity.InventoryItem, error)
-	Update(*UpdateItemVO) error
+	Update(entity.ID, *UpdateItemVO) error
 	Delete(entity.ID) error
 
 	IsAvailable(entity.ID) (bool, error)
@@ -66,8 +66,8 @@ func (s *ServiceImpl) Read(id entity.ID) (entity.InventoryItem, error) {
 }
 
 // Update implements the Service interface
-func (s *ServiceImpl) Update(vo *UpdateItemVO) error {
-	found, err := s.inventoryRepository.FindByID(vo.ID)
+func (s *ServiceImpl) Update(id entity.ID, vo *UpdateItemVO) error {
+	found, err := s.inventoryRepository.FindByID(id)
 	if err != nil {
 		return fmt.Errorf("could not update inventory item - repository error: %w", err)
 	}
