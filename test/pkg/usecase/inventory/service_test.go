@@ -363,3 +363,79 @@ func (suite *ServiceImplTestSuite) TestCheckout_WhenDelegatesSucceed_ShouldRetur
 	// Verify results
 	suite.NoError(err)
 }
+
+func (suite *ServiceImplTestSuite) TestCheckIn_WhenRepositoryFindFails_ShouldFail() {
+	// Setup fixture
+	idFixture := entity.ID(101)
+
+	// Setup mocks
+	mockErr := fmt.Errorf("mock.error")
+	suite.mockRepository.On("FindByID", idFixture).Return(nil, mockErr)
+
+	// Setup expectations
+	expectedErr := "could not check in inventory item - repository error: mock.error"
+
+	// Exercise SUT
+	err := suite.sut.CheckIn(idFixture)
+
+	// Verify results
+	suite.EqualError(err, expectedErr)
+}
+
+func (suite *ServiceImplTestSuite) TestCheckIn_WhenEntityFails_ShouldFail() {
+	// Setup fixture
+	idFixture := entity.ID(101)
+
+	// Setup mocks
+	mockEntity := &entityMocks.InventoryItemMock{Data: "some.data"}
+	mockErr := fmt.Errorf("mock.error")
+	suite.mockRepository.On("FindByID", idFixture).Return(mockEntity, nil)
+	mockEntity.On("CheckIn").Return(mockErr)
+
+	// Setup expectations
+	expectedErr := "could not check in inventory item - entity error: mock.error"
+
+	// Exercise SUT
+	err := suite.sut.CheckIn(idFixture)
+
+	// Verify results
+	suite.EqualError(err, expectedErr)
+}
+
+func (suite *ServiceImplTestSuite) TestCheckIn_WhenRepositorySaveFails_ShouldFail() {
+	// Setup fixture
+	idFixture := entity.ID(101)
+
+	// Setup mocks
+	mockEntity := &entityMocks.InventoryItemMock{Data: "some.data"}
+	mockErr := fmt.Errorf("mock.error")
+	suite.mockRepository.On("FindByID", idFixture).Return(mockEntity, nil)
+	mockEntity.On("CheckIn").Return(nil)
+	suite.mockRepository.On("Save", mockEntity).Return(nil, mockErr)
+
+	// Setup expectations
+	expectedErr := "could not check in inventory item - repository error: mock.error"
+
+	// Exercise SUT
+	err := suite.sut.CheckIn(idFixture)
+
+	// Verify results
+	suite.EqualError(err, expectedErr)
+}
+
+func (suite *ServiceImplTestSuite) TestCheckIn_WhenDelegatesSucceed_ShouldReturnAsExpected() {
+	// Setup fixture
+	idFixture := entity.ID(101)
+
+	// Setup mocks
+	mockEntity := &entityMocks.InventoryItemMock{Data: "some.data"}
+	suite.mockRepository.On("FindByID", idFixture).Return(mockEntity, nil)
+	mockEntity.On("CheckIn").Return(nil)
+	suite.mockRepository.On("Save", mockEntity).Return(nil, nil)
+
+	// Exercise SUT
+	err := suite.sut.CheckIn(idFixture)
+
+	// Verify results
+	suite.NoError(err)
+}

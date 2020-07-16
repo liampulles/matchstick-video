@@ -13,8 +13,9 @@ type Service interface {
 	Update(*UpdateItemVO) error
 	Delete(entity.ID) error
 
-	IsAvailable(id entity.ID) (bool, error)
-	Checkout(id entity.ID) error
+	IsAvailable(entity.ID) (bool, error)
+	Checkout(entity.ID) error
+	CheckIn(entity.ID) error
 }
 
 // ServiceImpl implements Service
@@ -115,6 +116,25 @@ func (s *ServiceImpl) Checkout(id entity.ID) error {
 	_, err = s.inventoryRepository.Save(found)
 	if err != nil {
 		return fmt.Errorf("could not checkout inventory item - repository error: %w", err)
+	}
+	return nil
+}
+
+// CheckIn implements the Service interface
+func (s *ServiceImpl) CheckIn(id entity.ID) error {
+	found, err := s.inventoryRepository.FindByID(id)
+	if err != nil {
+		return fmt.Errorf("could not check in inventory item - repository error: %w", err)
+	}
+
+	err = found.CheckIn()
+	if err != nil {
+		return fmt.Errorf("could not check in inventory item - entity error: %w", err)
+	}
+
+	_, err = s.inventoryRepository.Save(found)
+	if err != nil {
+		return fmt.Errorf("could not check in inventory item - repository error: %w", err)
 	}
 	return nil
 }
