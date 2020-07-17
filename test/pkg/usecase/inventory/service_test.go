@@ -50,7 +50,7 @@ func (suite *ServiceImplTestSuite) TestCreate_WhenFactoryFails_ShouldFail() {
 	actual, err := suite.sut.Create(voFixture)
 
 	// Verify results
-	suite.Nil(actual)
+	suite.Equal(actual, entity.InvalidID)
 	suite.EqualError(err, expectedErr)
 }
 
@@ -64,7 +64,7 @@ func (suite *ServiceImplTestSuite) TestCreate_WhenRepositoryFails_ShouldFail() {
 	mockEntity := &entityMocks.InventoryItemMock{Data: "mock.data"}
 	mockErr := fmt.Errorf("mock.error")
 	suite.mockEntityFactory.On("CreateFromVO", voFixture).Return(mockEntity, nil)
-	suite.mockRepository.On("Save", mockEntity).Return(nil, mockErr)
+	suite.mockRepository.On("Create", mockEntity).Return(entity.InvalidID, mockErr)
 
 	// Setup expectations
 	expectedErr := "could not create inventory item - repository error: mock.error"
@@ -73,7 +73,7 @@ func (suite *ServiceImplTestSuite) TestCreate_WhenRepositoryFails_ShouldFail() {
 	actual, err := suite.sut.Create(voFixture)
 
 	// Verify results
-	suite.Nil(actual)
+	suite.Equal(actual, entity.InvalidID)
 	suite.EqualError(err, expectedErr)
 }
 
@@ -83,18 +83,20 @@ func (suite *ServiceImplTestSuite) TestCreate_WhenDelegatesSucceed_ShouldReturnE
 		Name: "some.name",
 	}
 
+	// Setup expectations
+	expected := entity.ID(101)
+
 	// Setup mocks
-	mockEntity1 := &entityMocks.InventoryItemMock{Data: "mock.data.1"}
-	mockEntity2 := &entityMocks.InventoryItemMock{Data: "mock.data.2"}
-	suite.mockEntityFactory.On("CreateFromVO", voFixture).Return(mockEntity1, nil)
-	suite.mockRepository.On("Save", mockEntity1).Return(mockEntity2, nil)
+	mockEntity := &entityMocks.InventoryItemMock{Data: "mock.data"}
+	suite.mockEntityFactory.On("CreateFromVO", voFixture).Return(mockEntity, nil)
+	suite.mockRepository.On("Create", mockEntity).Return(expected, nil)
 
 	// Exercise SUT
 	actual, err := suite.sut.Create(voFixture)
 
 	// Verify results
 	suite.NoError(err)
-	suite.Equal(actual, mockEntity2)
+	suite.Equal(actual, expected)
 }
 
 func (suite *ServiceImplTestSuite) TestRead_WhenRepositoryFails_ShouldFail() {
@@ -176,7 +178,7 @@ func (suite *ServiceImplTestSuite) TestUpdate_WhenModifierFails_ShouldFail() {
 	suite.EqualError(err, expectedErr)
 }
 
-func (suite *ServiceImplTestSuite) TestUpdate_WhenRepositorySaveFails_ShouldFail() {
+func (suite *ServiceImplTestSuite) TestUpdate_WhenRepositoryUpdateFails_ShouldFail() {
 	// Setup fixture
 	idFixture := entity.ID(101)
 	voFixture := &inventory.UpdateItemVO{
@@ -191,7 +193,7 @@ func (suite *ServiceImplTestSuite) TestUpdate_WhenRepositorySaveFails_ShouldFail
 	mockErr := fmt.Errorf("mock.error")
 	suite.mockRepository.On("FindByID", entity.ID(101)).Return(mockEntity, nil)
 	suite.mockEntityModifer.On("ModifyWithUpdateItemVO", mockEntity, voFixture).Return(nil)
-	suite.mockRepository.On("Save", mockEntity).Return(nil, mockErr)
+	suite.mockRepository.On("Update", mockEntity).Return(mockErr)
 
 	// Exercise SUT
 	err := suite.sut.Update(idFixture, voFixture)
@@ -211,7 +213,7 @@ func (suite *ServiceImplTestSuite) TestUpdate_WhenDelegatesSucceed_ShouldReturnA
 	mockEntity := &entityMocks.InventoryItemMock{Data: "mock.data"}
 	suite.mockRepository.On("FindByID", entity.ID(101)).Return(mockEntity, nil)
 	suite.mockEntityModifer.On("ModifyWithUpdateItemVO", mockEntity, voFixture).Return(nil)
-	suite.mockRepository.On("Save", mockEntity).Return(nil, nil)
+	suite.mockRepository.On("Update", mockEntity).Return(nil)
 
 	// Exercise SUT
 	err := suite.sut.Update(idFixture, voFixture)
@@ -326,7 +328,7 @@ func (suite *ServiceImplTestSuite) TestCheckout_WhenEntityFails_ShouldFail() {
 	suite.EqualError(err, expectedErr)
 }
 
-func (suite *ServiceImplTestSuite) TestCheckout_WhenRepositorySaveFails_ShouldFail() {
+func (suite *ServiceImplTestSuite) TestCheckout_WhenRepositoryUpdateFails_ShouldFail() {
 	// Setup fixture
 	idFixture := entity.ID(101)
 
@@ -335,7 +337,7 @@ func (suite *ServiceImplTestSuite) TestCheckout_WhenRepositorySaveFails_ShouldFa
 	mockErr := fmt.Errorf("mock.error")
 	suite.mockRepository.On("FindByID", idFixture).Return(mockEntity, nil)
 	mockEntity.On("Checkout").Return(nil)
-	suite.mockRepository.On("Save", mockEntity).Return(nil, mockErr)
+	suite.mockRepository.On("Update", mockEntity).Return(mockErr)
 
 	// Setup expectations
 	expectedErr := "could not checkout inventory item - repository error: mock.error"
@@ -355,7 +357,7 @@ func (suite *ServiceImplTestSuite) TestCheckout_WhenDelegatesSucceed_ShouldRetur
 	mockEntity1 := &entityMocks.InventoryItemMock{Data: "some.data.1"}
 	suite.mockRepository.On("FindByID", idFixture).Return(mockEntity1, nil)
 	mockEntity1.On("Checkout").Return(nil)
-	suite.mockRepository.On("Save", mockEntity1).Return(nil, nil)
+	suite.mockRepository.On("Update", mockEntity1).Return(nil)
 
 	// Exercise SUT
 	err := suite.sut.Checkout(idFixture)
@@ -402,7 +404,7 @@ func (suite *ServiceImplTestSuite) TestCheckIn_WhenEntityFails_ShouldFail() {
 	suite.EqualError(err, expectedErr)
 }
 
-func (suite *ServiceImplTestSuite) TestCheckIn_WhenRepositorySaveFails_ShouldFail() {
+func (suite *ServiceImplTestSuite) TestCheckIn_WhenRepositoryUpdateFails_ShouldFail() {
 	// Setup fixture
 	idFixture := entity.ID(101)
 
@@ -411,7 +413,7 @@ func (suite *ServiceImplTestSuite) TestCheckIn_WhenRepositorySaveFails_ShouldFai
 	mockErr := fmt.Errorf("mock.error")
 	suite.mockRepository.On("FindByID", idFixture).Return(mockEntity, nil)
 	mockEntity.On("CheckIn").Return(nil)
-	suite.mockRepository.On("Save", mockEntity).Return(nil, mockErr)
+	suite.mockRepository.On("Update", mockEntity).Return(mockErr)
 
 	// Setup expectations
 	expectedErr := "could not check in inventory item - repository error: mock.error"
@@ -431,7 +433,7 @@ func (suite *ServiceImplTestSuite) TestCheckIn_WhenDelegatesSucceed_ShouldReturn
 	mockEntity := &entityMocks.InventoryItemMock{Data: "some.data"}
 	suite.mockRepository.On("FindByID", idFixture).Return(mockEntity, nil)
 	mockEntity.On("CheckIn").Return(nil)
-	suite.mockRepository.On("Save", mockEntity).Return(nil, nil)
+	suite.mockRepository.On("Update", mockEntity).Return(nil)
 
 	// Exercise SUT
 	err := suite.sut.CheckIn(idFixture)

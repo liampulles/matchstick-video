@@ -7,7 +7,8 @@ import (
 // Repository handles persisting inventory entities
 // and retrieving persisted entities
 type Repository interface {
+	Create(entity.InventoryItem) (entity.ID, error)
 	FindByID(entity.ID) (entity.InventoryItem, error)
-	Save(entity.InventoryItem) (entity.InventoryItem, error)
+	Update(entity.InventoryItem) error
 	DeleteByID(entity.ID) error
 }

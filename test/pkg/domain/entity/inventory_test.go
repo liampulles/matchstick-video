@@ -11,7 +11,6 @@ import (
 func TestInventoryItem_ID_ShouldReturnID(t *testing.T) {
 	// Setup fixture
 	fixture := entity.TestInventoryItemImplConstructor(101, "", "", true)
-	fixture.InitID(101)
 
 	// Exercise SUT
 	actual := fixture.ID()
@@ -62,29 +61,6 @@ func TestInventoryItem_IsAvailable_TrueCase(t *testing.T) {
 
 	// Verify results
 	assert.True(t, actual)
-}
-
-func TestInventoryItem_InitID_WhenIDAlreadySet_ShouldFail(t *testing.T) {
-	// Setup fixture
-	fixture := entity.TestInventoryItemImplConstructor(101, "", "", true)
-
-	// Exercise SUT
-	err := fixture.InitID(102)
-
-	// Verify results
-	assert.Error(t, err)
-}
-
-func TestInventoryItem_InitID_WhenIDNotSet_ShouldPass(t *testing.T) {
-	// Setup fixture
-	fixture := entity.TestInventoryItemImplConstructor(entity.InvalidID, "", "", true)
-
-	// Exercise SUT
-	err := fixture.InitID(102)
-
-	// Verify results
-	assert.NoError(t, err)
-	assert.Equal(t, fixture.ID(), entity.ID(102))
 }
 
 func TestInventoryItem_Checkout_WhenUnavailable_ShouldFail(t *testing.T) {

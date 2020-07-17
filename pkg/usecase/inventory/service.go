@@ -8,7 +8,7 @@ import (
 
 // Service performs operations on inventories.
 type Service interface {
-	Create(*CreateItemVO) (entity.InventoryItem, error)
+	Create(*CreateItemVO) (entity.ID, error)
 	Read(entity.ID) (entity.InventoryItem, error)
 	Update(entity.ID, *UpdateItemVO) error
 	Delete(entity.ID) error
@@ -41,18 +41,18 @@ func NewServiceImpl(
 }
 
 // Create implements the Service interface
-func (s *ServiceImpl) Create(vo *CreateItemVO) (entity.InventoryItem, error) {
-	entity, err := s.entityFactory.CreateFromVO(vo)
+func (s *ServiceImpl) Create(vo *CreateItemVO) (entity.ID, error) {
+	e, err := s.entityFactory.CreateFromVO(vo)
 	if err != nil {
-		return nil, fmt.Errorf("could not create inventory item - factory error: %w", err)
+		return entity.InvalidID, fmt.Errorf("could not create inventory item - factory error: %w", err)
 	}
 
-	saved, err := s.inventoryRepository.Save(entity)
+	id, err := s.inventoryRepository.Create(e)
 	if err != nil {
-		return nil, fmt.Errorf("could not create inventory item - repository error: %w", err)
+		return entity.InvalidID, fmt.Errorf("could not create inventory item - repository error: %w", err)
 	}
 
-	return saved, nil
+	return id, nil
 }
 
 // Read implements the Service interface
@@ -76,7 +76,7 @@ func (s *ServiceImpl) Update(id entity.ID, vo *UpdateItemVO) error {
 		return fmt.Errorf("could not update inventory item - modifier error: %w", err)
 	}
 
-	_, err = s.inventoryRepository.Save(found)
+	err = s.inventoryRepository.Update(found)
 	if err != nil {
 		return fmt.Errorf("could not update inventory item - repository error: %w", err)
 	}
@@ -113,7 +113,7 @@ func (s *ServiceImpl) Checkout(id entity.ID) error {
 		return fmt.Errorf("could not checkout inventory item - entity error: %w", err)
 	}
 
-	_, err = s.inventoryRepository.Save(found)
+	err = s.inventoryRepository.Update(found)
 	if err != nil {
 		return fmt.Errorf("could not checkout inventory item - repository error: %w", err)
 	}
@@ -132,7 +132,7 @@ func (s *ServiceImpl) CheckIn(id entity.ID) error {
 		return fmt.Errorf("could not check in inventory item - entity error: %w", err)
 	}
 
-	_, err = s.inventoryRepository.Save(found)
+	err = s.inventoryRepository.Update(found)
 	if err != nil {
 		return fmt.Errorf("could not check in inventory item - repository error: %w", err)
 	}

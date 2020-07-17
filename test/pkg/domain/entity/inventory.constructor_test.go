@@ -35,3 +35,20 @@ func (suite *InventoryItemConstructorTestSuite) TestNewAvailable_ShouldCreateAva
 	suite.Equal(actual.Location(), locationFixture)
 	suite.True(actual.IsAvailable())
 }
+
+func (suite *InventoryItemConstructorTestSuite) TestReincarnate_ShouldCreateGivenEntity() {
+	// Setup fixture
+	idFixture := entity.ID(101)
+	nameFixture := "some.name"
+	locationFixture := "some.location"
+	availableFixture := true
+
+	// Exercise SUT
+	actual := suite.sut.Reincarnate(idFixture, nameFixture, locationFixture, availableFixture)
+
+	// Verify results
+	suite.Equal(actual.ID(), idFixture)
+	suite.Equal(actual.Name(), nameFixture)
+	suite.Equal(actual.Location(), locationFixture)
+	suite.True(actual.IsAvailable())
+}

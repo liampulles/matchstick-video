@@ -14,16 +14,22 @@ type MockRepository struct {
 
 var _ inventory.Repository = &MockRepository{}
 
+// Create is for mocking
+func (m *MockRepository) Create(e entity.InventoryItem) (entity.ID, error) {
+	args := m.Called(e)
+	return args.Get(0).(entity.ID), args.Error(1)
+}
+
 // FindByID is for mocking
 func (m *MockRepository) FindByID(id entity.ID) (entity.InventoryItem, error) {
 	args := m.Called(id)
 	return safeArgsGetInventoryItem(args, 0), args.Error(1)
 }
 
-// Save is for mocking
-func (m *MockRepository) Save(e entity.InventoryItem) (entity.InventoryItem, error) {
+// Update is for mocking
+func (m *MockRepository) Update(e entity.InventoryItem) error {
 	args := m.Called(e)
-	return safeArgsGetInventoryItem(args, 0), args.Error(1)
+	return args.Error(0)
 }
 
 // DeleteByID is for mocking

@@ -12,7 +12,6 @@ type InventoryItem interface {
 	Name() string
 	Location() string
 	IsAvailable() bool
-	InitID(ID) error
 	Checkout() error
 	CheckIn() error
 	ChangeName(string) error
@@ -67,17 +66,6 @@ func (i *InventoryItemImpl) Location() string {
 // be checked out - false otherwise.
 func (i *InventoryItemImpl) IsAvailable() bool {
 	return i.available
-}
-
-// InitID will allow the caller to set the ID - but only if
-// it has not already been set. Otherwise, an error is
-// returned.
-func (i *InventoryItemImpl) InitID(id ID) error {
-	if i.id != InvalidID {
-		return fmt.Errorf("could not init id - id has already been set [%d]", i.id)
-	}
-	i.id = id
-	return nil
 }
 
 // Checkout will mark the inventory item as unavilable.
