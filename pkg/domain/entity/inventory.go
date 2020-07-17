@@ -12,6 +12,7 @@ type InventoryItem interface {
 	Name() string
 	Location() string
 	IsAvailable() bool
+	InitID(ID) error
 	Checkout() error
 	CheckIn() error
 	ChangeName(string) error
@@ -29,25 +30,21 @@ type InventoryItemImpl struct {
 // Check interface is implemented
 var _ InventoryItem = &InventoryItemImpl{}
 
-// NewAvailableInventoryItem is a constructor
-func NewAvailableInventoryItem(id ID, name string, location string) *InventoryItemImpl {
-	base := newBaseInventoryItem(id, name, location)
-	base.available = true
-	return base
-}
+// TestInventoryItemImplConstructor allows you to
+// create an InventoryItemImpl, directly - bypassing
+// the constructor service. It should ONLY be used
+// in tests.
+func TestInventoryItemImplConstructor(
+	id ID,
+	name string,
+	location string,
+	available bool) *InventoryItemImpl {
 
-// NewUnavailableInventoryItem is a constructor
-func NewUnavailableInventoryItem(id ID, name string, location string) *InventoryItemImpl {
-	base := newBaseInventoryItem(id, name, location)
-	base.available = false
-	return base
-}
-
-func newBaseInventoryItem(id ID, name string, location string) *InventoryItemImpl {
 	return &InventoryItemImpl{
-		id:       id,
-		name:     name,
-		location: location,
+		id:        id,
+		name:      name,
+		location:  location,
+		available: available,
 	}
 }
 
@@ -70,6 +67,17 @@ func (i *InventoryItemImpl) Location() string {
 // be checked out - false otherwise.
 func (i *InventoryItemImpl) IsAvailable() bool {
 	return i.available
+}
+
+// InitID will allow the caller to set the ID - but only if
+// it has not already been set. Otherwise, an error is
+// returned.
+func (i *InventoryItemImpl) InitID(id ID) error {
+	if i.id != InvalidID {
+		return fmt.Errorf("could not init id - id has already been set [%d]", i.id)
+	}
+	i.id = id
+	return nil
 }
 
 // Checkout will mark the inventory item as unavilable.

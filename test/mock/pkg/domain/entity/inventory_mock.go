@@ -39,6 +39,12 @@ func (i *InventoryItemMock) IsAvailable() bool {
 	return args.Bool(0)
 }
 
+// InitID is for mocking
+func (i *InventoryItemMock) InitID(id entity.ID) error {
+	args := i.Called(id)
+	return args.Error(0)
+}
+
 // Checkout is for mocking
 func (i *InventoryItemMock) Checkout() error {
 	args := i.Called()

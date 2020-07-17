@@ -2,7 +2,8 @@ package inventory
 
 // CreateItemVO defines data needed to create an inventory item.
 type CreateItemVO struct {
-	Name string
+	Name     string
+	Location string
 }
 
 // UpdateItemVO defines data that may be used to update an inventory item.
