@@ -108,3 +108,89 @@ func TestInventoryItem_CheckIn_WhenUnavailable_ShouldPass(t *testing.T) {
 	assert.NoError(t, err)
 	assert.True(t, fixture.IsAvailable())
 }
+
+func TestInventoryItem_ChangeName_WhenGivenNameIsBlank_ShouldFail(t *testing.T) {
+	// Setup fixture
+	sut := entity.TestInventoryItemImplConstructor(101, "", "", true)
+	nameFixture := ""
+
+	// Setup expectations
+	expectedErr := "validation error: field=[name], problem=[must not be blank]"
+
+	// Exercise SUT
+	err := sut.ChangeName(nameFixture)
+
+	// Verify results
+	assert.EqualError(t, err, expectedErr)
+}
+
+func TestInventoryItem_ChangeName_WhenGivenNameIsNotTrimmed_ShouldFail(t *testing.T) {
+	// Setup fixture
+	sut := entity.TestInventoryItemImplConstructor(101, "", "", true)
+	nameFixture := " duck"
+
+	// Setup expectations
+	expectedErr := "validation error: field=[name], problem=[must not have whitespace at the beginning or the end]"
+
+	// Exercise SUT
+	err := sut.ChangeName(nameFixture)
+
+	// Verify results
+	assert.EqualError(t, err, expectedErr)
+}
+
+func TestInventoryItem_ChangeName_WhenGivenNamePassesValidation_ShouldChange(t *testing.T) {
+	// Setup fixture
+	sut := entity.TestInventoryItemImplConstructor(101, "", "", true)
+	nameFixture := "duck"
+
+	// Exercise SUT
+	err := sut.ChangeName(nameFixture)
+
+	// Verify results
+	assert.NoError(t, err)
+	assert.Equal(t, sut.Name(), nameFixture)
+}
+
+func TestInventoryItem_ChangeLocation_WhenGivenLocationIsBlank_ShouldFail(t *testing.T) {
+	// Setup fixture
+	sut := entity.TestInventoryItemImplConstructor(101, "", "", true)
+	locationFixture := ""
+
+	// Setup expectations
+	expectedErr := "validation error: field=[location], problem=[must not be blank]"
+
+	// Exercise SUT
+	err := sut.ChangeLocation(locationFixture)
+
+	// Verify results
+	assert.EqualError(t, err, expectedErr)
+}
+
+func TestInventoryItem_ChangeLocation_WhenGivenLocationIsNotTrimmed_ShouldFail(t *testing.T) {
+	// Setup fixture
+	sut := entity.TestInventoryItemImplConstructor(101, "", "", true)
+	locationFixture := " duck"
+
+	// Setup expectations
+	expectedErr := "validation error: field=[location], problem=[must not have whitespace at the beginning or the end]"
+
+	// Exercise SUT
+	err := sut.ChangeLocation(locationFixture)
+
+	// Verify results
+	assert.EqualError(t, err, expectedErr)
+}
+
+func TestInventoryItem_ChangeLocation_WhenGivenLocationPassesValidation_ShouldChange(t *testing.T) {
+	// Setup fixture
+	sut := entity.TestInventoryItemImplConstructor(101, "", "", true)
+	locationFixture := "duck"
+
+	// Exercise SUT
+	err := sut.ChangeLocation(locationFixture)
+
+	// Verify results
+	assert.NoError(t, err)
+	assert.Equal(t, sut.Location(), locationFixture)
+}

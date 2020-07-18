@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/liampulles/matchstick-video/pkg/domain/commonerror"
+	"github.com/liampulles/matchstick-video/pkg/domain/validation"
 )
 
 // InventoryItem defines a unique entity
@@ -94,12 +95,30 @@ func (i *InventoryItemImpl) CheckIn() error {
 // if it is valid. If it is not valid, it will return
 // an error
 func (i *InventoryItemImpl) ChangeName(name string) error {
-	return commonerror.NewNotImplemented("entity", "InventoryItemImpl", "ChangeName")
+	if err := validateStringField("name", name); err != nil {
+		return err
+	}
+	i.name = name
+	return nil
 }
 
 // ChangeLocation will change the location of the inventory item,
 // if it is valid. If it is not valid, it will return
 // an error
 func (i *InventoryItemImpl) ChangeLocation(location string) error {
-	return commonerror.NewNotImplemented("entity", "InventoryItemImpl", "ChangeLocation")
+	if err := validateStringField("location", location); err != nil {
+		return err
+	}
+	i.location = location
+	return nil
+}
+
+func validateStringField(field string, value string) error {
+	if validation.IsBlank(value) {
+		return commonerror.NewValidation(field, "must not be blank")
+	}
+	if !validation.IsTrimmed(value) {
+		return commonerror.NewValidation(field, "must not have whitespace at the beginning or the end")
+	}
+	return nil
 }
