@@ -8,12 +8,12 @@ import (
 	"github.com/liampulles/matchstick-video/pkg/domain/commonerror"
 )
 
-func TestNotImplementedError_Error_ShouldReturnCorrectMessage(t *testing.T) {
+func TestValidationError_Error_ShouldReturnCorrectMessage(t *testing.T) {
 	// Setup fixture
-	err := commonerror.NewNotImplemented("some.package", "some.struct", "some.method")
+	err := commonerror.NewValidation("some.field", "some.problem")
 
 	// Setup expectations
-	expected := "method not implemented for package=[some.package], struct=[some.struct], method=[some.method]"
+	expected := "validation error: field=[some.field], problem=[some.problem]"
 
 	// Verify results
 	assert.EqualError(t, err, expected)
