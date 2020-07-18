@@ -9,7 +9,29 @@ import (
 	"github.com/liampulles/matchstick-video/pkg/domain/validation"
 )
 
-func TestIsNotBlank_WhenStringIsBlank_ShouldReturnFalse(t *testing.T) {
+func TestIsBlank_WhenStringIsNotBlank_ShouldReturnFalse(t *testing.T) {
+	// Setup fixture
+	var fixtures = []string{
+		// Blank
+		"a",
+		" a",
+		"a ",
+		" a ",
+		"good boi",
+	}
+
+	for _, fixture := range fixtures {
+		t.Run(fmt.Sprintf("\"%s\"", fixture), func(t *testing.T) {
+			// Exercise SUT
+			actual := validation.IsBlank(fixture)
+
+			// Verify result
+			assert.False(t, actual)
+		})
+	}
+}
+
+func TestIsBlank_WhenStringIsBlank_ShouldReturnTrue(t *testing.T) {
 	// Setup fixture
 	var fixtures = []string{
 		"",
@@ -24,29 +46,7 @@ func TestIsNotBlank_WhenStringIsBlank_ShouldReturnFalse(t *testing.T) {
 	for _, fixture := range fixtures {
 		t.Run(fmt.Sprintf("\"%s\"", fixture), func(t *testing.T) {
 			// Exercise SUT
-			actual := validation.IsNotBlank(fixture)
-
-			// Verify result
-			assert.False(t, actual)
-		})
-	}
-}
-
-func TestIsNotBlank_WhenStringIsNotBlank_ShouldReturnTrue(t *testing.T) {
-	// Setup fixture
-	var fixtures = []string{
-		// Blank
-		"a",
-		" a",
-		"a ",
-		" a ",
-		"good boi",
-	}
-
-	for _, fixture := range fixtures {
-		t.Run(fmt.Sprintf("\"%s\"", fixture), func(t *testing.T) {
-			// Exercise SUT
-			actual := validation.IsNotBlank(fixture)
+			actual := validation.IsBlank(fixture)
 
 			// Verify result
 			assert.True(t, actual)
