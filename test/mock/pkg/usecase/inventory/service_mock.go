@@ -20,8 +20,8 @@ func (s *ServiceMock) Create(vo *inventory.CreateItemVO) (entity.ID, error) {
 	return args.Get(0).(entity.ID), args.Error(1)
 }
 
-// Read is for mocking
-func (s *ServiceMock) Read(id entity.ID) (entity.InventoryItem, error) {
+// ReadDetails is for mocking
+func (s *ServiceMock) ReadDetails(id entity.ID) (entity.InventoryItem, error) {
 	args := s.Called(id)
 	return safeArgsGetInventoryItem(args, 0), args.Error(1)
 }

@@ -70,8 +70,8 @@ func (i *InventoryControllerImpl) Create(
 	return i.responseFactory.CreateFromEntityID(201, id)
 }
 
-// Create can be called to create an inventory item
-func (i *InventoryControllerImpl) Read(
+// ReadDetails can be called to get details on an inventory item
+func (i *InventoryControllerImpl) ReadDetails(
 	pathParam map[string]string,
 	queryParam map[string]string,
 	body []byte,
@@ -81,7 +81,7 @@ func (i *InventoryControllerImpl) Read(
 		return i.responseFactory.CreateFromError(err)
 	}
 
-	e, err := i.inventoryService.Read(id)
+	e, err := i.inventoryService.ReadDetails(id)
 	if err != nil {
 		return i.responseFactory.CreateFromError(err)
 	}

@@ -99,7 +99,7 @@ func (suite *ServiceImplTestSuite) TestCreate_WhenDelegatesSucceed_ShouldReturnE
 	suite.Equal(actual, expected)
 }
 
-func (suite *ServiceImplTestSuite) TestRead_WhenRepositoryFails_ShouldFail() {
+func (suite *ServiceImplTestSuite) TestReadDetails_WhenRepositoryFails_ShouldFail() {
 	// Setup fixture
 	idFixture := entity.ID(101)
 
@@ -111,14 +111,14 @@ func (suite *ServiceImplTestSuite) TestRead_WhenRepositoryFails_ShouldFail() {
 	expectedErr := "could not read inventory item - repository error: mock.error"
 
 	// Exercise SUT
-	actual, err := suite.sut.Read(idFixture)
+	actual, err := suite.sut.ReadDetails(idFixture)
 
 	// Verify results
 	suite.Nil(actual)
 	suite.EqualError(err, expectedErr)
 }
 
-func (suite *ServiceImplTestSuite) TestRead_WhenDelegatesSucceed_ShouldReturnAsExpected() {
+func (suite *ServiceImplTestSuite) TestReadDetails_WhenDelegatesSucceed_ShouldReturnAsExpected() {
 	// Setup fixture
 	idFixture := entity.ID(101)
 
@@ -127,7 +127,7 @@ func (suite *ServiceImplTestSuite) TestRead_WhenDelegatesSucceed_ShouldReturnAsE
 	suite.mockRepository.On("FindByID", idFixture).Return(mockEntity, nil)
 
 	// Exercise SUT
-	actual, err := suite.sut.Read(idFixture)
+	actual, err := suite.sut.ReadDetails(idFixture)
 
 	// Verify results
 	suite.NoError(err)

@@ -9,7 +9,7 @@ import (
 // Service performs operations on inventories.
 type Service interface {
 	Create(*CreateItemVO) (entity.ID, error)
-	Read(entity.ID) (entity.InventoryItem, error)
+	ReadDetails(entity.ID) (entity.InventoryItem, error)
 	Update(entity.ID, *UpdateItemVO) error
 	Delete(entity.ID) error
 
@@ -55,8 +55,8 @@ func (s *ServiceImpl) Create(vo *CreateItemVO) (entity.ID, error) {
 	return id, nil
 }
 
-// Read implements the Service interface
-func (s *ServiceImpl) Read(id entity.ID) (entity.InventoryItem, error) {
+// ReadDetails implements the Service interface
+func (s *ServiceImpl) ReadDetails(id entity.ID) (entity.InventoryItem, error) {
 	found, err := s.inventoryRepository.FindByID(id)
 	if err != nil {
 		return nil, fmt.Errorf("could not read inventory item - repository error: %w", err)

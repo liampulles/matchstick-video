@@ -148,7 +148,7 @@ func (suite *InventoryControllerTestSuite) TestCreate_WhenInventoryServicePasses
 	suite.Equal(expected, actual)
 }
 
-func (suite *InventoryControllerTestSuite) TestRead_WhenParameterConverterFails_ShouldFail() {
+func (suite *InventoryControllerTestSuite) TestReadDetails_WhenParameterConverterFails_ShouldFail() {
 	// Setup fixture
 	pathParamFixture := map[string]string{"some": "param"}
 
@@ -166,13 +166,13 @@ func (suite *InventoryControllerTestSuite) TestRead_WhenParameterConverterFails_
 		Return(expected)
 
 	// Exercise SUT
-	actual := suite.sut.Read(pathParamFixture, nil, nil)
+	actual := suite.sut.ReadDetails(pathParamFixture, nil, nil)
 
 	// Verify results
 	suite.Equal(expected, actual)
 }
 
-func (suite *InventoryControllerTestSuite) TestRead_WhenInventoryServiceFails_ShouldFail() {
+func (suite *InventoryControllerTestSuite) TestReadDetails_WhenInventoryServiceFails_ShouldFail() {
 	// Setup fixture
 	pathParamFixture := map[string]string{"some": "param"}
 
@@ -187,19 +187,19 @@ func (suite *InventoryControllerTestSuite) TestRead_WhenInventoryServiceFails_Sh
 	mockID := entity.ID(101)
 	suite.mockParameterConverter.On("ToEntityID", pathParamFixture, "id").
 		Return(mockID, nil)
-	suite.mockInventoryService.On("Read", mockID).
+	suite.mockInventoryService.On("ReadDetails", mockID).
 		Return(nil, mockErr)
 	suite.mockResponseFactory.On("CreateFromError", mockErr).
 		Return(expected)
 
 	// Exercise SUT
-	actual := suite.sut.Read(pathParamFixture, nil, nil)
+	actual := suite.sut.ReadDetails(pathParamFixture, nil, nil)
 
 	// Verify results
 	suite.Equal(expected, actual)
 }
 
-func (suite *InventoryControllerTestSuite) TestRead_WhenEncoderServiceFails_ShouldFail() {
+func (suite *InventoryControllerTestSuite) TestReadDetails_WhenEncoderServiceFails_ShouldFail() {
 	// Setup fixture
 	pathParamFixture := map[string]string{"some": "param"}
 
@@ -216,7 +216,7 @@ func (suite *InventoryControllerTestSuite) TestRead_WhenEncoderServiceFails_Shou
 	mockView := &dto.InventoryItemView{Name: "some.name"}
 	suite.mockParameterConverter.On("ToEntityID", pathParamFixture, "id").
 		Return(mockID, nil)
-	suite.mockInventoryService.On("Read", mockID).
+	suite.mockInventoryService.On("ReadDetails", mockID).
 		Return(mockEntity, nil)
 	suite.mockDtoFactory.On("CreateInventoryItemViewFromEntity", mockEntity).
 		Return(mockView)
@@ -226,13 +226,13 @@ func (suite *InventoryControllerTestSuite) TestRead_WhenEncoderServiceFails_Shou
 		Return(expected)
 
 	// Exercise SUT
-	actual := suite.sut.Read(pathParamFixture, nil, nil)
+	actual := suite.sut.ReadDetails(pathParamFixture, nil, nil)
 
 	// Verify results
 	suite.Equal(expected, actual)
 }
 
-func (suite *InventoryControllerTestSuite) TestRead_WhenEncoderServicePasses_ShouldReturnAsExpected() {
+func (suite *InventoryControllerTestSuite) TestReadDetails_WhenEncoderServicePasses_ShouldReturnAsExpected() {
 	// Setup fixture
 	pathParamFixture := map[string]string{"some": "param"}
 
@@ -249,7 +249,7 @@ func (suite *InventoryControllerTestSuite) TestRead_WhenEncoderServicePasses_Sho
 	mockJson := []byte("some.json")
 	suite.mockParameterConverter.On("ToEntityID", pathParamFixture, "id").
 		Return(mockID, nil)
-	suite.mockInventoryService.On("Read", mockID).
+	suite.mockInventoryService.On("ReadDetails", mockID).
 		Return(mockEntity, nil)
 	suite.mockDtoFactory.On("CreateInventoryItemViewFromEntity", mockEntity).
 		Return(mockView)
@@ -259,7 +259,7 @@ func (suite *InventoryControllerTestSuite) TestRead_WhenEncoderServicePasses_Sho
 		Return(expected)
 
 	// Exercise SUT
-	actual := suite.sut.Read(pathParamFixture, nil, nil)
+	actual := suite.sut.ReadDetails(pathParamFixture, nil, nil)
 
 	// Verify results
 	suite.Equal(expected, actual)
