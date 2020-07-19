@@ -27,3 +27,16 @@ type HandlerPattern struct {
 type Controller interface {
 	GetHandlers() map[HandlerPattern]Handler
 }
+
+func addHandler(
+	handlers map[HandlerPattern]Handler,
+	method string,
+	pathPattern string,
+	handler Handler,
+) {
+	handlerPattern := HandlerPattern{
+		Method:      method,
+		PathPattern: pathPattern,
+	}
+	handlers[handlerPattern] = handler
+}
