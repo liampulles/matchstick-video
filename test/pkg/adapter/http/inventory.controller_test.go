@@ -3,7 +3,6 @@ package http_test
 import (
 	"fmt"
 	goHttp "net/http"
-	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -271,18 +270,13 @@ func (suite *InventoryControllerTestSuite) TestReadDetails_WhenEncoderServicePas
 
 // EqualKeys matches the keys of a map
 func equalKeys(expected, actual map[http.HandlerPattern]http.Handler) error {
-	expectedKeys := keys(expected)
-	actualKeys := keys(actual)
-	if !reflect.DeepEqual(expectedKeys, actualKeys) {
-		return fmt.Errorf("Key mismatch. Expected: %v, Actual: %v", expectedKeys, actualKeys)
+	if len(actual) != len(expected) {
+		return fmt.Errorf("Maps are different lengths. Expected: %d, Actual: %d", len(expected), len(actual))
+	}
+	for k := range expected {
+		if _, ok := actual[k]; !ok {
+			return fmt.Errorf("Key mismatch. Expected: %v, but was not in Actual.", k)
+		}
 	}
 	return nil
-}
-
-func keys(m map[http.HandlerPattern]http.Handler) []http.HandlerPattern {
-	result := make([]http.HandlerPattern, len(m))
-	for k := range m {
-		result = append(result, k)
-	}
-	return result
 }
