@@ -1,31 +1,30 @@
-package inventory
+package sql
 
 import (
 	goSql "database/sql"
 	"fmt"
 
-	"github.com/liampulles/matchstick-video/pkg/adapter/db/sql"
 	"github.com/liampulles/matchstick-video/pkg/domain/entity"
 	usecaseInventory "github.com/liampulles/matchstick-video/pkg/usecase/inventory"
 )
 
-// SQLRepositoryImpl implements Repository to make use
+// InventoryRepositoryImpl implements Repository to make use
 // of SQL databases which have an associated driver.
-type SQLRepositoryImpl struct {
+type InventoryRepositoryImpl struct {
 	db            *goSql.DB
-	helperService sql.HelperService
+	helperService HelperService
 	constructor   entity.InventoryItemConstructor
 }
 
-var _ usecaseInventory.Repository = &SQLRepositoryImpl{}
+var _ usecaseInventory.Repository = &InventoryRepositoryImpl{}
 
-// NewSQLRepositoryImpl is a constructor
-func NewSQLRepositoryImpl(
+// NewInventoryRepositoryImpl is a constructor
+func NewInventoryRepositoryImpl(
 	db *goSql.DB,
-	helperService sql.HelperService,
+	helperService HelperService,
 	constructor entity.InventoryItemConstructor,
-) *SQLRepositoryImpl {
-	return &SQLRepositoryImpl{
+) *InventoryRepositoryImpl {
+	return &InventoryRepositoryImpl{
 		db:            db,
 		helperService: helperService,
 		constructor:   constructor,
@@ -33,7 +32,7 @@ func NewSQLRepositoryImpl(
 }
 
 // FindByID implements the Repository interface
-func (s *SQLRepositoryImpl) FindByID(id entity.ID) (entity.InventoryItem, error) {
+func (s *InventoryRepositoryImpl) FindByID(id entity.ID) (entity.InventoryItem, error) {
 	query := `
 	SELECT 
 		id, 
@@ -47,7 +46,7 @@ func (s *SQLRepositoryImpl) FindByID(id entity.ID) (entity.InventoryItem, error)
 }
 
 // Create implements the Repository interface
-func (s *SQLRepositoryImpl) Create(e entity.InventoryItem) (entity.ID, error) {
+func (s *InventoryRepositoryImpl) Create(e entity.InventoryItem) (entity.ID, error) {
 	query := `
 	INSERT INTO inventory_item
 		(
@@ -69,7 +68,7 @@ func (s *SQLRepositoryImpl) Create(e entity.InventoryItem) (entity.ID, error) {
 }
 
 // DeleteByID implements the Repository interface
-func (s *SQLRepositoryImpl) DeleteByID(id entity.ID) error {
+func (s *InventoryRepositoryImpl) DeleteByID(id entity.ID) error {
 	query := `
 	DELETE FROM inventory_item
 	WHERE 
@@ -80,7 +79,7 @@ func (s *SQLRepositoryImpl) DeleteByID(id entity.ID) error {
 }
 
 // Update implements the Repository interface
-func (s *SQLRepositoryImpl) Update(e entity.InventoryItem) error {
+func (s *InventoryRepositoryImpl) Update(e entity.InventoryItem) error {
 	query := `
 	UPDATE inventory_item
 	SET
@@ -95,7 +94,7 @@ func (s *SQLRepositoryImpl) Update(e entity.InventoryItem) error {
 	)
 }
 
-func (s *SQLRepositoryImpl) singleEntityQuery(query string, args ...interface{}) (entity.InventoryItem, error) {
+func (s *InventoryRepositoryImpl) singleEntityQuery(query string, args ...interface{}) (entity.InventoryItem, error) {
 	row, err := s.helperService.SingleRowQuery(s.db, query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("cannot execute query - db get row error: %w", err)
@@ -108,7 +107,7 @@ func (s *SQLRepositoryImpl) singleEntityQuery(query string, args ...interface{})
 	return res, nil
 }
 
-func (s *SQLRepositoryImpl) scanInventoryItem(row sql.Row) (entity.InventoryItem, error) {
+func (s *InventoryRepositoryImpl) scanInventoryItem(row Row) (entity.InventoryItem, error) {
 	var id entity.ID
 	var name string
 	var location string
