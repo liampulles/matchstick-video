@@ -10,7 +10,7 @@ type Response struct {
 // Handler handles an HTTP request
 // and generates a response.
 type Handler func(
-	pathParam []string,
+	pathParam map[string]string,
 	queryParam map[string]string,
 	body []byte,
 ) *Response

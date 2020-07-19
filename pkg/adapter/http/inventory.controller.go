@@ -42,7 +42,7 @@ func (i *InventoryControllerImpl) GetHandlers() map[HandlerPattern]Handler {
 
 // Create can be called to create an inventory item
 func (i *InventoryControllerImpl) Create(
-	pathParam []string,
+	pathParam map[string]string,
 	queryParam map[string]string,
 	body []byte,
 ) *Response {
