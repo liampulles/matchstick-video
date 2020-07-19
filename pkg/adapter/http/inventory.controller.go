@@ -4,15 +4,19 @@ import (
 	"net/http"
 
 	"github.com/liampulles/matchstick-video/pkg/adapter/http/json"
+	"github.com/liampulles/matchstick-video/pkg/adapter/http/json/dto"
 	"github.com/liampulles/matchstick-video/pkg/usecase/inventory"
 )
 
 // InventoryControllerImpl defines controller methods
 // dealing with the inventory resource.
 type InventoryControllerImpl struct {
-	inventoryService inventory.Service
-	decoderService   json.DecoderService
-	responseFactory  ResponseFactory
+	inventoryService   inventory.Service
+	decoderService     json.DecoderService
+	encoderService     json.EncoderService
+	responseFactory    ResponseFactory
+	parameterConverter ParameterConverter
+	dtoFactory         dto.Factory
 }
 
 // Check we implement the interface
@@ -22,12 +26,19 @@ var _ Controller = &InventoryControllerImpl{}
 func NewInventoryControllerImpl(
 	inventoryService inventory.Service,
 	decoderService json.DecoderService,
+	encoderService json.EncoderService,
 	responseFactory ResponseFactory,
+	parameterConverter ParameterConverter,
+	dtoFactory dto.Factory,
 ) *InventoryControllerImpl {
+
 	return &InventoryControllerImpl{
-		inventoryService: inventoryService,
-		decoderService:   decoderService,
-		responseFactory:  responseFactory,
+		inventoryService:   inventoryService,
+		encoderService:     encoderService,
+		decoderService:     decoderService,
+		responseFactory:    responseFactory,
+		parameterConverter: parameterConverter,
+		dtoFactory:         dtoFactory,
 	}
 }
 
@@ -57,4 +68,30 @@ func (i *InventoryControllerImpl) Create(
 		return i.responseFactory.CreateFromError(err)
 	}
 	return i.responseFactory.CreateFromEntityID(201, id)
+}
+
+// Create can be called to create an inventory item
+func (i *InventoryControllerImpl) Read(
+	pathParam map[string]string,
+	queryParam map[string]string,
+	body []byte,
+) *Response {
+	id, err := i.parameterConverter.ToEntityID(pathParam, "id")
+	if err != nil {
+		return i.responseFactory.CreateFromError(err)
+	}
+
+	e, err := i.inventoryService.Read(id)
+	if err != nil {
+		return i.responseFactory.CreateFromError(err)
+	}
+
+	view := i.dtoFactory.CreateInventoryItemViewFromEntity(e)
+
+	json, err := i.encoderService.FromInventoryItemView(view)
+	if err != nil {
+		return i.responseFactory.CreateFromError(err)
+	}
+
+	return i.responseFactory.Create(200, json)
 }
