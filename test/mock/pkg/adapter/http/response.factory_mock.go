@@ -14,6 +14,12 @@ type ResponseFactoryMock struct {
 
 var _ http.ResponseFactory = &ResponseFactoryMock{}
 
+// Create is for mocking
+func (r *ResponseFactoryMock) Create(statusCode uint, body []byte) *http.Response {
+	args := r.Called(statusCode, body)
+	return args.Get(0).(*http.Response)
+}
+
 // CreateFromError is for mocking
 func (r *ResponseFactoryMock) CreateFromError(err error) *http.Response {
 	args := r.Called(err)
