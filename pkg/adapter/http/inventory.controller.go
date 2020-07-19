@@ -47,6 +47,7 @@ func (i *InventoryControllerImpl) GetHandlers() map[HandlerPattern]Handler {
 	handlers := make(map[HandlerPattern]Handler)
 
 	addHandler(handlers, http.MethodPost, "/inventory", i.Create)
+	addHandler(handlers, http.MethodGet, "/inventory/{id}", i.ReadDetails)
 
 	return handlers
 }

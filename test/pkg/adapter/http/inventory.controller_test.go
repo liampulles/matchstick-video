@@ -59,6 +59,10 @@ func (suite *InventoryControllerTestSuite) TestGetHandlers_ShouldReturnAllHandle
 			Method:      goHttp.MethodPost,
 			PathPattern: "/inventory",
 		}: suite.sut.Create,
+		http.HandlerPattern{
+			Method:      goHttp.MethodGet,
+			PathPattern: "/inventory/{id}",
+		}: suite.sut.ReadDetails,
 	}
 
 	// Exercise SUT
