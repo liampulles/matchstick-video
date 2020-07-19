@@ -1,7 +1,7 @@
-package adapter_test
+package sql_test
 
 import (
-	"database/sql"
+	goSql "database/sql"
 	"fmt"
 	"testing"
 
@@ -9,32 +9,32 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/liampulles/matchstick-video/pkg/adapter"
+	"github.com/liampulles/matchstick-video/pkg/adapter/db/sql"
 	"github.com/liampulles/matchstick-video/pkg/domain/entity"
 )
 
-type SQLDbHelperServiceTestSuite struct {
+type HelperServiceTestSuite struct {
 	suite.Suite
-	db     *sql.DB
+	db     *goSql.DB
 	mockDb sqlmock.Sqlmock
-	sut    *adapter.SQLDbHelperServiceImpl
+	sut    *sql.HelperServiceImpl
 }
 
-func TestSQLDbHelperServiceTestSuite(t *testing.T) {
-	suite.Run(t, new(SQLDbHelperServiceTestSuite))
+func TestHelperServiceTestSuite(t *testing.T) {
+	suite.Run(t, new(HelperServiceTestSuite))
 }
 
-func (suite *SQLDbHelperServiceTestSuite) SetupTest() {
+func (suite *HelperServiceTestSuite) SetupTest() {
 	db, mock, err := sqlmock.New()
 	if err != nil {
 		panic(err)
 	}
 	suite.db = db
 	suite.mockDb = mock
-	suite.sut = adapter.NewSQLDbHelperServiceImpl()
+	suite.sut = sql.NewHelperServiceImpl()
 }
 
-func (suite *SQLDbHelperServiceTestSuite) TestExecForError_WhenPrepareContextFails_ShouldFail() {
+func (suite *HelperServiceTestSuite) TestExecForError_WhenPrepareContextFails_ShouldFail() {
 	// Setup fixture
 	queryFixture := "some.query"
 	arg1Fixture := "arg.1"
@@ -55,7 +55,7 @@ func (suite *SQLDbHelperServiceTestSuite) TestExecForError_WhenPrepareContextFai
 	suite.EqualError(err, expectedErr)
 }
 
-func (suite *SQLDbHelperServiceTestSuite) TestExecForError_WhenExecContextFails_ShouldFail() {
+func (suite *HelperServiceTestSuite) TestExecForError_WhenExecContextFails_ShouldFail() {
 	// Setup fixture
 	queryFixture := "some.query"
 	arg1Fixture := "arg.1"
@@ -78,7 +78,7 @@ func (suite *SQLDbHelperServiceTestSuite) TestExecForError_WhenExecContextFails_
 	suite.EqualError(err, expectedErr)
 }
 
-func (suite *SQLDbHelperServiceTestSuite) TestExecForError_WhenExecContextPasses_ShouldReturnAsExpected() {
+func (suite *HelperServiceTestSuite) TestExecForError_WhenExecContextPasses_ShouldReturnAsExpected() {
 	// Setup fixture
 	queryFixture := "some.query"
 	arg1Fixture := "arg.1"
@@ -97,7 +97,7 @@ func (suite *SQLDbHelperServiceTestSuite) TestExecForError_WhenExecContextPasses
 	suite.NoError(err)
 }
 
-func (suite *SQLDbHelperServiceTestSuite) TestExecForID_WhenPrepareContextFails_ShouldFail() {
+func (suite *HelperServiceTestSuite) TestExecForID_WhenPrepareContextFails_ShouldFail() {
 	// Setup fixture
 	queryFixture := "some.query"
 	arg1Fixture := "arg.1"
@@ -119,7 +119,7 @@ func (suite *SQLDbHelperServiceTestSuite) TestExecForID_WhenPrepareContextFails_
 	suite.EqualError(err, expectedErr)
 }
 
-func (suite *SQLDbHelperServiceTestSuite) TestExecForID_WhenExecContextFails_ShouldFail() {
+func (suite *HelperServiceTestSuite) TestExecForID_WhenExecContextFails_ShouldFail() {
 	// Setup fixture
 	queryFixture := "some.query"
 	arg1Fixture := "arg.1"
@@ -143,7 +143,7 @@ func (suite *SQLDbHelperServiceTestSuite) TestExecForID_WhenExecContextFails_Sho
 	suite.EqualError(err, expectedErr)
 }
 
-func (suite *SQLDbHelperServiceTestSuite) TestExecForID_WhenLastInsertIdFails_ShouldFail() {
+func (suite *HelperServiceTestSuite) TestExecForID_WhenLastInsertIdFails_ShouldFail() {
 	// Setup fixture
 	queryFixture := "some.query"
 	arg1Fixture := "arg.1"
@@ -169,7 +169,7 @@ func (suite *SQLDbHelperServiceTestSuite) TestExecForID_WhenLastInsertIdFails_Sh
 	suite.EqualError(err, expectedErr)
 }
 
-func (suite *SQLDbHelperServiceTestSuite) TestExecForID_WhenLastInsertIdPasses_ShouldReturnAsExpected() {
+func (suite *HelperServiceTestSuite) TestExecForID_WhenLastInsertIdPasses_ShouldReturnAsExpected() {
 	// Setup fixture
 	queryFixture := "some.query"
 	arg1Fixture := "arg.1"
@@ -194,7 +194,7 @@ func (suite *SQLDbHelperServiceTestSuite) TestExecForID_WhenLastInsertIdPasses_S
 	suite.Equal(expectedId, actual)
 }
 
-func (suite *SQLDbHelperServiceTestSuite) TestSingleRowQuery_WhenPrepareContextFails_ShouldFail() {
+func (suite *HelperServiceTestSuite) TestSingleRowQuery_WhenPrepareContextFails_ShouldFail() {
 	// Setup fixture
 	queryFixture := "some.query"
 	arg1Fixture := "arg.1"
@@ -216,7 +216,7 @@ func (suite *SQLDbHelperServiceTestSuite) TestSingleRowQuery_WhenPrepareContextF
 	suite.EqualError(err, expectedErr)
 }
 
-func (suite *SQLDbHelperServiceTestSuite) TestSingleRowQuery_WhenQueryRowContextPasses_ShouldReturnAsExpected() {
+func (suite *HelperServiceTestSuite) TestSingleRowQuery_WhenQueryRowContextPasses_ShouldReturnAsExpected() {
 	// Setup fixture
 	queryFixture := "some.query"
 	arg1Fixture := "arg.1"
