@@ -1,6 +1,8 @@
 package mux
 
 import (
+	"github.com/gorilla/mux"
+
 	goHttp "net/http"
 
 	"github.com/stretchr/testify/mock"
@@ -16,9 +18,9 @@ type RouteMock struct {
 var _ muxDriver.Route = &RouteMock{}
 
 // Methods is for mocking
-func (r *RouteMock) Methods(methods ...string) muxDriver.Route {
+func (r *RouteMock) Methods(methods ...string) *mux.Route {
 	args := r.Called(methods)
-	return safeArgsGetRouteMock(args, 0)
+	return safeArgsGetMuxRoute(args, 0)
 }
 
 // RouterMock is for mocking
@@ -49,6 +51,13 @@ type WrapperMock struct {
 func (w *WrapperMock) NewRouter() muxDriver.Router {
 	args := w.Called()
 	return safeArgsGetRouterMock(args, 0)
+}
+
+func safeArgsGetMuxRoute(args mock.Arguments, idx int) *mux.Route {
+	if val, ok := args.Get(idx).(*mux.Route); ok {
+		return val
+	}
+	return nil
 }
 
 func safeArgsGetRouteMock(args mock.Arguments, idx int) *RouteMock {
