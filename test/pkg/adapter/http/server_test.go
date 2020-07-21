@@ -60,11 +60,7 @@ func (suite *ServerFactoryTestSuite) TestCreate_ShouldCreateRunnableFromHandlers
 	suite.Equal(data, "after")
 }
 
-func mockHandler(
-	pathParam map[string]string,
-	queryParam map[string]string,
-	body []byte,
-) *http.Response {
+func mockHandler(*http.Request) *http.Response {
 	return nil
 }
 

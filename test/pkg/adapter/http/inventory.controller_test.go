@@ -76,6 +76,9 @@ func (suite *InventoryControllerTestSuite) TestGetHandlers_ShouldReturnAllHandle
 func (suite *InventoryControllerTestSuite) TestCreate_WhenDecoderServiceFails_ShouldFail() {
 	// Setup fixture
 	bodyFixture := []byte("some.body")
+	requestFixture := &http.Request{
+		Body: bodyFixture,
+	}
 
 	// Setup expectations
 	expected := &http.Response{
@@ -91,7 +94,7 @@ func (suite *InventoryControllerTestSuite) TestCreate_WhenDecoderServiceFails_Sh
 		Return(expected)
 
 	// Exercise SUT
-	actual := suite.sut.Create(nil, nil, bodyFixture)
+	actual := suite.sut.Create(requestFixture)
 
 	// Verify results
 	suite.Equal(expected, actual)
@@ -100,6 +103,9 @@ func (suite *InventoryControllerTestSuite) TestCreate_WhenDecoderServiceFails_Sh
 func (suite *InventoryControllerTestSuite) TestCreate_WhenInventoryServiceFails_ShouldFail() {
 	// Setup fixture
 	bodyFixture := []byte("some.body")
+	requestFixture := &http.Request{
+		Body: bodyFixture,
+	}
 
 	// Setup expectations
 	expected := &http.Response{
@@ -118,7 +124,7 @@ func (suite *InventoryControllerTestSuite) TestCreate_WhenInventoryServiceFails_
 		Return(expected)
 
 	// Exercise SUT
-	actual := suite.sut.Create(nil, nil, bodyFixture)
+	actual := suite.sut.Create(requestFixture)
 
 	// Verify results
 	suite.Equal(expected, actual)
@@ -127,6 +133,9 @@ func (suite *InventoryControllerTestSuite) TestCreate_WhenInventoryServiceFails_
 func (suite *InventoryControllerTestSuite) TestCreate_WhenInventoryServicePasses_ShouldReturnEntityResponse() {
 	// Setup fixture
 	bodyFixture := []byte("some.body")
+	requestFixture := &http.Request{
+		Body: bodyFixture,
+	}
 
 	// Setup expectations
 	expected := &http.Response{
@@ -145,7 +154,7 @@ func (suite *InventoryControllerTestSuite) TestCreate_WhenInventoryServicePasses
 		Return(expected)
 
 	// Exercise SUT
-	actual := suite.sut.Create(nil, nil, bodyFixture)
+	actual := suite.sut.Create(requestFixture)
 
 	// Verify results
 	suite.Equal(expected, actual)
@@ -154,6 +163,9 @@ func (suite *InventoryControllerTestSuite) TestCreate_WhenInventoryServicePasses
 func (suite *InventoryControllerTestSuite) TestReadDetails_WhenParameterConverterFails_ShouldFail() {
 	// Setup fixture
 	pathParamFixture := map[string]string{"some": "param"}
+	requestFixture := &http.Request{
+		PathParam: pathParamFixture,
+	}
 
 	// Setup expectations
 	expected := &http.Response{
@@ -169,7 +181,7 @@ func (suite *InventoryControllerTestSuite) TestReadDetails_WhenParameterConverte
 		Return(expected)
 
 	// Exercise SUT
-	actual := suite.sut.ReadDetails(pathParamFixture, nil, nil)
+	actual := suite.sut.ReadDetails(requestFixture)
 
 	// Verify results
 	suite.Equal(expected, actual)
@@ -178,6 +190,9 @@ func (suite *InventoryControllerTestSuite) TestReadDetails_WhenParameterConverte
 func (suite *InventoryControllerTestSuite) TestReadDetails_WhenInventoryServiceFails_ShouldFail() {
 	// Setup fixture
 	pathParamFixture := map[string]string{"some": "param"}
+	requestFixture := &http.Request{
+		PathParam: pathParamFixture,
+	}
 
 	// Setup expectations
 	expected := &http.Response{
@@ -196,7 +211,7 @@ func (suite *InventoryControllerTestSuite) TestReadDetails_WhenInventoryServiceF
 		Return(expected)
 
 	// Exercise SUT
-	actual := suite.sut.ReadDetails(pathParamFixture, nil, nil)
+	actual := suite.sut.ReadDetails(requestFixture)
 
 	// Verify results
 	suite.Equal(expected, actual)
@@ -205,6 +220,9 @@ func (suite *InventoryControllerTestSuite) TestReadDetails_WhenInventoryServiceF
 func (suite *InventoryControllerTestSuite) TestReadDetails_WhenEncoderServiceFails_ShouldFail() {
 	// Setup fixture
 	pathParamFixture := map[string]string{"some": "param"}
+	requestFixture := &http.Request{
+		PathParam: pathParamFixture,
+	}
 
 	// Setup expectations
 	expected := &http.Response{
@@ -229,7 +247,7 @@ func (suite *InventoryControllerTestSuite) TestReadDetails_WhenEncoderServiceFai
 		Return(expected)
 
 	// Exercise SUT
-	actual := suite.sut.ReadDetails(pathParamFixture, nil, nil)
+	actual := suite.sut.ReadDetails(requestFixture)
 
 	// Verify results
 	suite.Equal(expected, actual)
@@ -238,6 +256,9 @@ func (suite *InventoryControllerTestSuite) TestReadDetails_WhenEncoderServiceFai
 func (suite *InventoryControllerTestSuite) TestReadDetails_WhenEncoderServicePasses_ShouldReturnAsExpected() {
 	// Setup fixture
 	pathParamFixture := map[string]string{"some": "param"}
+	requestFixture := &http.Request{
+		PathParam: pathParamFixture,
+	}
 
 	// Setup expectations
 	expected := &http.Response{
@@ -262,7 +283,7 @@ func (suite *InventoryControllerTestSuite) TestReadDetails_WhenEncoderServicePas
 		Return(expected)
 
 	// Exercise SUT
-	actual := suite.sut.ReadDetails(pathParamFixture, nil, nil)
+	actual := suite.sut.ReadDetails(requestFixture)
 
 	// Verify results
 	suite.Equal(expected, actual)

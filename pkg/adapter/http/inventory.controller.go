@@ -53,13 +53,9 @@ func (i *InventoryControllerImpl) GetHandlers() map[HandlerPattern]Handler {
 }
 
 // Create can be called to create an inventory item
-func (i *InventoryControllerImpl) Create(
-	pathParam map[string]string,
-	queryParam map[string]string,
-	body []byte,
-) *Response {
+func (i *InventoryControllerImpl) Create(request *Request) *Response {
 
-	vo, err := i.decoderService.ToInventoryCreateItemVo(body)
+	vo, err := i.decoderService.ToInventoryCreateItemVo(request.Body)
 	if err != nil {
 		return i.responseFactory.CreateFromError(err)
 	}
@@ -72,12 +68,8 @@ func (i *InventoryControllerImpl) Create(
 }
 
 // ReadDetails can be called to get details on an inventory item
-func (i *InventoryControllerImpl) ReadDetails(
-	pathParam map[string]string,
-	queryParam map[string]string,
-	body []byte,
-) *Response {
-	id, err := i.parameterConverter.ToEntityID(pathParam, "id")
+func (i *InventoryControllerImpl) ReadDetails(request *Request) *Response {
+	id, err := i.parameterConverter.ToEntityID(request.PathParam, "id")
 	if err != nil {
 		return i.responseFactory.CreateFromError(err)
 	}

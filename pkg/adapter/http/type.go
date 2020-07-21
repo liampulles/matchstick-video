@@ -1,5 +1,13 @@
 package http
 
+// Request defines everything a user can submit
+// via HTTP for us to process
+type Request struct {
+	PathParam  map[string]string
+	QueryParam map[string][]string
+	Body       []byte
+}
+
 // Response defines what we return after
 // a given HTTP request.
 type Response struct {
@@ -9,11 +17,7 @@ type Response struct {
 
 // Handler handles an HTTP request
 // and generates a response.
-type Handler func(
-	pathParam map[string]string,
-	queryParam map[string]string,
-	body []byte,
-) *Response
+type Handler func(*Request) *Response
 
 // HandlerPattern defines a unique set of HTTP
 // request properties which one can then map
