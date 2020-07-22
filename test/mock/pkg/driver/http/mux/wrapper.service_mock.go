@@ -47,10 +47,18 @@ type WrapperMock struct {
 	mock.Mock
 }
 
+var _ muxDriver.Wrapper = &WrapperMock{}
+
 // NewRouter is for mocking
 func (w *WrapperMock) NewRouter() muxDriver.Router {
 	args := w.Called()
 	return safeArgsGetRouterMock(args, 0)
+}
+
+// Vars is for mocking
+func (w *WrapperMock) Vars(req *goHttp.Request) map[string]string {
+	args := w.Called(req)
+	return args.Get(0).(map[string]string)
 }
 
 func safeArgsGetMuxRoute(args mock.Arguments, idx int) *mux.Route {

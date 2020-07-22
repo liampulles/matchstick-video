@@ -37,6 +37,7 @@ func (r *RouterImpl) ServeHTTP(res goHttp.ResponseWriter, req *goHttp.Request) {
 // Wrapper encapsulates mux methods
 type Wrapper interface {
 	NewRouter() Router
+	Vars(*goHttp.Request) map[string]string
 }
 
 // WrapperImpl implements Wrapper
@@ -54,4 +55,9 @@ func NewWrapperImpl() *WrapperImpl {
 func (w *WrapperImpl) NewRouter() Router {
 	router := mux.NewRouter()
 	return &RouterImpl{MuxRouter: router}
+}
+
+// Vars implements Wrapper
+func (w *WrapperImpl) Vars(req *goHttp.Request) map[string]string {
+	return mux.Vars(req)
 }

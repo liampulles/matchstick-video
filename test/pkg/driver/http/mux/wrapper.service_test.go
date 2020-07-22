@@ -56,6 +56,21 @@ func TestWrapperImpl_NewRouter_ShouldReturnRouterImplWrappingMuxRouter(t *testin
 	assert.Equal(t, expected, actual)
 }
 
+func TestWrapperImpl_Vars_GivenEmptyRequest_ShouldReturnNil(t *testing.T) {
+	// Setup fixture
+	requestFixture := &goHttp.Request{}
+	sut := mux.NewWrapperImpl()
+
+	// Setup expectations
+	expected := map[string]string(nil)
+
+	// Exercise SUT
+	actual := sut.Vars(requestFixture)
+
+	// Verify results
+	assert.Equal(t, expected, actual)
+}
+
 type testResponseWriter struct {
 	data string
 }
