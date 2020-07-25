@@ -29,7 +29,9 @@ func TestCreateServer_GivenInvalidConfig_ShouldFail(t *testing.T) {
 
 func TestCreateServer_GivenValidConfig_ShouldPass(t *testing.T) {
 	// Setup fixture
-	fixture := goConfig.MapSource(map[string]string{})
+	fixture := goConfig.MapSource(map[string]string{
+		"MIGRATION_SOURCE": "file://../../../migrations",
+	})
 
 	// Exercise SUT
 	actual, err := wire.CreateServer(fixture)

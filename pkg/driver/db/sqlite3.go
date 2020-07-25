@@ -9,14 +9,17 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4/database/sqlite3"
+
+	// Import file source in the background
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	// Import the SQLite3 driver in the background
 	_ "github.com/mattn/go-sqlite3"
 
 	"github.com/liampulles/matchstick-video/pkg/adapter/config"
 )
 
-// NewTempSQLite3DB create a new SQLite3 database in the
-// temp directory. It is effectively an embedded database.
 func newTempSQLite3DB(cfg config.Store) (*sql.DB, error) {
 	dbPath := tempDbPath()
 
@@ -26,6 +29,31 @@ func newTempSQLite3DB(cfg config.Store) (*sql.DB, error) {
 	}
 
 	return db, nil
+}
+
+func migrateSQLite3DB(cfg config.Store, sqlDB *sql.DB) error {
+	driver, err := sqlite3.WithInstance(sqlDB, &sqlite3.Config{})
+	if err != nil {
+		return fmt.Errorf("could not migrate sqlite3 db - driver error: %w", err)
+	}
+
+	source := cfg.GetMigrationSource()
+	m, err := migrate.NewWithDatabaseInstance(source, "sqlite3", driver)
+	if err != nil {
+		return fmt.Errorf("could not migrate sqlite3 db - migrate init error: %w", err)
+	}
+
+	if err = m.Up(); err != nil {
+		return fmt.Errorf("could not migrate sqlite3 db - up error: %w", err)
+	}
+
+	v, dirty, err := m.Version()
+	if err != nil {
+		return fmt.Errorf("could not migrate sqlite3 db - version error: %w", err)
+	}
+	fmt.Printf("DB Migration Version: %d. Dirty: %v\n", v, dirty)
+
+	return nil
 }
 
 func tempDbPath() string {

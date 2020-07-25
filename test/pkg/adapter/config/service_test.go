@@ -54,3 +54,31 @@ func TestStore_GetPort_ShouldReturnPort(t *testing.T) {
 	// Verify results
 	assert.Equal(t, 9001, actual)
 }
+
+func TestStore_GetDbDriver_ShouldReturnDbDriver(t *testing.T) {
+	// Setup fixture
+	fixture := goConfig.MapSource(map[string]string{
+		"DB_DRIVER": "some.driver",
+	})
+	sut, _ := config.NewStoreImpl(fixture)
+
+	// Exercise SUT
+	actual := sut.GetDbDriver()
+
+	// Verify results
+	assert.Equal(t, "some.driver", actual)
+}
+
+func TestStore_GetMigrationSource_ShouldReturnMigrationSource(t *testing.T) {
+	// Setup fixture
+	fixture := goConfig.MapSource(map[string]string{
+		"MIGRATION_SOURCE": "some.migration.source",
+	})
+	sut, _ := config.NewStoreImpl(fixture)
+
+	// Exercise SUT
+	actual := sut.GetMigrationSource()
+
+	// Verify results
+	assert.Equal(t, "some.migration.source", actual)
+}

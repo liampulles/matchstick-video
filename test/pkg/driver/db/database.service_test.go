@@ -27,6 +27,7 @@ func TestNewDatabaseServiceImpl_GivenSqlite3Driver_ShouldPass(t *testing.T) {
 	// Setup mocks
 	cfgMock := &configMocks.StoreMock{}
 	cfgMock.On("GetDbDriver").Return("sqlite3")
+	cfgMock.On("GetMigrationSource").Return("file://../../../../migrations")
 
 	// Exercise SUT
 	actual, err := db.NewDatabaseServiceImpl(cfgMock)
@@ -34,4 +35,5 @@ func TestNewDatabaseServiceImpl_GivenSqlite3Driver_ShouldPass(t *testing.T) {
 	// Verify results
 	assert.NotNil(t, actual)
 	assert.NoError(t, err)
+	assert.NotNil(t, actual.Get())
 }

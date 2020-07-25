@@ -10,10 +10,14 @@ import (
 
 type dbProvider struct {
 	constructor func(config.Store) (*goSql.DB, error)
+	migrator    func(config.Store, *goSql.DB) error
 }
 
 var dbProviders map[string]dbProvider = map[string]dbProvider{
-	"sqlite3": {constructor: newTempSQLite3DB},
+	"sqlite3": {
+		constructor: newTempSQLite3DB,
+		migrator:    migrateSQLite3DB,
+	},
 }
 
 // DatabaseServiceImpl implements DatabaseService
@@ -37,6 +41,11 @@ func NewDatabaseServiceImpl(configStore config.Store) (*DatabaseServiceImpl, err
 	db, err := provider.constructor(configStore)
 	if err != nil {
 		return nil, fmt.Errorf("could not create database service - could not init db: %w", err)
+	}
+
+	err = provider.migrator(configStore, db)
+	if err != nil {
+		return nil, fmt.Errorf("could not create database service - could not migrate db: %w", err)
 	}
 
 	return &DatabaseServiceImpl{
