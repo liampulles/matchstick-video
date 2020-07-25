@@ -1,6 +1,7 @@
 # Keep test at the top so that it is default when `make` is called.
 # This is used by Travis CI.
-coverage.txt:
+ci: clean coverage.txt
+coverage.txt: install
 	go test -race -coverprofile=coverage.txt -covermode=atomic -coverpkg=./pkg/...,./ ./...
 view-cover: clean coverage.txt
 	go tool cover -html=coverage.txt
