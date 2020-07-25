@@ -9,5 +9,5 @@ import (
 func main() {
 	// Delegate logic elsewhere, since we can't
 	// test this function.
-	os.Exit(wire.Run())
+	os.Exit(wire.CreateMain()())
 }
