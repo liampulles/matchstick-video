@@ -14,3 +14,9 @@ func (s *StoreMock) GetPort() int {
 	args := s.Called()
 	return args.Int(0)
 }
+
+// GetDbDriver is for mocking
+func (s *StoreMock) GetDbDriver() string {
+	args := s.Called()
+	return args.String(0)
+}

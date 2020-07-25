@@ -11,11 +11,13 @@ import (
 
 	// Import the SQLite3 driver in the background
 	_ "github.com/mattn/go-sqlite3"
+
+	"github.com/liampulles/matchstick-video/pkg/adapter/config"
 )
 
 // NewTempSQLite3DB create a new SQLite3 database in the
 // temp directory. It is effectively an embedded database.
-func NewTempSQLite3DB() (*sql.DB, error) {
+func newTempSQLite3DB(cfg config.Store) (*sql.DB, error) {
 	dbPath := tempDbPath()
 
 	db, err := sql.Open("sqlite3", dbPath)

@@ -17,8 +17,18 @@ import (
 // CreateServer injects all the dependencies needed to create
 // http.ServerFactory
 func CreateServer(source goConfig.Source) (http.ServerFactory, error) {
+	configStore, err := config.NewStoreImpl(
+		source,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	// --- NEXT TAP ---
 	helperService := sql.NewHelperServiceImpl()
-	sqlite3Db, err := db.NewTempSQLite3DB()
+	databaseService, err := db.NewDatabaseServiceImpl(
+		configStore,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -27,7 +37,7 @@ func CreateServer(source goConfig.Source) (http.ServerFactory, error) {
 
 	// --- NEXT TAP ---
 	inventoryRepository := sql.NewInventoryRepositoryImpl(
-		sqlite3Db,
+		databaseService,
 		helperService,
 		inventoryItemConstructor,
 	)
@@ -50,9 +60,6 @@ func CreateServer(source goConfig.Source) (http.ServerFactory, error) {
 	responseFactory := http.NewResponseFactoryImpl()
 	parameterConverter := http.NewParameterConverterImpl()
 	dtoFactory := dto.NewFactoryImpl()
-	configStore, err := config.NewStoreImpl(
-		source,
-	)
 	if err != nil {
 		return nil, err
 	}

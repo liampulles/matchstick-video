@@ -11,7 +11,7 @@ import (
 // InventoryRepositoryImpl implements Repository to make use
 // of SQL databases which have an associated driver.
 type InventoryRepositoryImpl struct {
-	db            *goSql.DB
+	dbService     DatabaseService
 	helperService HelperService
 	constructor   entity.InventoryItemConstructor
 }
@@ -20,12 +20,12 @@ var _ usecaseInventory.Repository = &InventoryRepositoryImpl{}
 
 // NewInventoryRepositoryImpl is a constructor
 func NewInventoryRepositoryImpl(
-	db *goSql.DB,
+	dbService DatabaseService,
 	helperService HelperService,
 	constructor entity.InventoryItemConstructor,
 ) *InventoryRepositoryImpl {
 	return &InventoryRepositoryImpl{
-		db:            db,
+		dbService:     dbService,
 		helperService: helperService,
 		constructor:   constructor,
 	}
@@ -60,7 +60,7 @@ func (s *InventoryRepositoryImpl) Create(e entity.InventoryItem) (entity.ID, err
 			@location, 
 			@available
 		);`
-	return s.helperService.ExecForID(s.db, query,
+	return s.helperService.ExecForID(s.dbService.Get(), query,
 		goSql.Named("name", e.Name()),
 		goSql.Named("location", e.Location()),
 		goSql.Named("available", e.IsAvailable()),
@@ -73,7 +73,7 @@ func (s *InventoryRepositoryImpl) DeleteByID(id entity.ID) error {
 	DELETE FROM inventory_item
 	WHERE 
 		id=@id;`
-	return s.helperService.ExecForError(s.db, query,
+	return s.helperService.ExecForError(s.dbService.Get(), query,
 		goSql.Named("id", id),
 	)
 }
@@ -86,7 +86,7 @@ func (s *InventoryRepositoryImpl) Update(e entity.InventoryItem) error {
 		name=@name, location=@location, available=@available
 	WHERE 
 		id=@id;`
-	return s.helperService.ExecForError(s.db, query,
+	return s.helperService.ExecForError(s.dbService.Get(), query,
 		goSql.Named("name", e.Name()),
 		goSql.Named("location", e.Location()),
 		goSql.Named("available", e.IsAvailable()),
@@ -95,7 +95,7 @@ func (s *InventoryRepositoryImpl) Update(e entity.InventoryItem) error {
 }
 
 func (s *InventoryRepositoryImpl) singleEntityQuery(query string, args ...interface{}) (entity.InventoryItem, error) {
-	row, err := s.helperService.SingleRowQuery(s.db, query, args...)
+	row, err := s.helperService.SingleRowQuery(s.dbService.Get(), query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("cannot execute query - db get row error: %w", err)
 	}
