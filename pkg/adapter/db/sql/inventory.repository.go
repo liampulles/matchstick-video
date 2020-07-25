@@ -16,6 +16,7 @@ type InventoryRepositoryImpl struct {
 	constructor   entity.InventoryItemConstructor
 }
 
+// Check we implement the interface
 var _ usecaseInventory.Repository = &InventoryRepositoryImpl{}
 
 // NewInventoryRepositoryImpl is a constructor
@@ -31,7 +32,7 @@ func NewInventoryRepositoryImpl(
 	}
 }
 
-// FindByID implements the Repository interface
+// FindByID finds an inventory item matching the given id
 func (s *InventoryRepositoryImpl) FindByID(id entity.ID) (entity.InventoryItem, error) {
 	query := `
 	SELECT 
@@ -45,7 +46,8 @@ func (s *InventoryRepositoryImpl) FindByID(id entity.ID) (entity.InventoryItem, 
 	return s.singleEntityQuery(query, goSql.Named("id", id))
 }
 
-// Create implements the Repository interface
+// Create persists a new entity. The ID is ignored in the input entity, and the
+// generated id is then returned.
 func (s *InventoryRepositoryImpl) Create(e entity.InventoryItem) (entity.ID, error) {
 	query := `
 	INSERT INTO inventory_item
@@ -67,7 +69,8 @@ func (s *InventoryRepositoryImpl) Create(e entity.InventoryItem) (entity.ID, err
 	)
 }
 
-// DeleteByID implements the Repository interface
+// DeleteByID deletes the inventory id matching the id. If there
+// isn't an entry corresponding to the id - an error is returned.
 func (s *InventoryRepositoryImpl) DeleteByID(id entity.ID) error {
 	query := `
 	DELETE FROM inventory_item
@@ -78,7 +81,8 @@ func (s *InventoryRepositoryImpl) DeleteByID(id entity.ID) error {
 	)
 }
 
-// Update implements the Repository interface
+// Update persists new data for all fields in the given inventory item,
+// excluding the id.
 func (s *InventoryRepositoryImpl) Update(e entity.InventoryItem) error {
 	query := `
 	UPDATE inventory_item
@@ -95,11 +99,13 @@ func (s *InventoryRepositoryImpl) Update(e entity.InventoryItem) error {
 }
 
 func (s *InventoryRepositoryImpl) singleEntityQuery(query string, args ...interface{}) (entity.InventoryItem, error) {
+	// Run the query to get a row
 	row, err := s.helperService.SingleRowQuery(s.dbService.Get(), query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("cannot execute query - db get row error: %w", err)
 	}
 
+	// Extract data from the row
 	res, err := s.scanInventoryItem(row)
 	if err != nil {
 		return nil, fmt.Errorf("cannot execute query - db scan error: %w", err)
@@ -113,10 +119,12 @@ func (s *InventoryRepositoryImpl) scanInventoryItem(row Row) (entity.InventoryIt
 	var location string
 	var available bool
 
+	// Extract data from the row
 	if err := row.Scan(&id, &name, &location, &available); err != nil {
 		return nil, err
 	}
 
+	// Restore the entity from the extracted data (bypassing validations).
 	result := s.constructor.Reincarnate(id, name, location, available)
 	return result, nil
 }

@@ -27,12 +27,14 @@ var _ Store = &StoreImpl{}
 // NewStoreImpl is a constructor
 func NewStoreImpl(source goConfig.Source) (*StoreImpl, error) {
 	typedSource := goConfig.NewTypedSource(source)
+	// Set defaults
 	store := &StoreImpl{
 		port:            8080,
 		dbDriver:        "sqlite3",
 		migrationSource: "file://migrations",
 	}
 
+	// Read in from source
 	if err := goConfig.LoadProperties(typedSource,
 		goConfig.IntProp("PORT", &store.port, false),
 		goConfig.StrProp("DB_DRIVER", &store.dbDriver, false),
@@ -44,17 +46,17 @@ func NewStoreImpl(source goConfig.Source) (*StoreImpl, error) {
 	return store, nil
 }
 
-// GetPort implements the store interface
+// GetPort returns the configured port for the server
 func (s *StoreImpl) GetPort() int {
 	return s.port
 }
 
-// GetDbDriver implements the store interface
+// GetDbDriver returns the set database driver
 func (s *StoreImpl) GetDbDriver() string {
 	return s.dbDriver
 }
 
-// GetMigrationSource implements the store interface
+// GetMigrationSource returns the source for database migrations to run
 func (s *StoreImpl) GetMigrationSource() string {
 	return s.migrationSource
 }

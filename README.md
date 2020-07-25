@@ -84,3 +84,5 @@ Please submit an issue with your proposal.
 ## License
 
 See [LICENSE](LICENSE)
+
+<div align="center"><img width="10000" src="wink.gif" alt="Animation of a woman winking."></div>
