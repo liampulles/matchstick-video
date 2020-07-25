@@ -64,7 +64,7 @@ func (suite *ResponseFactoryImplTestSuite) TestCreateFromError_WhenIsArbitraryEr
 
 	// Setup expectations
 	expected := &http.Response{
-		StatusCode: 501,
+		StatusCode: 500,
 		Body:       []byte("some.error"),
 	}
 

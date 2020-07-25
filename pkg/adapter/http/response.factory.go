@@ -41,7 +41,7 @@ func (r *ResponseFactoryImpl) CreateFromError(err error) *Response {
 	case *commonerror.Validation:
 		return r.create(400, v.Error())
 	default:
-		return r.create(501, v.Error())
+		return r.create(500, v.Error())
 	}
 }
 
