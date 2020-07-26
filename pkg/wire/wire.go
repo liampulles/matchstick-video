@@ -7,7 +7,6 @@ import (
 	"github.com/liampulles/matchstick-video/pkg/adapter/db/sql"
 	"github.com/liampulles/matchstick-video/pkg/adapter/http"
 	"github.com/liampulles/matchstick-video/pkg/adapter/http/json"
-	"github.com/liampulles/matchstick-video/pkg/adapter/http/json/dto"
 	"github.com/liampulles/matchstick-video/pkg/domain/entity"
 	"github.com/liampulles/matchstick-video/pkg/driver/db"
 	"github.com/liampulles/matchstick-video/pkg/driver/http/mux"
@@ -46,6 +45,7 @@ func CreateServer(source goConfig.Source) (http.ServerFactory, error) {
 		inventoryItemConstructor,
 	)
 	entityModifier := inventory.NewEntityModifierImpl()
+	voFactory := inventory.NewVOFactoryImpl()
 	ioMapper := mux.NewIOMapperImpl(
 		muxWrapper,
 	)
@@ -55,15 +55,12 @@ func CreateServer(source goConfig.Source) (http.ServerFactory, error) {
 		inventoryRepository,
 		entityFactory,
 		entityModifier,
+		voFactory,
 	)
 	decoderService := json.NewDecoderServiceImpl()
 	encoderService := json.NewEncoderServiceImpl()
 	responseFactory := http.NewResponseFactoryImpl()
 	parameterConverter := http.NewParameterConverterImpl()
-	dtoFactory := dto.NewFactoryImpl()
-	if err != nil {
-		return nil, err
-	}
 	handlerMapper := mux.NewHandlerMapperImpl(
 		ioMapper,
 	)
@@ -75,7 +72,6 @@ func CreateServer(source goConfig.Source) (http.ServerFactory, error) {
 		encoderService,
 		responseFactory,
 		parameterConverter,
-		dtoFactory,
 	)
 	serverConfiguration := mux.NewServerConfigurationImpl(
 		configStore,

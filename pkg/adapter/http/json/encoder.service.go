@@ -4,12 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/liampulles/matchstick-video/pkg/adapter/http/json/dto"
+	"github.com/liampulles/matchstick-video/pkg/domain/entity"
+	"github.com/liampulles/matchstick-video/pkg/usecase/inventory"
 )
 
 // EncoderService converts items to JSON
 type EncoderService interface {
-	FromInventoryItemView(*dto.InventoryItemView) ([]byte, error)
+	FromInventoryItemView(*inventory.ViewVO) ([]byte, error)
 }
 
 // EncoderServiceImpl implements EncoderService
@@ -23,9 +24,23 @@ func NewEncoderServiceImpl() *EncoderServiceImpl {
 	return &EncoderServiceImpl{}
 }
 
+type jsonViewVO struct {
+	ID        entity.ID `json:"id"`
+	Name      string    `json:"name"`
+	Location  string    `json:"location"`
+	Available bool      `json:"available"`
+}
+
 // FromInventoryItemView implements EncoderService
-func (e *EncoderServiceImpl) FromInventoryItemView(view *dto.InventoryItemView) ([]byte, error) {
-	bytes, err := json.Marshal(view)
+func (e *EncoderServiceImpl) FromInventoryItemView(view *inventory.ViewVO) ([]byte, error) {
+	intermediary := &jsonViewVO{
+		ID:        view.ID,
+		Name:      view.Name,
+		Location:  view.Location,
+		Available: view.Available,
+	}
+
+	bytes, err := json.Marshal(intermediary)
 	if err != nil {
 		return nil, fmt.Errorf("could not convert inventory item view to json - marshal error: %w", err)
 	}

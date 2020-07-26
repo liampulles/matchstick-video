@@ -4,7 +4,7 @@ import (
 	"github.com/stretchr/testify/mock"
 
 	"github.com/liampulles/matchstick-video/pkg/adapter/http/json"
-	"github.com/liampulles/matchstick-video/pkg/adapter/http/json/dto"
+	"github.com/liampulles/matchstick-video/pkg/usecase/inventory"
 )
 
 // EncoderServiceMock is for mocking
@@ -15,7 +15,7 @@ type EncoderServiceMock struct {
 var _ json.EncoderService = &EncoderServiceMock{}
 
 // FromInventoryItemView is for mocking
-func (d *EncoderServiceMock) FromInventoryItemView(view *dto.InventoryItemView) ([]byte, error) {
+func (d *EncoderServiceMock) FromInventoryItemView(view *inventory.ViewVO) ([]byte, error) {
 	args := d.Called(view)
 	return safeArgsGetBytes(args, 0), args.Error(1)
 }

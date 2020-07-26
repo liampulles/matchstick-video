@@ -9,12 +9,9 @@ import (
 
 	httpMocks "github.com/liampulles/matchstick-video/test/mock/pkg/adapter/http"
 	jsonMocks "github.com/liampulles/matchstick-video/test/mock/pkg/adapter/http/json"
-	dtoMocks "github.com/liampulles/matchstick-video/test/mock/pkg/adapter/http/json/dto"
-	entityMocks "github.com/liampulles/matchstick-video/test/mock/pkg/domain/entity"
 	inventoryMocks "github.com/liampulles/matchstick-video/test/mock/pkg/usecase/inventory"
 
 	"github.com/liampulles/matchstick-video/pkg/adapter/http"
-	"github.com/liampulles/matchstick-video/pkg/adapter/http/json/dto"
 	"github.com/liampulles/matchstick-video/pkg/domain/entity"
 	"github.com/liampulles/matchstick-video/pkg/usecase/inventory"
 )
@@ -26,7 +23,6 @@ type InventoryControllerTestSuite struct {
 	mockEncoderService     *jsonMocks.EncoderServiceMock
 	mockResponseFactory    *httpMocks.ResponseFactoryMock
 	mockParameterConverter *httpMocks.ParameterConverterMock
-	mockDtoFactory         *dtoMocks.FactoryMock
 	sut                    *http.InventoryControllerImpl
 }
 
@@ -40,14 +36,12 @@ func (suite *InventoryControllerTestSuite) SetupTest() {
 	suite.mockEncoderService = &jsonMocks.EncoderServiceMock{}
 	suite.mockResponseFactory = &httpMocks.ResponseFactoryMock{}
 	suite.mockParameterConverter = &httpMocks.ParameterConverterMock{}
-	suite.mockDtoFactory = &dtoMocks.FactoryMock{}
 	suite.sut = http.NewInventoryControllerImpl(
 		suite.mockInventoryService,
 		suite.mockDecoderService,
 		suite.mockEncoderService,
 		suite.mockResponseFactory,
 		suite.mockParameterConverter,
-		suite.mockDtoFactory,
 	)
 }
 
@@ -233,14 +227,11 @@ func (suite *InventoryControllerTestSuite) TestReadDetails_WhenEncoderServiceFai
 	// Setup mocks
 	mockErr := fmt.Errorf("mock.error")
 	mockID := entity.ID(101)
-	mockEntity := &entityMocks.InventoryItemMock{Data: "some.data"}
-	mockView := &dto.InventoryItemView{Name: "some.name"}
+	mockView := &inventory.ViewVO{Name: "some.name"}
 	suite.mockParameterConverter.On("ToEntityID", pathParamFixture, "id").
 		Return(mockID, nil)
 	suite.mockInventoryService.On("ReadDetails", mockID).
-		Return(mockEntity, nil)
-	suite.mockDtoFactory.On("CreateInventoryItemViewFromEntity", mockEntity).
-		Return(mockView)
+		Return(mockView, nil)
 	suite.mockEncoderService.On("FromInventoryItemView", mockView).
 		Return(nil, mockErr)
 	suite.mockResponseFactory.On("CreateFromError", mockErr).
@@ -268,15 +259,12 @@ func (suite *InventoryControllerTestSuite) TestReadDetails_WhenEncoderServicePas
 
 	// Setup mocks
 	mockID := entity.ID(101)
-	mockEntity := &entityMocks.InventoryItemMock{Data: "some.data"}
-	mockView := &dto.InventoryItemView{Name: "some.name"}
+	mockView := &inventory.ViewVO{Name: "some.name"}
 	mockJson := []byte("some.json")
 	suite.mockParameterConverter.On("ToEntityID", pathParamFixture, "id").
 		Return(mockID, nil)
 	suite.mockInventoryService.On("ReadDetails", mockID).
-		Return(mockEntity, nil)
-	suite.mockDtoFactory.On("CreateInventoryItemViewFromEntity", mockEntity).
-		Return(mockView)
+		Return(mockView, nil)
 	suite.mockEncoderService.On("FromInventoryItemView", mockView).
 		Return(mockJson, nil)
 	suite.mockResponseFactory.On("CreateJSON", uint(200), mockJson).

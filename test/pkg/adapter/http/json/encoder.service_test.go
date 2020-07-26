@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/liampulles/matchstick-video/pkg/adapter/http/json"
-	"github.com/liampulles/matchstick-video/pkg/adapter/http/json/dto"
+	"github.com/liampulles/matchstick-video/pkg/usecase/inventory"
 )
 
 type EncoderServiceImplTestSuite struct {
@@ -24,7 +24,7 @@ func (suite *EncoderServiceImplTestSuite) SetupTest() {
 
 func (suite *EncoderServiceImplTestSuite) TestFromInventoryItemView_WhenMarshalPasses_ShouldPass() {
 	// Setup fixture
-	fixture := &dto.InventoryItemView{
+	fixture := &inventory.ViewVO{
 		ID:        101,
 		Name:      "some.name",
 		Location:  "some.location",

@@ -15,10 +15,12 @@ import (
 
 type ServiceImplTestSuite struct {
 	suite.Suite
-	mockRepository    *inventoryMocks.MockRepository
-	mockEntityFactory *inventoryMocks.MockEntityFactory
-	mockEntityModifer *inventoryMocks.MockEntityModifier
-	sut               *inventory.ServiceImpl
+	// TODO: Make Mock struct names consistent
+	mockRepository     *inventoryMocks.MockRepository
+	mockEntityFactory  *inventoryMocks.MockEntityFactory
+	mockEntityModifier *inventoryMocks.MockEntityModifier
+	mockVoFactory      *inventoryMocks.VOFactoryMock
+	sut                *inventory.ServiceImpl
 }
 
 func TestServiceImplTestSuite(t *testing.T) {
@@ -28,9 +30,14 @@ func TestServiceImplTestSuite(t *testing.T) {
 func (suite *ServiceImplTestSuite) SetupTest() {
 	suite.mockRepository = &inventoryMocks.MockRepository{}
 	suite.mockEntityFactory = &inventoryMocks.MockEntityFactory{}
-	suite.mockEntityModifer = &inventoryMocks.MockEntityModifier{}
+	suite.mockEntityModifier = &inventoryMocks.MockEntityModifier{}
+	suite.mockVoFactory = &inventoryMocks.VOFactoryMock{}
 	suite.sut = inventory.NewServiceImpl(
-		suite.mockRepository, suite.mockEntityFactory, suite.mockEntityModifer)
+		suite.mockRepository,
+		suite.mockEntityFactory,
+		suite.mockEntityModifier,
+		suite.mockVoFactory,
+	)
 }
 
 func (suite *ServiceImplTestSuite) TestCreate_WhenFactoryFails_ShouldFail() {
@@ -122,16 +129,22 @@ func (suite *ServiceImplTestSuite) TestReadDetails_WhenDelegatesSucceed_ShouldRe
 	// Setup fixture
 	idFixture := entity.ID(101)
 
+	// Setup expectations
+	expected := &inventory.ViewVO{
+		Name: "some.name",
+	}
+
 	// Setup mocks
 	mockEntity := &entityMocks.InventoryItemMock{Data: "mock.data"}
 	suite.mockRepository.On("FindByID", idFixture).Return(mockEntity, nil)
+	suite.mockVoFactory.On("CreateViewVOFromEntity", mockEntity).Return(expected)
 
 	// Exercise SUT
 	actual, err := suite.sut.ReadDetails(idFixture)
 
 	// Verify results
 	suite.NoError(err)
-	suite.Equal(actual, mockEntity)
+	suite.Equal(actual, expected)
 }
 
 func (suite *ServiceImplTestSuite) TestUpdate_WhenRepositoryFindFails_ShouldFail() {
@@ -166,7 +179,7 @@ func (suite *ServiceImplTestSuite) TestUpdate_WhenModifierFails_ShouldFail() {
 	mockErr := fmt.Errorf("mock.error")
 	mockEntity := &entityMocks.InventoryItemMock{Data: "mock.data"}
 	suite.mockRepository.On("FindByID", entity.ID(101)).Return(mockEntity, nil)
-	suite.mockEntityModifer.On("ModifyWithUpdateItemVO", mockEntity, voFixture).Return(mockErr)
+	suite.mockEntityModifier.On("ModifyWithUpdateItemVO", mockEntity, voFixture).Return(mockErr)
 
 	// Setup expectations
 	expectedErr := "could not update inventory item - modifier error: mock.error"
@@ -192,7 +205,7 @@ func (suite *ServiceImplTestSuite) TestUpdate_WhenRepositoryUpdateFails_ShouldFa
 	mockEntity := &entityMocks.InventoryItemMock{Data: "mock.data"}
 	mockErr := fmt.Errorf("mock.error")
 	suite.mockRepository.On("FindByID", entity.ID(101)).Return(mockEntity, nil)
-	suite.mockEntityModifer.On("ModifyWithUpdateItemVO", mockEntity, voFixture).Return(nil)
+	suite.mockEntityModifier.On("ModifyWithUpdateItemVO", mockEntity, voFixture).Return(nil)
 	suite.mockRepository.On("Update", mockEntity).Return(mockErr)
 
 	// Exercise SUT
@@ -212,7 +225,7 @@ func (suite *ServiceImplTestSuite) TestUpdate_WhenDelegatesSucceed_ShouldReturnA
 	// Setup mocks
 	mockEntity := &entityMocks.InventoryItemMock{Data: "mock.data"}
 	suite.mockRepository.On("FindByID", entity.ID(101)).Return(mockEntity, nil)
-	suite.mockEntityModifer.On("ModifyWithUpdateItemVO", mockEntity, voFixture).Return(nil)
+	suite.mockEntityModifier.On("ModifyWithUpdateItemVO", mockEntity, voFixture).Return(nil)
 	suite.mockRepository.On("Update", mockEntity).Return(nil)
 
 	// Exercise SUT

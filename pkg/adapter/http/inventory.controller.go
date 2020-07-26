@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/liampulles/matchstick-video/pkg/adapter/http/json"
-	"github.com/liampulles/matchstick-video/pkg/adapter/http/json/dto"
 	"github.com/liampulles/matchstick-video/pkg/usecase/inventory"
 )
 
@@ -16,7 +15,6 @@ type InventoryControllerImpl struct {
 	encoderService     json.EncoderService
 	responseFactory    ResponseFactory
 	parameterConverter ParameterConverter
-	dtoFactory         dto.Factory
 }
 
 // Check we implement the interface
@@ -29,7 +27,6 @@ func NewInventoryControllerImpl(
 	encoderService json.EncoderService,
 	responseFactory ResponseFactory,
 	parameterConverter ParameterConverter,
-	dtoFactory dto.Factory,
 ) *InventoryControllerImpl {
 
 	return &InventoryControllerImpl{
@@ -38,7 +35,6 @@ func NewInventoryControllerImpl(
 		decoderService:     decoderService,
 		responseFactory:    responseFactory,
 		parameterConverter: parameterConverter,
-		dtoFactory:         dtoFactory,
 	}
 }
 
@@ -79,16 +75,13 @@ func (i *InventoryControllerImpl) ReadDetails(request *Request) *Response {
 	}
 
 	// Delegate to service
-	e, err := i.inventoryService.ReadDetails(id)
+	vo, err := i.inventoryService.ReadDetails(id)
 	if err != nil {
 		return i.responseFactory.CreateFromError(err)
 	}
 
-	// Create DTO
-	view := i.dtoFactory.CreateInventoryItemViewFromEntity(e)
-
 	// Encode to JSON
-	json, err := i.encoderService.FromInventoryItemView(view)
+	json, err := i.encoderService.FromInventoryItemView(vo)
 	if err != nil {
 		return i.responseFactory.CreateFromError(err)
 	}

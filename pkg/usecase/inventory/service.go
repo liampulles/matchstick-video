@@ -9,7 +9,7 @@ import (
 // Service performs operations on inventories.
 type Service interface {
 	Create(*CreateItemVO) (entity.ID, error)
-	ReadDetails(entity.ID) (entity.InventoryItem, error)
+	ReadDetails(entity.ID) (*ViewVO, error)
 	Update(entity.ID, *UpdateItemVO) error
 	Delete(entity.ID) error
 
@@ -23,6 +23,7 @@ type ServiceImpl struct {
 	inventoryRepository Repository
 	entityFactory       EntityFactory
 	entityModifier      EntityModifier
+	voFactory           VOFactory
 }
 
 // Make sure ServiceImpl implements Service!
@@ -32,11 +33,13 @@ var _ Service = &ServiceImpl{}
 func NewServiceImpl(
 	inventoryRepository Repository,
 	entityFactory EntityFactory,
-	entityModifier EntityModifier) *ServiceImpl {
+	entityModifier EntityModifier,
+	voFactory VOFactory) *ServiceImpl {
 	return &ServiceImpl{
 		inventoryRepository: inventoryRepository,
 		entityFactory:       entityFactory,
 		entityModifier:      entityModifier,
+		voFactory:           voFactory,
 	}
 }
 
@@ -58,13 +61,18 @@ func (s *ServiceImpl) Create(vo *CreateItemVO) (entity.ID, error) {
 }
 
 // ReadDetails implements the Service interface
-func (s *ServiceImpl) ReadDetails(id entity.ID) (entity.InventoryItem, error) {
+// TODO: Improve comments like the above
+func (s *ServiceImpl) ReadDetails(id entity.ID) (*ViewVO, error) {
+	// Retrieve entity
 	found, err := s.inventoryRepository.FindByID(id)
 	if err != nil {
 		return nil, fmt.Errorf("could not read inventory item - repository error: %w", err)
 	}
 
-	return found, nil
+	// Create VO
+	vo := s.voFactory.CreateViewVOFromEntity(found)
+
+	return vo, nil
 }
 
 // Update implements the Service interface
