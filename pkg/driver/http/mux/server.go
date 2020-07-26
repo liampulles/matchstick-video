@@ -34,10 +34,10 @@ func NewServerConfigurationImpl(
 }
 
 // CreateRunnable implements ServerConfiguration
-func (m *ServerConfigurationImpl) CreateRunnable(
-	handlers map[http.HandlerPattern]http.Handler) domain.Runnable {
+func (m *ServerConfigurationImpl) CreateRunnable(handlers map[http.HandlerPattern]http.Handler) domain.Runnable {
 
 	r := m.muxWrapper.NewRouter()
+	// Register each handler with mux
 	for pattern, handler := range handlers {
 		method := pattern.Method
 		pathPattern := pattern.PathPattern
@@ -48,9 +48,11 @@ func (m *ServerConfigurationImpl) CreateRunnable(
 			Methods(method)
 	}
 
+	// Create a server configuration
 	port := m.getPort()
 	server := goHttp.Server{Addr: port, Handler: r}
 
+	// Run the server!
 	return server.ListenAndServe
 }
 

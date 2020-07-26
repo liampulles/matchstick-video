@@ -21,6 +21,7 @@ func CreateMain() MainFunc {
 	}
 	app := server.Create()
 	return func() int {
+		// This is effectively the main function.
 		fmt.Println("Now serving...")
 		err = app()
 		if err != nil {

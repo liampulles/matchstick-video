@@ -32,21 +32,25 @@ func newTempSQLite3DB(cfg config.Store) (*sql.DB, error) {
 }
 
 func migrateSQLite3DB(cfg config.Store, sqlDB *sql.DB) error {
+	// Get migration driver
 	driver, err := sqlite3.WithInstance(sqlDB, &sqlite3.Config{})
 	if err != nil {
 		return fmt.Errorf("could not migrate sqlite3 db - driver error: %w", err)
 	}
 
+	// Get migration instance
 	source := cfg.GetMigrationSource()
 	m, err := migrate.NewWithDatabaseInstance(source, "sqlite3", driver)
 	if err != nil {
 		return fmt.Errorf("could not migrate sqlite3 db - migrate init error: %w", err)
 	}
 
+	// Run migrations
 	if err = m.Up(); err != nil {
 		return fmt.Errorf("could not migrate sqlite3 db - up error: %w", err)
 	}
 
+	// Display post-migration status
 	v, dirty, err := m.Version()
 	if err != nil {
 		return fmt.Errorf("could not migrate sqlite3 db - version error: %w", err)

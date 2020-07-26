@@ -40,6 +40,8 @@ func (r *ResponseFactoryImpl) CreateFromError(err error) *Response {
 	// TODO: Add your specific error handlers for controllers here.
 	case *commonerror.Validation:
 		return r.create(400, v.Error())
+	case *commonerror.NotImplemented:
+		return r.create(501, v.Error())
 	default:
 		return r.create(500, v.Error())
 	}

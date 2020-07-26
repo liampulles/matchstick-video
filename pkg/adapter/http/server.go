@@ -6,7 +6,7 @@ import (
 
 // ServerConfiguration encapsulates the specifics of
 // a given HTTP server implementation. Implementations
-// cna be found in the driver layer.
+// can be found in the driver layer.
 type ServerConfiguration interface {
 	CreateRunnable(handlers map[HandlerPattern]Handler) domain.Runnable
 }

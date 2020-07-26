@@ -58,6 +58,23 @@ func (suite *ResponseFactoryImplTestSuite) TestCreateFromError_WhenIsValidationE
 	suite.Equal(expected, actual)
 }
 
+func (suite *ResponseFactoryImplTestSuite) TestCreateFromError_WhenIsNotImplementedError_ShouldReturnNotImplemented() {
+	// Setup fixture
+	fixture := commonerror.NewNotImplemented("some.package", "some.struct", "some.method")
+
+	// Setup expectations
+	expected := &http.Response{
+		StatusCode: 501,
+		Body:       []byte("method not implemented for package=[some.package], struct=[some.struct], method=[some.method]"),
+	}
+
+	// Exercise SUT
+	actual := suite.sut.CreateFromError(fixture)
+
+	// Verify results
+	suite.Equal(expected, actual)
+}
+
 func (suite *ResponseFactoryImplTestSuite) TestCreateFromError_WhenIsArbitraryError_ShouldReturnInternalServerError() {
 	// Setup fixture
 	fixture := fmt.Errorf("some.error")

@@ -29,6 +29,7 @@ var _ sql.DatabaseService = &DatabaseServiceImpl{}
 
 // NewDatabaseServiceImpl is a constructor
 func NewDatabaseServiceImpl(configStore config.Store) (*DatabaseServiceImpl, error) {
+	// Select configured provider
 	driverSelection := configStore.GetDbDriver()
 	provider, ok := dbProviders[driverSelection]
 	if !ok {
@@ -38,16 +39,19 @@ func NewDatabaseServiceImpl(configStore config.Store) (*DatabaseServiceImpl, err
 		)
 	}
 
+	// Bring up DB
 	db, err := provider.constructor(configStore)
 	if err != nil {
 		return nil, fmt.Errorf("could not create database service - could not init db: %w", err)
 	}
 
+	// Perform migrations
 	err = provider.migrator(configStore, db)
 	if err != nil {
 		return nil, fmt.Errorf("could not create database service - could not migrate db: %w", err)
 	}
 
+	// Return ready-to-use DB
 	return &DatabaseServiceImpl{
 		sqlDB: db,
 	}, nil

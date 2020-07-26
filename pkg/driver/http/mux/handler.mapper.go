@@ -31,14 +31,17 @@ func NewHandlerMapperImpl(ioMapper IOMapper) *HandlerMapperImpl {
 // Map implements HandlerMapper
 func (h *HandlerMapperImpl) Map(handler http.Handler) Handler {
 	return func(res goHttp.ResponseWriter, req *goHttp.Request) {
+		// Convert go request to adapter request
 		adapterReq, err := h.ioMapper.MapRequest(req)
 		if err != nil {
 			badRequest(res, err)
 			return
 		}
 
+		// Run handler
 		adapterRes := handler(adapterReq)
 
+		// Convert adapter response to go response
 		h.ioMapper.MapResponse(adapterRes, res)
 	}
 }

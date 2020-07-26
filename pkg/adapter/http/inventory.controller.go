@@ -54,37 +54,45 @@ func (i *InventoryControllerImpl) GetHandlers() map[HandlerPattern]Handler {
 
 // Create can be called to create an inventory item
 func (i *InventoryControllerImpl) Create(request *Request) *Response {
-
+	// Decode JSON request
 	vo, err := i.decoderService.ToInventoryCreateItemVo(request.Body)
 	if err != nil {
 		return i.responseFactory.CreateFromError(err)
 	}
 
+	// Delegate to service
 	id, err := i.inventoryService.Create(vo)
 	if err != nil {
 		return i.responseFactory.CreateFromError(err)
 	}
+
+	// Create response
 	return i.responseFactory.CreateFromEntityID(201, id)
 }
 
 // ReadDetails can be called to get details on an inventory item
 func (i *InventoryControllerImpl) ReadDetails(request *Request) *Response {
+	// Extract ID from path params
 	id, err := i.parameterConverter.ToEntityID(request.PathParam, "id")
 	if err != nil {
 		return i.responseFactory.CreateFromError(err)
 	}
 
+	// Delegate to service
 	e, err := i.inventoryService.ReadDetails(id)
 	if err != nil {
 		return i.responseFactory.CreateFromError(err)
 	}
 
+	// Create DTO
 	view := i.dtoFactory.CreateInventoryItemViewFromEntity(e)
 
+	// Encode to JSON
 	json, err := i.encoderService.FromInventoryItemView(view)
 	if err != nil {
 		return i.responseFactory.CreateFromError(err)
 	}
 
+	// Create response
 	return i.responseFactory.Create(200, json)
 }

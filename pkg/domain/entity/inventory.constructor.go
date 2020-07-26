@@ -34,6 +34,7 @@ func (i *InventoryItemConstructorImpl) NewAvailable(name string, location string
 }
 
 func newBaseInventoryItem(name string, location string) *InventoryItemImpl {
+	// TODO: Use validation methods
 	return &InventoryItemImpl{
 		id:       InvalidID,
 		name:     name,

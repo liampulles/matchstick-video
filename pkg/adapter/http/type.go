@@ -11,6 +11,7 @@ type Request struct {
 // Response defines what we return after
 // a given HTTP request.
 type Response struct {
+	// TODO: include content-type
 	StatusCode uint
 	Body       []byte
 }

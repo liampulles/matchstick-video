@@ -42,11 +42,13 @@ func NewServiceImpl(
 
 // Create implements the Service interface
 func (s *ServiceImpl) Create(vo *CreateItemVO) (entity.ID, error) {
+	// Create new entity
 	e, err := s.entityFactory.CreateFromVO(vo)
 	if err != nil {
 		return entity.InvalidID, fmt.Errorf("could not create inventory item - factory error: %w", err)
 	}
 
+	// Persist it
 	id, err := s.inventoryRepository.Create(e)
 	if err != nil {
 		return entity.InvalidID, fmt.Errorf("could not create inventory item - repository error: %w", err)
@@ -67,15 +69,18 @@ func (s *ServiceImpl) ReadDetails(id entity.ID) (entity.InventoryItem, error) {
 
 // Update implements the Service interface
 func (s *ServiceImpl) Update(id entity.ID, vo *UpdateItemVO) error {
+	// Retrieve entity
 	found, err := s.inventoryRepository.FindByID(id)
 	if err != nil {
 		return fmt.Errorf("could not update inventory item - repository error: %w", err)
 	}
 
+	// Modify it
 	if err := s.entityModifier.ModifyWithUpdateItemVO(found, vo); err != nil {
 		return fmt.Errorf("could not update inventory item - modifier error: %w", err)
 	}
 
+	// Persist it
 	err = s.inventoryRepository.Update(found)
 	if err != nil {
 		return fmt.Errorf("could not update inventory item - repository error: %w", err)
@@ -103,16 +108,19 @@ func (s *ServiceImpl) IsAvailable(id entity.ID) (bool, error) {
 
 // Checkout implements the Service interface
 func (s *ServiceImpl) Checkout(id entity.ID) error {
+	// Retrieve entity
 	found, err := s.inventoryRepository.FindByID(id)
 	if err != nil {
 		return fmt.Errorf("could not checkout inventory item - repository error: %w", err)
 	}
 
+	// Checkout the entity
 	err = found.Checkout()
 	if err != nil {
 		return fmt.Errorf("could not checkout inventory item - entity error: %w", err)
 	}
 
+	// Persist the updated entity
 	err = s.inventoryRepository.Update(found)
 	if err != nil {
 		return fmt.Errorf("could not checkout inventory item - repository error: %w", err)
@@ -122,16 +130,19 @@ func (s *ServiceImpl) Checkout(id entity.ID) error {
 
 // CheckIn implements the Service interface
 func (s *ServiceImpl) CheckIn(id entity.ID) error {
+	// Retrieve the entity
 	found, err := s.inventoryRepository.FindByID(id)
 	if err != nil {
 		return fmt.Errorf("could not check in inventory item - repository error: %w", err)
 	}
 
+	// Check in the entity
 	err = found.CheckIn()
 	if err != nil {
 		return fmt.Errorf("could not check in inventory item - entity error: %w", err)
 	}
 
+	// Persist the modified entity
 	err = s.inventoryRepository.Update(found)
 	if err != nil {
 		return fmt.Errorf("could not check in inventory item - repository error: %w", err)
