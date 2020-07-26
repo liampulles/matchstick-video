@@ -94,5 +94,5 @@ func (i *InventoryControllerImpl) ReadDetails(request *Request) *Response {
 	}
 
 	// Create response
-	return i.responseFactory.Create(200, json)
+	return i.responseFactory.CreateJSON(200, json)
 }

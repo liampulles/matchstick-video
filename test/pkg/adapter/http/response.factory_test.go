@@ -24,15 +24,16 @@ func (suite *ResponseFactoryImplTestSuite) SetupTest() {
 	suite.sut = http.NewResponseFactoryImpl()
 }
 
-func (suite *ResponseFactoryImplTestSuite) TestCreate_ShouldCreateResponse() {
+func (suite *ResponseFactoryImplTestSuite) TestCreateJSON_ShouldCreateResponse() {
 	// Setup expectations
 	expected := &http.Response{
-		StatusCode: 501,
-		Body:       []byte("some.data"),
+		ContentType: "application/json",
+		StatusCode:  501,
+		Body:        []byte("some.data"),
 	}
 
 	// Exercise SUT
-	actual := suite.sut.Create(501, []byte("some.data"))
+	actual := suite.sut.CreateJSON(501, []byte("some.data"))
 
 	// Verify results
 	suite.Equal(expected, actual)
@@ -47,8 +48,9 @@ func (suite *ResponseFactoryImplTestSuite) TestCreateFromError_WhenIsValidationE
 
 	// Setup expectations
 	expected := &http.Response{
-		StatusCode: 400,
-		Body:       []byte("validation error: field=[id], problem=[not numeric]"),
+		ContentType: "text/plain; charset=utf-8",
+		StatusCode:  400,
+		Body:        []byte("validation error: field=[id], problem=[not numeric]"),
 	}
 
 	// Exercise SUT
@@ -64,8 +66,9 @@ func (suite *ResponseFactoryImplTestSuite) TestCreateFromError_WhenIsNotImplemen
 
 	// Setup expectations
 	expected := &http.Response{
-		StatusCode: 501,
-		Body:       []byte("method not implemented for package=[some.package], struct=[some.struct], method=[some.method]"),
+		ContentType: "text/plain; charset=utf-8",
+		StatusCode:  501,
+		Body:        []byte("method not implemented for package=[some.package], struct=[some.struct], method=[some.method]"),
 	}
 
 	// Exercise SUT
@@ -81,8 +84,9 @@ func (suite *ResponseFactoryImplTestSuite) TestCreateFromError_WhenIsArbitraryEr
 
 	// Setup expectations
 	expected := &http.Response{
-		StatusCode: 500,
-		Body:       []byte("some.error"),
+		ContentType: "text/plain; charset=utf-8",
+		StatusCode:  500,
+		Body:        []byte("some.error"),
 	}
 
 	// Exercise SUT
@@ -95,8 +99,9 @@ func (suite *ResponseFactoryImplTestSuite) TestCreateFromError_WhenIsArbitraryEr
 func (suite *ResponseFactoryImplTestSuite) TestCreateFromEntityID_ShouldReturnIdAsString() {
 	// Setup expectations
 	expected := &http.Response{
-		StatusCode: 201,
-		Body:       []byte("101"),
+		ContentType: "text/plain; charset=utf-8",
+		StatusCode:  201,
+		Body:        []byte("101"),
 	}
 
 	// Exercise SUT

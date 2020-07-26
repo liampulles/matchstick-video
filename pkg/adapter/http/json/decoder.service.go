@@ -25,6 +25,7 @@ func NewDecoderServiceImpl() *DecoderServiceImpl {
 
 // ToInventoryCreateItemVo implements DecoderService
 func (d *DecoderServiceImpl) ToInventoryCreateItemVo(bytes []byte) (*inventory.CreateItemVO, error) {
+	// TODO: Should use intermediate json vo for tags
 	var result inventory.CreateItemVO
 	if err := json.Unmarshal(bytes, &result); err != nil {
 		return nil, fmt.Errorf("could not unmarshal to inventory create item vo: %w", err)

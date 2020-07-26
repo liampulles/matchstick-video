@@ -279,7 +279,7 @@ func (suite *InventoryControllerTestSuite) TestReadDetails_WhenEncoderServicePas
 		Return(mockView)
 	suite.mockEncoderService.On("FromInventoryItemView", mockView).
 		Return(mockJson, nil)
-	suite.mockResponseFactory.On("Create", uint(200), mockJson).
+	suite.mockResponseFactory.On("CreateJSON", uint(200), mockJson).
 		Return(expected)
 
 	// Exercise SUT

@@ -96,14 +96,15 @@ func (suite *IOMapperImplTestSuite) TestMapRequest_WhenExtractBodyPasses_ShouldR
 func (suite *IOMapperImplTestSuite) TestMapResponse_ShouldWriteToResponse() {
 	// Setup fixture
 	respFixture := &adapterHttp.Response{
-		StatusCode: 101,
-		Body:       []byte("some.data"),
+		ContentType: "some.content.type",
+		StatusCode:  101,
+		Body:        []byte("some.data"),
 	}
-
-	// Setup expectations
 
 	// Setup mocks
 	mockResponse := &httpMocks.ResponseWriterMock{}
+	mockHeaders := goHttp.Header(make(map[string][]string))
+	mockResponse.On("Header").Return(mockHeaders)
 	mockResponse.On("WriteHeader", 101).Return()
 	mockResponse.On("Write", []byte("some.data")).Return(0, nil)
 
@@ -112,6 +113,7 @@ func (suite *IOMapperImplTestSuite) TestMapResponse_ShouldWriteToResponse() {
 
 	// Verify mocks
 	mockResponse.AssertExpectations(suite.T())
+	suite.Equal([]string{"some.content.type"}, mockHeaders["Content-Type"])
 }
 
 type errReader int

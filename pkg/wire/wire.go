@@ -17,6 +17,7 @@ import (
 // CreateServer injects all the dependencies needed to create
 // http.ServerFactory
 func CreateServer(source goConfig.Source) (http.ServerFactory, error) {
+	// Each "tap" below indicates a level of dependency
 	configStore, err := config.NewStoreImpl(
 		source,
 	)

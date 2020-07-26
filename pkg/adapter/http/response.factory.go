@@ -7,10 +7,15 @@ import (
 	"github.com/liampulles/matchstick-video/pkg/domain/entity"
 )
 
+const (
+	jsonContentType = "application/json"
+	textContentType = "text/plain; charset=utf-8"
+)
+
 // ResponseFactory constructs responses from various
 // return types
 type ResponseFactory interface {
-	Create(statusCode uint, body []byte) *Response
+	CreateJSON(statusCode uint, body []byte) *Response
 	CreateFromError(error) *Response
 	CreateFromEntityID(statusCode uint, id entity.ID) *Response
 }
@@ -26,11 +31,12 @@ func NewResponseFactoryImpl() *ResponseFactoryImpl {
 	return &ResponseFactoryImpl{}
 }
 
-// Create implements ResponseFactory
-func (r *ResponseFactoryImpl) Create(statusCode uint, body []byte) *Response {
+// CreateJSON implements ResponseFactory
+func (r *ResponseFactoryImpl) CreateJSON(statusCode uint, body []byte) *Response {
 	return &Response{
-		StatusCode: statusCode,
-		Body:       body,
+		ContentType: jsonContentType,
+		StatusCode:  statusCode,
+		Body:        body,
 	}
 }
 
@@ -39,20 +45,24 @@ func (r *ResponseFactoryImpl) CreateFromError(err error) *Response {
 	switch v := err.(type) {
 	// TODO: Add your specific error handlers for controllers here.
 	case *commonerror.Validation:
-		return r.create(400, v.Error())
+		return r.createText(400, v.Error())
 	case *commonerror.NotImplemented:
-		return r.create(501, v.Error())
+		return r.createText(501, v.Error())
 	default:
-		return r.create(500, v.Error())
+		return r.createText(500, v.Error())
 	}
 }
 
 // CreateFromEntityID implements ResponseFactory
 func (r *ResponseFactoryImpl) CreateFromEntityID(statusCode uint, id entity.ID) *Response {
 	str := strconv.FormatInt(int64(id), 10)
-	return r.create(statusCode, str)
+	return r.createText(statusCode, str)
 }
 
-func (r *ResponseFactoryImpl) create(statusCode uint, body string) *Response {
-	return r.Create(statusCode, []byte(body))
+func (r *ResponseFactoryImpl) createText(statusCode uint, body string) *Response {
+	return &Response{
+		ContentType: textContentType,
+		StatusCode:  statusCode,
+		Body:        []byte(body),
+	}
 }
