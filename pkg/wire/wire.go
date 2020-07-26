@@ -7,15 +7,28 @@ import (
 	"github.com/liampulles/matchstick-video/pkg/adapter/db/sql"
 	"github.com/liampulles/matchstick-video/pkg/adapter/http"
 	"github.com/liampulles/matchstick-video/pkg/adapter/http/json"
+	"github.com/liampulles/matchstick-video/pkg/domain"
 	"github.com/liampulles/matchstick-video/pkg/domain/entity"
 	"github.com/liampulles/matchstick-video/pkg/driver/db"
 	"github.com/liampulles/matchstick-video/pkg/driver/http/mux"
 	"github.com/liampulles/matchstick-video/pkg/usecase/inventory"
 )
 
-// CreateServer injects all the dependencies needed to create
+// CreateApp creates a runnable for the entrypoint of the
+// application
+func CreateApp(source goConfig.Source) domain.Runnable {
+	factory, err := CreateServerFactory(source)
+	if err != nil {
+		return func() error {
+			return err
+		}
+	}
+	return factory.Create()
+}
+
+// CreateServerFactory injects all the dependencies needed to create
 // http.ServerFactory
-func CreateServer(source goConfig.Source) (http.ServerFactory, error) {
+func CreateServerFactory(source goConfig.Source) (http.ServerFactory, error) {
 	// Each "tap" below indicates a level of dependency
 	configStore, err := config.NewStoreImpl(
 		source,
