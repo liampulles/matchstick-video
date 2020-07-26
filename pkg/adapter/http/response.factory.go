@@ -1,6 +1,7 @@
 package http
 
 import (
+	"errors"
 	"strconv"
 
 	"github.com/liampulles/matchstick-video/pkg/domain/commonerror"
@@ -42,15 +43,8 @@ func (r *ResponseFactoryImpl) CreateJSON(statusCode uint, body []byte) *Response
 
 // CreateFromError implements ResponseFactory
 func (r *ResponseFactoryImpl) CreateFromError(err error) *Response {
-	switch v := err.(type) {
-	// TODO: Add your specific error handlers for controllers here.
-	case *commonerror.Validation:
-		return r.createText(400, v.Error())
-	case *commonerror.NotImplemented:
-		return r.createText(501, v.Error())
-	default:
-		return r.createText(500, v.Error())
-	}
+	code, _ := determineCodeAndSpecificError(err)
+	return r.createText(code, err.Error())
 }
 
 // CreateFromEntityID implements ResponseFactory
@@ -65,4 +59,23 @@ func (r *ResponseFactoryImpl) createText(statusCode uint, body string) *Response
 		StatusCode:  statusCode,
 		Body:        []byte(body),
 	}
+}
+
+func determineCodeAndSpecificError(err error) (uint, error) {
+	nextErr := err
+	for true {
+		switch v := nextErr.(type) {
+		// TODO: Add your specific error codes here.
+		case *commonerror.Validation:
+			return 400, v
+		case *commonerror.NotImplemented:
+			return 501, v
+		}
+
+		nextErr = errors.Unwrap(nextErr)
+		if nextErr == nil {
+			break
+		}
+	}
+	return 500, err
 }
