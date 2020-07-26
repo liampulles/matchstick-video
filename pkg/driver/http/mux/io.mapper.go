@@ -49,7 +49,6 @@ func (i *IOMapperImpl) MapRequest(req *http.Request) (*adapterHttp.Request, erro
 func (i *IOMapperImpl) MapResponse(adapterResp *adapterHttp.Response, goResp http.ResponseWriter) {
 	goResp.Header().Set("Content-Type", adapterResp.ContentType)
 	goResp.WriteHeader(int(adapterResp.StatusCode))
-	// TODO: Handle error returned by this and same call elsewhere
 	goResp.Write(adapterResp.Body)
 }
 
