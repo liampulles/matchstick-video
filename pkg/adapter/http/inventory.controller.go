@@ -45,6 +45,7 @@ func (i *InventoryControllerImpl) GetHandlers() map[HandlerPattern]Handler {
 	addHandler(handlers, http.MethodPost, "/inventory", i.Create)
 	addHandler(handlers, http.MethodGet, "/inventory/{id}", i.ReadDetails)
 	addHandler(handlers, http.MethodPut, "/inventory/{id}", i.Update)
+	addHandler(handlers, http.MethodDelete, "/inventory/{id}", i.Delete)
 
 	return handlers
 }
@@ -108,6 +109,23 @@ func (i *InventoryControllerImpl) Update(request *Request) *Response {
 
 	// Delegate to service
 	if err = i.inventoryService.Update(id, vo); err != nil {
+		return i.responseFactory.CreateFromError(err)
+	}
+
+	// Create response
+	return i.responseFactory.CreateEmpty(204)
+}
+
+// Delete can be called to remove an inventory item from the system.
+func (i *InventoryControllerImpl) Delete(request *Request) *Response {
+	// Extract ID from path params
+	id, err := i.parameterConverter.ToEntityID(request.PathParam, "id")
+	if err != nil {
+		return i.responseFactory.CreateFromError(err)
+	}
+
+	// Delegate to service
+	if err = i.inventoryService.Delete(id); err != nil {
 		return i.responseFactory.CreateFromError(err)
 	}
 

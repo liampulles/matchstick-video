@@ -25,7 +25,7 @@ func TestMain(m *testing.M) {
 	os.Exit(result)
 }
 
-func TestInventoryItemLifecycle_ShouldCreateRetrieveAndUpdate(t *testing.T) {
+func TestInventoryItemLifecycle_ShouldCreateRetrieveUpdateAndDelete(t *testing.T) {
 	// Test create
 	resp := postJSON(t, "/inventory", `{
 		"Name": "Cool Runnings (1994)",
@@ -52,6 +52,24 @@ func TestInventoryItemLifecycle_ShouldCreateRetrieveAndUpdate(t *testing.T) {
 	body = extractString(t, resp)
 	expected = fmt.Sprintf(`{"id":%s,"name":"Cool Runnings (1994) UPDATED","location":"AD12 UPDATED","available":true}`, id)
 	assert.Equal(t, body, expected)
+
+	// Test delete
+	resp = delete(t, "/inventory/"+id)
+	assertNoContent(t, resp)
+	// TODO: Need to make sure we get appropriate 404's
+}
+
+func delete(t *testing.T, path string) *http.Response {
+	req, err := http.NewRequest(http.MethodDelete, baseURL+path, nil)
+	if err != nil {
+		assert.NoError(t, err)
+	}
+	client := http.DefaultClient
+	resp, err := client.Do(req)
+	if err != nil {
+		assert.NoError(t, err)
+	}
+	return resp
 }
 
 func putJSON(t *testing.T, path string, body string) *http.Response {
