@@ -1,7 +1,5 @@
 package sql
 
-// TODO: Modify this filename to have a dot, and do similar elsewhere
-
 import (
 	"context"
 	"database/sql"
