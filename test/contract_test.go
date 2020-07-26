@@ -25,7 +25,7 @@ func TestMain(m *testing.M) {
 	os.Exit(result)
 }
 
-func TestInventoryItemLifecycle_ShouldCreateAndRetrieve(t *testing.T) {
+func TestInventoryItemLifecycle_ShouldCreateRetrieveAndUpdate(t *testing.T) {
 	// Test create
 	resp := postJSON(t, "/inventory", `{
 		"Name": "Cool Runnings (1994)",
@@ -39,6 +39,34 @@ func TestInventoryItemLifecycle_ShouldCreateAndRetrieve(t *testing.T) {
 	body := extractString(t, resp)
 	expected := fmt.Sprintf(`{"id":%s,"name":"Cool Runnings (1994)","location":"AD12","available":true}`, id)
 	assert.Equal(t, body, expected)
+
+	// Test update
+	resp = putJSON(t, "/inventory/"+id, `{
+		"Name": "Cool Runnings (1994) UPDATED",
+		"Location": "AD12 UPDATED"
+	}`)
+	assertNoContent(t, resp)
+
+	// Test read... for update
+	resp = get(t, "/inventory/"+id)
+	body = extractString(t, resp)
+	expected = fmt.Sprintf(`{"id":%s,"name":"Cool Runnings (1994) UPDATED","location":"AD12 UPDATED","available":true}`, id)
+	assert.Equal(t, body, expected)
+}
+
+func putJSON(t *testing.T, path string, body string) *http.Response {
+	reader := strings.NewReader(body)
+	req, err := http.NewRequest(http.MethodPut, baseURL+path, reader)
+	if err != nil {
+		assert.NoError(t, err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	client := http.DefaultClient
+	resp, err := client.Do(req)
+	if err != nil {
+		assert.NoError(t, err)
+	}
+	return resp
 }
 
 func postJSON(t *testing.T, path string, body string) *http.Response {
@@ -83,6 +111,10 @@ func teardown(cmd *exec.Cmd) {
 
 func assertCreated(t *testing.T, resp *http.Response) {
 	assert.Equal(t, 201, resp.StatusCode, "expected Created")
+}
+
+func assertNoContent(t *testing.T, resp *http.Response) {
+	assert.Equal(t, 204, resp.StatusCode, "expected No Content")
 }
 
 func extractString(t *testing.T, resp *http.Response) string {

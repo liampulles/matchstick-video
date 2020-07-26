@@ -56,6 +56,10 @@ func (suite *InventoryControllerTestSuite) TestGetHandlers_ShouldReturnAllHandle
 			Method:      goHttp.MethodGet,
 			PathPattern: "/inventory/{id}",
 		}: suite.sut.ReadDetails,
+		http.HandlerPattern{
+			Method:      goHttp.MethodPut,
+			PathPattern: "/inventory/{id}",
+		}: suite.sut.Update,
 	}
 
 	// Exercise SUT
@@ -272,6 +276,134 @@ func (suite *InventoryControllerTestSuite) TestReadDetails_WhenEncoderServicePas
 
 	// Exercise SUT
 	actual := suite.sut.ReadDetails(requestFixture)
+
+	// Verify results
+	suite.Equal(expected, actual)
+}
+
+func (suite *InventoryControllerTestSuite) TestUpdate_WhenParameterConverterFails_ShouldFail() {
+	// Setup fixture
+	pathParamFixture := map[string]string{"some": "param"}
+	requestFixture := &http.Request{
+		PathParam: pathParamFixture,
+	}
+
+	// Setup expectations
+	expected := &http.Response{
+		StatusCode: 101,
+		Body:       []byte("some.response"),
+	}
+
+	// Setup mocks
+	mockErr := fmt.Errorf("some.error")
+	suite.mockParameterConverter.On("ToEntityID", pathParamFixture, "id").
+		Return(entity.InvalidID, mockErr)
+	suite.mockResponseFactory.On("CreateFromError", mockErr).
+		Return(expected)
+
+	// Exercise SUT
+	actual := suite.sut.Update(requestFixture)
+
+	// Verify results
+	suite.Equal(expected, actual)
+}
+
+func (suite *InventoryControllerTestSuite) TestUpdate_WhenDecoderServiceFails_ShouldFail() {
+	// Setup fixture
+	pathParamFixture := map[string]string{"some": "param"}
+	bodyFixture := []byte("some.body")
+	requestFixture := &http.Request{
+		PathParam: pathParamFixture,
+		Body:      bodyFixture,
+	}
+
+	// Setup expectations
+	expected := &http.Response{
+		StatusCode: 101,
+		Body:       []byte("some.response"),
+	}
+
+	// Setup mocks
+	mockErr := fmt.Errorf("some.error")
+	mockID := entity.ID(101)
+	suite.mockParameterConverter.On("ToEntityID", pathParamFixture, "id").
+		Return(mockID, nil)
+	suite.mockDecoderService.On("ToInventoryUpdateItemVo", bodyFixture).
+		Return(nil, mockErr)
+	suite.mockResponseFactory.On("CreateFromError", mockErr).
+		Return(expected)
+
+	// Exercise SUT
+	actual := suite.sut.Update(requestFixture)
+
+	// Verify results
+	suite.Equal(expected, actual)
+}
+
+func (suite *InventoryControllerTestSuite) TestUpdate_WhenInventoryServiceFails_ShouldFail() {
+	// Setup fixture
+	pathParamFixture := map[string]string{"some": "param"}
+	bodyFixture := []byte("some.body")
+	requestFixture := &http.Request{
+		PathParam: pathParamFixture,
+		Body:      bodyFixture,
+	}
+
+	// Setup expectations
+	expected := &http.Response{
+		StatusCode: 101,
+		Body:       []byte("some.response"),
+	}
+
+	// Setup mocks
+	mockErr := fmt.Errorf("some.error")
+	mockID := entity.ID(101)
+	mockVo := &inventory.UpdateItemVO{Name: "some.name"}
+	suite.mockParameterConverter.On("ToEntityID", pathParamFixture, "id").
+		Return(mockID, nil)
+	suite.mockDecoderService.On("ToInventoryUpdateItemVo", bodyFixture).
+		Return(mockVo, nil)
+	suite.mockInventoryService.On("Update", mockID, mockVo).
+		Return(mockErr)
+	suite.mockResponseFactory.On("CreateFromError", mockErr).
+		Return(expected)
+
+	// Exercise SUT
+	actual := suite.sut.Update(requestFixture)
+
+	// Verify results
+	suite.Equal(expected, actual)
+}
+
+func (suite *InventoryControllerTestSuite) TestUpdate_WhenInventoryServicePasses_ShouldReturnAsExpected() {
+	// Setup fixture
+	pathParamFixture := map[string]string{"some": "param"}
+	bodyFixture := []byte("some.body")
+	requestFixture := &http.Request{
+		PathParam: pathParamFixture,
+		Body:      bodyFixture,
+	}
+
+	// Setup expectations
+	expected := &http.Response{
+		StatusCode: 101,
+		Body:       []byte("some.response"),
+	}
+
+	// Setup mocks
+	mockID := entity.ID(101)
+	mockVo := &inventory.UpdateItemVO{Name: "some.name"}
+	suite.mockParameterConverter.On("ToEntityID", pathParamFixture, "id").
+		Return(mockID, nil)
+	suite.mockDecoderService.On("ToInventoryUpdateItemVo", bodyFixture).
+		Return(mockVo, nil)
+	suite.mockInventoryService.On("Update", mockID, mockVo).
+		Return(nil)
+	suite.mockResponseFactory.On("CreateEmpty", uint(204)).
+		Return(expected)
+
+	// Exercise SUT
+	actual := suite.sut.Update(requestFixture)
 
 	// Verify results
 	suite.Equal(expected, actual)

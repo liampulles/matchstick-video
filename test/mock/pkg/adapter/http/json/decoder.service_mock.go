@@ -20,8 +20,21 @@ func (d *MockDecoderService) ToInventoryCreateItemVo(json []byte) (*inventory.Cr
 	return safeArgsGetCreateItemVo(args, 0), args.Error(1)
 }
 
+// ToInventoryUpdateItemVo is for mocking
+func (d *MockDecoderService) ToInventoryUpdateItemVo(json []byte) (*inventory.UpdateItemVO, error) {
+	args := d.Called(json)
+	return safeArgsGetUpdateItemVo(args, 0), args.Error(1)
+}
+
 func safeArgsGetCreateItemVo(args mock.Arguments, idx int) *inventory.CreateItemVO {
 	if val, ok := args.Get(idx).(*inventory.CreateItemVO); ok {
+		return val
+	}
+	return nil
+}
+
+func safeArgsGetUpdateItemVo(args mock.Arguments, idx int) *inventory.UpdateItemVO {
+	if val, ok := args.Get(idx).(*inventory.UpdateItemVO); ok {
 		return val
 	}
 	return nil

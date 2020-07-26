@@ -44,6 +44,7 @@ func (i *InventoryControllerImpl) GetHandlers() map[HandlerPattern]Handler {
 
 	addHandler(handlers, http.MethodPost, "/inventory", i.Create)
 	addHandler(handlers, http.MethodGet, "/inventory/{id}", i.ReadDetails)
+	addHandler(handlers, http.MethodPut, "/inventory/{id}", i.Update)
 
 	return handlers
 }
@@ -88,4 +89,28 @@ func (i *InventoryControllerImpl) ReadDetails(request *Request) *Response {
 
 	// Create response
 	return i.responseFactory.CreateJSON(200, json)
+}
+
+// Update can be called to update some of the details
+// of an inventory item.
+func (i *InventoryControllerImpl) Update(request *Request) *Response {
+	// Extract ID from path params
+	id, err := i.parameterConverter.ToEntityID(request.PathParam, "id")
+	if err != nil {
+		return i.responseFactory.CreateFromError(err)
+	}
+
+	// Decode JSON request
+	vo, err := i.decoderService.ToInventoryUpdateItemVo(request.Body)
+	if err != nil {
+		return i.responseFactory.CreateFromError(err)
+	}
+
+	// Delegate to service
+	if err = i.inventoryService.Update(id, vo); err != nil {
+		return i.responseFactory.CreateFromError(err)
+	}
+
+	// Create response
+	return i.responseFactory.CreateEmpty(204)
 }

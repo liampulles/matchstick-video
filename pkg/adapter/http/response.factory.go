@@ -16,6 +16,7 @@ const (
 // ResponseFactory constructs responses from various
 // return types
 type ResponseFactory interface {
+	CreateEmpty(statusCode uint) *Response
 	CreateJSON(statusCode uint, body []byte) *Response
 	CreateFromError(error) *Response
 	CreateFromEntityID(statusCode uint, id entity.ID) *Response
@@ -30,6 +31,14 @@ var _ ResponseFactory = &ResponseFactoryImpl{}
 // NewResponseFactoryImpl is a constructor
 func NewResponseFactoryImpl() *ResponseFactoryImpl {
 	return &ResponseFactoryImpl{}
+}
+
+// CreateEmpty creates a response without a body or Content-Type
+//  header
+func (r *ResponseFactoryImpl) CreateEmpty(statusCode uint) *Response {
+	return &Response{
+		StatusCode: statusCode,
+	}
 }
 
 // CreateJSON create a response with a JSON Content-Type header.

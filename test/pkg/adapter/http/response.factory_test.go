@@ -24,6 +24,19 @@ func (suite *ResponseFactoryImplTestSuite) SetupTest() {
 	suite.sut = http.NewResponseFactoryImpl()
 }
 
+func (suite *ResponseFactoryImplTestSuite) TestCreateEmpty_ShouldCreateResponse() {
+	// Setup expectations
+	expected := &http.Response{
+		StatusCode: 501,
+	}
+
+	// Exercise SUT
+	actual := suite.sut.CreateEmpty(501)
+
+	// Verify results
+	suite.Equal(expected, actual)
+}
+
 func (suite *ResponseFactoryImplTestSuite) TestCreateJSON_ShouldCreateResponse() {
 	// Setup expectations
 	expected := &http.Response{

@@ -54,3 +54,36 @@ func (suite *DecoderServiceImplTestSuite) TestToInventoryCreateItemVo_WhenUnmars
 	suite.NoError(err)
 	suite.Equal(expected, actual)
 }
+
+func (suite *DecoderServiceImplTestSuite) TestToInventoryUpdateItemVo_WhenUnmarshalFails_ShouldFail() {
+	// Setup fixture
+	fixture := []byte("not.json")
+
+	// Setup expectations
+	expectedErr := "could not unmarshal to inventory update item vo: invalid character 'o' in literal null (expecting 'u')"
+
+	// Exercise SUT
+	actual, err := suite.sut.ToInventoryUpdateItemVo(fixture)
+
+	// Verify results
+	suite.Nil(actual)
+	suite.EqualError(err, expectedErr)
+}
+
+func (suite *DecoderServiceImplTestSuite) TestToInventoryUpdateItemVo_WhenUnmarshalPasses_ShouldPass() {
+	// Setup fixture
+	fixture := []byte("{\"name\": \"some.name\", \"location\": \"some.location\"}")
+
+	// Setup expectations
+	expected := &inventory.UpdateItemVO{
+		Name:     "some.name",
+		Location: "some.location",
+	}
+
+	// Exercise SUT
+	actual, err := suite.sut.ToInventoryUpdateItemVo(fixture)
+
+	// Verify results
+	suite.NoError(err)
+	suite.Equal(expected, actual)
+}
