@@ -41,7 +41,7 @@ func (suite *HelperServiceTestSuite) TestExecForRowsAffected_WhenPrepareContextF
 	arg2Fixture := 2
 
 	// Setup expectations
-	expectedErr := "cannot execute exec - db exec error: mock.error"
+	expectedErr := "mock.error"
 
 	// Setup mocks
 	mockErr := fmt.Errorf("mock.error")
@@ -63,7 +63,7 @@ func (suite *HelperServiceTestSuite) TestExecForRowsAffected_WhenExecContextFail
 	arg2Fixture := 2
 
 	// Setup expectations
-	expectedErr := "cannot execute exec - db exec error: mock.error"
+	expectedErr := "mock.error"
 
 	// Setup mocks
 	mockErr := fmt.Errorf("mock.error")
@@ -87,7 +87,7 @@ func (suite *HelperServiceTestSuite) TestExecForRowsAffected_WhenRowsAffectedFai
 	arg2Fixture := 2
 
 	// Setup expectations
-	expectedErr := "cannot execute exec - rows affected error: mock.error"
+	expectedErr := "mock.error"
 
 	// Setup mocks
 	mockResult := &mockResult{}
@@ -135,7 +135,7 @@ func (suite *HelperServiceTestSuite) TestExecForID_WhenPrepareContextFails_Shoul
 	arg2Fixture := 2
 
 	// Setup expectations
-	expectedErr := "cannot execute exec - db exec error: mock.error"
+	expectedErr := "mock.error"
 
 	// Setup mocks
 	mockErr := fmt.Errorf("mock.error")
@@ -157,7 +157,7 @@ func (suite *HelperServiceTestSuite) TestExecForID_WhenExecContextFails_ShouldFa
 	arg2Fixture := 2
 
 	// Setup expectations
-	expectedErr := "cannot execute exec - db exec error: mock.error"
+	expectedErr := "mock.error"
 
 	// Setup mocks
 	mockErr := fmt.Errorf("mock.error")
@@ -181,7 +181,7 @@ func (suite *HelperServiceTestSuite) TestExecForID_WhenLastInsertIdFails_ShouldF
 	arg2Fixture := 2
 
 	// Setup expectations
-	expectedErr := "cannot execute exec - result id error: mock.error"
+	expectedErr := "mock.error"
 
 	// Setup mocks
 	mockResult := &mockResult{}

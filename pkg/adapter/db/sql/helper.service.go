@@ -4,12 +4,12 @@ import (
 	"context"
 	"database/sql"
 	goSql "database/sql"
-	"fmt"
 
 	"github.com/liampulles/matchstick-video/pkg/domain/entity"
 )
 
 // Row encapsulates *goSql.Row for testing purposes
+// TODO: Own types should go in their own file, or shared file if simple.
 type Row interface {
 	Scan(dest ...interface{}) error
 }
@@ -37,31 +37,25 @@ func (s *HelperServiceImpl) ExecForRowsAffected(db *goSql.DB, query string, args
 	// Perform the exec
 	res, err := s.exec(db, query, args...)
 	if err != nil {
-		return -1, fmt.Errorf("cannot execute exec - db exec error: %w", err)
+		return -1, err
 	}
 
 	// Return the number of rows affected
-	rows, err := res.RowsAffected()
-	if err != nil {
-		return -1, fmt.Errorf("cannot execute exec - rows affected error: %w", err)
-	}
-	return rows, nil
+	return res.RowsAffected()
 }
 
 // ExecForID will perform exec type SQL and return the last insert id.
 func (s *HelperServiceImpl) ExecForID(db *goSql.DB, query string, args ...interface{}) (entity.ID, error) {
-	// TODO: Some of these methods are wrapping errors, and others are not.
-	//  It should be consistent.
 	// Perform the exec
 	res, err := s.exec(db, query, args...)
 	if err != nil {
-		return entity.InvalidID, fmt.Errorf("cannot execute exec - db exec error: %w", err)
+		return entity.InvalidID, err
 	}
 
 	// Return the last insert id
 	id, err := res.LastInsertId()
 	if err != nil {
-		return entity.InvalidID, fmt.Errorf("cannot execute exec - result id error: %w", err)
+		return entity.InvalidID, err
 	}
 	return entity.ID(id), nil
 }

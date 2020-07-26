@@ -19,6 +19,7 @@ func CreateMain() MainFunc {
 	if err != nil {
 		return failedMain(err)
 	}
+	// TODO: should maybe return runnable directly instead.
 	app := server.Create()
 	return func() int {
 		// This is effectively the main function.
