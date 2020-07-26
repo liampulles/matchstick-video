@@ -1,6 +1,7 @@
 package inventory_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -25,7 +26,7 @@ func (suite *EntityFactoryTestSuite) SetupTest() {
 	suite.sut = inventory.NewEntityFactoryImpl(suite.mockConstructor)
 }
 
-func (suite *EntityFactoryTestSuite) TestCreateFromVO_ShouldCallConstructorAndReturnEntity() {
+func (suite *EntityFactoryTestSuite) TestCreateFromVO_ShouldCallConstructorAndReturnEntityAndError() {
 	// Setup fixture
 	voFixture := &inventory.CreateItemVO{
 		Name:     "some.name",
@@ -34,12 +35,13 @@ func (suite *EntityFactoryTestSuite) TestCreateFromVO_ShouldCallConstructorAndRe
 
 	// Setup mocks
 	mockEntity := &entityMocks.InventoryItemMock{}
-	suite.mockConstructor.On("NewAvailable", "some.name", "some.location").Return(mockEntity)
+	mockError := fmt.Errorf("some.error")
+	suite.mockConstructor.On("NewAvailable", "some.name", "some.location").Return(mockEntity, mockError)
 
 	// Exercise SUT
 	actual, err := suite.sut.CreateFromVO(voFixture)
 
 	// Verify results
-	suite.NoError(err)
+	suite.EqualError(err, "some.error")
 	suite.Equal(actual, mockEntity)
 }

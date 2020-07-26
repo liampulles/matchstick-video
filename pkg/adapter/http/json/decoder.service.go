@@ -23,12 +23,21 @@ func NewDecoderServiceImpl() *DecoderServiceImpl {
 	return &DecoderServiceImpl{}
 }
 
+type jsonCreateItemVO struct {
+	Name     string `json:"name"`
+	Location string `json:"location"`
+}
+
 // ToInventoryCreateItemVo implements DecoderService
 func (d *DecoderServiceImpl) ToInventoryCreateItemVo(bytes []byte) (*inventory.CreateItemVO, error) {
-	// TODO: Should use intermediate json vo for tags
-	var result inventory.CreateItemVO
-	if err := json.Unmarshal(bytes, &result); err != nil {
+	var intermediary jsonCreateItemVO
+	if err := json.Unmarshal(bytes, &intermediary); err != nil {
 		return nil, fmt.Errorf("could not unmarshal to inventory create item vo: %w", err)
 	}
-	return &result, nil
+
+	result := &inventory.CreateItemVO{
+		Name:     intermediary.Name,
+		Location: intermediary.Location,
+	}
+	return result, nil
 }

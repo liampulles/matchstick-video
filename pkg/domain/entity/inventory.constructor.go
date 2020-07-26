@@ -3,7 +3,7 @@ package entity
 // InventoryItemConstructor constructs InventoryItems
 type InventoryItemConstructor interface {
 	Reincarnate(id ID, name string, location string, available bool) InventoryItem
-	NewAvailable(name string, location string) InventoryItem
+	NewAvailable(name string, location string) (InventoryItem, error)
 }
 
 // InventoryItemConstructorImpl implements InventoryItemConstructor
@@ -27,17 +27,27 @@ func (i *InventoryItemConstructorImpl) Reincarnate(id ID, name string, location 
 }
 
 // NewAvailable implements the InventoryItemConstructor interface
-func (i *InventoryItemConstructorImpl) NewAvailable(name string, location string) InventoryItem {
-	result := newBaseInventoryItem(name, location)
+func (i *InventoryItemConstructorImpl) NewAvailable(name string, location string) (InventoryItem, error) {
+	result, err := newBaseInventoryItem(name, location)
+	if err != nil {
+		return nil, err
+	}
 	result.available = true
-	return result
+	return result, nil
 }
 
-func newBaseInventoryItem(name string, location string) *InventoryItemImpl {
-	// TODO: Use validation methods
-	return &InventoryItemImpl{
-		id:       InvalidID,
-		name:     name,
-		location: location,
+func newBaseInventoryItem(name string, location string) (*InventoryItemImpl, error) {
+	result := &InventoryItemImpl{
+		id:        InvalidID,
+		available: true,
 	}
+
+	if err := result.ChangeName(name); err != nil {
+		return nil, err
+	}
+	if err := result.ChangeLocation(location); err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }

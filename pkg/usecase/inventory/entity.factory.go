@@ -25,5 +25,5 @@ func NewEntityFactoryImpl(constructor entity.InventoryItemConstructor) *EntityFa
 
 // CreateFromVO implements the interface
 func (e *EntityFactoryImpl) CreateFromVO(vo *CreateItemVO) (entity.InventoryItem, error) {
-	return e.constructor.NewAvailable(vo.Name, vo.Location), nil
+	return e.constructor.NewAvailable(vo.Name, vo.Location)
 }

@@ -14,9 +14,9 @@ type InventoryItemConstructorMock struct {
 var _ entity.InventoryItemConstructor = &InventoryItemConstructorMock{}
 
 // NewAvailable is for mocking
-func (i *InventoryItemConstructorMock) NewAvailable(name string, location string) entity.InventoryItem {
+func (i *InventoryItemConstructorMock) NewAvailable(name string, location string) (entity.InventoryItem, error) {
 	args := i.Called(name, location)
-	return safeArgsGetInventoryItem(args, 0)
+	return safeArgsGetInventoryItem(args, 0), args.Error(1)
 }
 
 // Reincarnate is for mocking
