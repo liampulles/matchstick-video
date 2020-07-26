@@ -32,7 +32,7 @@ func NewResponseFactoryImpl() *ResponseFactoryImpl {
 	return &ResponseFactoryImpl{}
 }
 
-// CreateJSON implements ResponseFactory
+// CreateJSON create a response with a JSON Content-Type header.
 func (r *ResponseFactoryImpl) CreateJSON(statusCode uint, body []byte) *Response {
 	return &Response{
 		ContentType: jsonContentType,
@@ -41,13 +41,15 @@ func (r *ResponseFactoryImpl) CreateJSON(statusCode uint, body []byte) *Response
 	}
 }
 
-// CreateFromError implements ResponseFactory
+// CreateFromError parses the error to see if an error in the chain is
+// associated to a specific status code (check source for details) and
+// then creates a Response.
 func (r *ResponseFactoryImpl) CreateFromError(err error) *Response {
 	code, _ := determineCodeAndSpecificError(err)
 	return r.createText(code, err.Error())
 }
 
-// CreateFromEntityID implements ResponseFactory
+// CreateFromEntityID creates a text response with just the given id.
 func (r *ResponseFactoryImpl) CreateFromEntityID(statusCode uint, id entity.ID) *Response {
 	str := strconv.FormatInt(int64(id), 10)
 	return r.createText(statusCode, str)
@@ -65,7 +67,6 @@ func determineCodeAndSpecificError(err error) (uint, error) {
 	nextErr := err
 	for true {
 		switch v := nextErr.(type) {
-		// TODO: Add your specific error codes here.
 		case *commonerror.Validation:
 			return 400, v
 		case *commonerror.NotImplemented:

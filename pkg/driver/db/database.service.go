@@ -57,7 +57,7 @@ func NewDatabaseServiceImpl(configStore config.Store) (*DatabaseServiceImpl, err
 	}, nil
 }
 
-// Get implements DatabaseService
+// Get retusn a pre-configured database, which is ready to use.
 func (d *DatabaseServiceImpl) Get() *goSql.DB {
 	return d.sqlDB
 }

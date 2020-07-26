@@ -28,7 +28,7 @@ type jsonCreateItemVO struct {
 	Location string `json:"location"`
 }
 
-// ToInventoryCreateItemVo implements DecoderService
+// ToInventoryCreateItemVo parses JSON into a CreateItemVO
 func (d *DecoderServiceImpl) ToInventoryCreateItemVo(bytes []byte) (*inventory.CreateItemVO, error) {
 	var intermediary jsonCreateItemVO
 	if err := json.Unmarshal(bytes, &intermediary); err != nil {

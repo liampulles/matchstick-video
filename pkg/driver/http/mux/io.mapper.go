@@ -29,7 +29,8 @@ func NewIOMapperImpl(wrapper Wrapper) *IOMapperImpl {
 	}
 }
 
-// MapRequest implements IOMapper
+// MapRequest converts mux's (i.e. Go's) notion of a request to the adapter
+// version
 func (i *IOMapperImpl) MapRequest(req *http.Request) (*adapterHttp.Request, error) {
 	pathParam := i.extractPathParam(req)
 	queryParam := extractQueryParam(req)
@@ -45,7 +46,8 @@ func (i *IOMapperImpl) MapRequest(req *http.Request) (*adapterHttp.Request, erro
 	}, nil
 }
 
-// MapResponse implements IOMapper
+// MapResponse converts the adapter's notion of a response to mux's (i.e. Go's)
+// version
 func (i *IOMapperImpl) MapResponse(adapterResp *adapterHttp.Response, goResp http.ResponseWriter) {
 	goResp.Header().Set("Content-Type", adapterResp.ContentType)
 	goResp.WriteHeader(int(adapterResp.StatusCode))

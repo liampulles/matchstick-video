@@ -33,7 +33,8 @@ func NewServerFactoryImpl(inventoryController Controller, serverConfiguration Se
 	}
 }
 
-// Create implements the ServerFactory interface
+// Create provides the configured ServerConfiguration with
+// the configured handlers to create a runnable server.
 func (s *ServerFactoryImpl) Create() domain.Runnable {
 	handlers := s.inventoryController.GetHandlers()
 	return s.serverConfiguration.CreateRunnable(handlers)

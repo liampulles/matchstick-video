@@ -28,7 +28,7 @@ func NewHandlerMapperImpl(ioMapper IOMapper) *HandlerMapperImpl {
 	}
 }
 
-// Map implements HandlerMapper
+// Map converts the adapter notion of a handler, to mux's (i.e. Go's) interface.
 func (h *HandlerMapperImpl) Map(handler http.Handler) Handler {
 	return func(res goHttp.ResponseWriter, req *goHttp.Request) {
 		// Convert go request to adapter request

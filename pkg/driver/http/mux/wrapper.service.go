@@ -24,11 +24,12 @@ type RouterImpl struct {
 
 var _ Router = &RouterImpl{}
 
-// HandleFunc implements Router
+// HandleFunc wraps mux.Router.HandleFunc()
 func (r *RouterImpl) HandleFunc(pathPattern string, handler Handler) Route {
 	return r.MuxRouter.HandleFunc(pathPattern, handler)
 }
 
+// ServeHTTP wraps mux.Router.ServeHTTP()
 func (r *RouterImpl) ServeHTTP(res goHttp.ResponseWriter, req *goHttp.Request) {
 	r.MuxRouter.ServeHTTP(res, req)
 	return
@@ -51,13 +52,13 @@ func NewWrapperImpl() *WrapperImpl {
 	return &WrapperImpl{}
 }
 
-// NewRouter implements Wrapper
+// NewRouter wraps muc.NewRouter()
 func (w *WrapperImpl) NewRouter() Router {
 	router := mux.NewRouter()
 	return &RouterImpl{MuxRouter: router}
 }
 
-// Vars implements Wrapper
+// Vars wraps mux.Vars()
 func (w *WrapperImpl) Vars(req *goHttp.Request) map[string]string {
 	return mux.Vars(req)
 }

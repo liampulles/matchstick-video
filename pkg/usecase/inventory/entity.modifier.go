@@ -22,7 +22,7 @@ func NewEntityModifierImpl() *EntityModifierImpl {
 	return &EntityModifierImpl{}
 }
 
-// ModifyWithUpdateItemVO implements the EntityModifier interface
+// ModifyWithUpdateItemVO modidies an existing entity as directed by an update vo
 func (e *EntityModifierImpl) ModifyWithUpdateItemVO(ent entity.InventoryItem, vo *UpdateItemVO) error {
 	err := ent.ChangeName(vo.Name)
 	if err != nil {

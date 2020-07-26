@@ -33,7 +33,8 @@ func NewServerConfigurationImpl(
 	}
 }
 
-// CreateRunnable implements ServerConfiguration
+// CreateRunnable registers handlers with mux and configures a server
+// to create a runnable.
 func (m *ServerConfigurationImpl) CreateRunnable(handlers map[http.HandlerPattern]http.Handler) domain.Runnable {
 
 	r := m.muxWrapper.NewRouter()

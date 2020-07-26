@@ -31,7 +31,7 @@ type jsonViewVO struct {
 	Available bool      `json:"available"`
 }
 
-// FromInventoryItemView implements EncoderService
+// FromInventoryItemView converts a view to JSON
 func (e *EncoderServiceImpl) FromInventoryItemView(view *inventory.ViewVO) ([]byte, error) {
 	intermediary := &jsonViewVO{
 		ID:        view.ID,

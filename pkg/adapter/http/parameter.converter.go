@@ -23,7 +23,7 @@ func NewParameterConverterImpl() *ParameterConverterImpl {
 	return &ParameterConverterImpl{}
 }
 
-// ToEntityID implements ParameterConverter
+// ToEntityID extracts an entity.ID from m by the param key
 func (p *ParameterConverterImpl) ToEntityID(m map[string]string, param string) (entity.ID, error) {
 	v, err := getParam(m, param, "entity id")
 	if err != nil {

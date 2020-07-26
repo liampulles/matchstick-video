@@ -43,7 +43,7 @@ func NewServiceImpl(
 	}
 }
 
-// Create implements the Service interface
+// Create creates a new entity from a request vo, and persists it.
 func (s *ServiceImpl) Create(vo *CreateItemVO) (entity.ID, error) {
 	// Create new entity
 	e, err := s.entityFactory.CreateFromVO(vo)
@@ -60,8 +60,7 @@ func (s *ServiceImpl) Create(vo *CreateItemVO) (entity.ID, error) {
 	return id, nil
 }
 
-// ReadDetails implements the Service interface
-// TODO: Improve comments like the above
+// ReadDetails retrieves an entity and returns a view of it.
 func (s *ServiceImpl) ReadDetails(id entity.ID) (*ViewVO, error) {
 	// Retrieve entity
 	found, err := s.inventoryRepository.FindByID(id)
@@ -75,7 +74,8 @@ func (s *ServiceImpl) ReadDetails(id entity.ID) (*ViewVO, error) {
 	return vo, nil
 }
 
-// Update implements the Service interface
+// Update modifies an existing entity as directed by a vo, and
+// persists the changes.
 func (s *ServiceImpl) Update(id entity.ID, vo *UpdateItemVO) error {
 	// Retrieve entity
 	found, err := s.inventoryRepository.FindByID(id)
@@ -96,7 +96,7 @@ func (s *ServiceImpl) Update(id entity.ID, vo *UpdateItemVO) error {
 	return nil
 }
 
-// Delete implements the Service interface
+// Delete wipes the entity from storage.
 func (s *ServiceImpl) Delete(id entity.ID) error {
 	if err := s.inventoryRepository.DeleteByID(id); err != nil {
 		return fmt.Errorf("could not delete inventory item - repository error: %w", err)
@@ -104,7 +104,7 @@ func (s *ServiceImpl) Delete(id entity.ID) error {
 	return nil
 }
 
-// IsAvailable implements the Service interface
+// IsAvailable determines if the entity pointed to by the id can be checked out.
 func (s *ServiceImpl) IsAvailable(id entity.ID) (bool, error) {
 	found, err := s.inventoryRepository.FindByID(id)
 	if err != nil {
@@ -114,7 +114,7 @@ func (s *ServiceImpl) IsAvailable(id entity.ID) (bool, error) {
 	return found.IsAvailable(), nil
 }
 
-// Checkout implements the Service interface
+// Checkout marks an entity as unavailable, and persists that information.
 func (s *ServiceImpl) Checkout(id entity.ID) error {
 	// Retrieve entity
 	found, err := s.inventoryRepository.FindByID(id)
@@ -136,7 +136,7 @@ func (s *ServiceImpl) Checkout(id entity.ID) error {
 	return nil
 }
 
-// CheckIn implements the Service interface
+// CheckIn marks an entity as available, and persists that information.
 func (s *ServiceImpl) CheckIn(id entity.ID) error {
 	// Retrieve the entity
 	found, err := s.inventoryRepository.FindByID(id)
