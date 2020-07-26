@@ -1,5 +1,7 @@
 package sql
 
+// TODO: Modify this filename to have a dot, and do similar elsewhere
+
 import (
 	"context"
 	"database/sql"
@@ -16,7 +18,7 @@ type Row interface {
 
 // HelperService encapsulates some common methods on sql.DB.
 type HelperService interface {
-	ExecForError(db *goSql.DB, query string, args ...interface{}) error
+	ExecForRowsAffected(db *goSql.DB, query string, args ...interface{}) (int64, error)
 	ExecForID(db *goSql.DB, query string, args ...interface{}) (entity.ID, error)
 	SingleRowQuery(db *goSql.DB, query string, args ...interface{}) (Row, error)
 }
@@ -31,17 +33,27 @@ func NewHelperServiceImpl() *HelperServiceImpl {
 	return &HelperServiceImpl{}
 }
 
-// ExecForError will perform exec type SQL and format an error if needed.
-func (s *HelperServiceImpl) ExecForError(db *goSql.DB, query string, args ...interface{}) error {
-	_, err := s.exec(db, query, args...)
+// ExecForRowsAffected will perform exec type SQL and return the number of rows
+// affected
+func (s *HelperServiceImpl) ExecForRowsAffected(db *goSql.DB, query string, args ...interface{}) (int64, error) {
+	// Perform the exec
+	res, err := s.exec(db, query, args...)
 	if err != nil {
-		return fmt.Errorf("cannot execute exec - db exec error: %w", err)
+		return -1, fmt.Errorf("cannot execute exec - db exec error: %w", err)
 	}
-	return nil
+
+	// Return the number of rows affected
+	rows, err := res.RowsAffected()
+	if err != nil {
+		return -1, fmt.Errorf("cannot execute exec - rows affected error: %w", err)
+	}
+	return rows, nil
 }
 
 // ExecForID will perform exec type SQL and return the last insert id.
 func (s *HelperServiceImpl) ExecForID(db *goSql.DB, query string, args ...interface{}) (entity.ID, error) {
+	// TODO: Some of these methods are wrapping errors, and others are not.
+	//  It should be consistent.
 	// Perform the exec
 	res, err := s.exec(db, query, args...)
 	if err != nil {

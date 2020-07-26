@@ -34,7 +34,7 @@ func (suite *HelperServiceTestSuite) SetupTest() {
 	suite.sut = sql.NewHelperServiceImpl()
 }
 
-func (suite *HelperServiceTestSuite) TestExecForError_WhenPrepareContextFails_ShouldFail() {
+func (suite *HelperServiceTestSuite) TestExecForRowsAffected_WhenPrepareContextFails_ShouldFail() {
 	// Setup fixture
 	queryFixture := "some.query"
 	arg1Fixture := "arg.1"
@@ -49,13 +49,14 @@ func (suite *HelperServiceTestSuite) TestExecForError_WhenPrepareContextFails_Sh
 		WillReturnError(mockErr)
 
 	// Exercise SUT
-	err := suite.sut.ExecForError(suite.db, queryFixture, arg1Fixture, arg2Fixture)
+	actual, err := suite.sut.ExecForRowsAffected(suite.db, queryFixture, arg1Fixture, arg2Fixture)
 
 	// Verify results
+	suite.Equal(int64(-1), actual)
 	suite.EqualError(err, expectedErr)
 }
 
-func (suite *HelperServiceTestSuite) TestExecForError_WhenExecContextFails_ShouldFail() {
+func (suite *HelperServiceTestSuite) TestExecForRowsAffected_WhenExecContextFails_ShouldFail() {
 	// Setup fixture
 	queryFixture := "some.query"
 	arg1Fixture := "arg.1"
@@ -72,29 +73,59 @@ func (suite *HelperServiceTestSuite) TestExecForError_WhenExecContextFails_Shoul
 		WillReturnError(mockErr)
 
 	// Exercise SUT
-	err := suite.sut.ExecForError(suite.db, queryFixture, arg1Fixture, arg2Fixture)
+	actual, err := suite.sut.ExecForRowsAffected(suite.db, queryFixture, arg1Fixture, arg2Fixture)
 
 	// Verify results
+	suite.Equal(int64(-1), actual)
 	suite.EqualError(err, expectedErr)
 }
 
-func (suite *HelperServiceTestSuite) TestExecForError_WhenExecContextPasses_ShouldReturnAsExpected() {
+func (suite *HelperServiceTestSuite) TestExecForRowsAffected_WhenRowsAffectedFails_ShouldFail() {
+	// Setup fixture
+	queryFixture := "some.query"
+	arg1Fixture := "arg.1"
+	arg2Fixture := 2
+
+	// Setup expectations
+	expectedErr := "cannot execute exec - rows affected error: mock.error"
+
+	// Setup mocks
+	mockResult := &mockResult{}
+	mockErr := fmt.Errorf("mock.error")
+	suite.mockDb.ExpectPrepare(queryFixture).
+		ExpectExec().
+		WithArgs(arg1Fixture, arg2Fixture).
+		WillReturnResult(mockResult)
+	mockResult.On("RowsAffected").Return(int64(-1), mockErr)
+
+	// Exercise SUT
+	actual, err := suite.sut.ExecForRowsAffected(suite.db, queryFixture, arg1Fixture, arg2Fixture)
+
+	// Verify results
+	suite.Equal(int64(-1), actual)
+	suite.EqualError(err, expectedErr)
+}
+
+func (suite *HelperServiceTestSuite) TestExecForRowsAffected_WhenRowsAffectedPasses_ShouldReturnAsExpected() {
 	// Setup fixture
 	queryFixture := "some.query"
 	arg1Fixture := "arg.1"
 	arg2Fixture := 2
 
 	// Setup mocks
+	mockResult := &mockResult{}
 	suite.mockDb.ExpectPrepare(queryFixture).
 		ExpectExec().
 		WithArgs(arg1Fixture, arg2Fixture).
-		WillReturnResult(&mockResult{})
+		WillReturnResult(mockResult)
+	mockResult.On("RowsAffected").Return(int64(25), nil)
 
 	// Exercise SUT
-	err := suite.sut.ExecForError(suite.db, queryFixture, arg1Fixture, arg2Fixture)
+	actual, err := suite.sut.ExecForRowsAffected(suite.db, queryFixture, arg1Fixture, arg2Fixture)
 
 	// Verify results
 	suite.NoError(err)
+	suite.Equal(int64(25), actual)
 }
 
 func (suite *HelperServiceTestSuite) TestExecForID_WhenPrepareContextFails_ShouldFail() {

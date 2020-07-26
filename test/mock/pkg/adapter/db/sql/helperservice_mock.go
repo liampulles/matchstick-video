@@ -16,13 +16,13 @@ type MockHelperService struct {
 
 var _ sql.HelperService = &MockHelperService{}
 
-// ExecForError is for mocking
-func (s *MockHelperService) ExecForError(db *goSql.DB, query string, args ...interface{}) error {
+// ExecForRowsAffected is for mocking
+func (s *MockHelperService) ExecForRowsAffected(db *goSql.DB, query string, args ...interface{}) (int64, error) {
 	allArgs := make([]interface{}, 0)
 	allArgs = append(allArgs, db, query)
 	allArgs = append(allArgs, args...)
 	a := s.Called(allArgs...)
-	return a.Error(0)
+	return a.Get(0).(int64), a.Error(1)
 }
 
 // ExecForID is for mocking

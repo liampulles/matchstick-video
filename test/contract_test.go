@@ -37,13 +37,17 @@ func TestInventoryItemLifecycle_ShouldCreateRetrieveUpdateAndDelete(t *testing.T
 	assert.Equal(t, body, expected)
 
 	// Test delete on a non-existant item
-	resp = putJSON(t, "/inventory/999", `{ 
-		"Name": "Cool Runnings (1994) UPDATED",
-		"Location": "AD12 UPDATED"
-	}`)
+	resp = delete(t, "/inventory/999")
 	assertNotFound(t, resp)
 	body = extractString(t, resp)
-	expected = fmt.Sprintf(`could not update inventory item - repository error: entity not found: type=[inventory item]`)
+	expected = fmt.Sprintf(`could not delete inventory item - repository error: entity not found: type=[inventory item]`)
+	assert.Equal(t, body, expected)
+
+	// Test checkout on a non-existant item
+	resp = putJSON(t, "/inventory/999/checkout", "")
+	assertNotFound(t, resp)
+	body = extractString(t, resp)
+	expected = fmt.Sprintf(`could not checkout inventory item - repository error: entity not found: type=[inventory item]`)
 	assert.Equal(t, body, expected)
 
 	// Test create
@@ -73,6 +77,17 @@ func TestInventoryItemLifecycle_ShouldCreateRetrieveUpdateAndDelete(t *testing.T
 	body = extractString(t, resp)
 	assertOk(t, resp)
 	expected = fmt.Sprintf(`{"id":%s,"name":"Cool Runnings (1994) UPDATED","location":"AD12 UPDATED","available":true}`, id)
+	assert.Equal(t, body, expected)
+
+	// Test checkout
+	resp = putJSON(t, "/inventory/"+id+"/checkout", "")
+	assertNoContent(t, resp)
+
+	// Test read... for checkout
+	resp = get(t, "/inventory/"+id)
+	body = extractString(t, resp)
+	assertOk(t, resp)
+	expected = fmt.Sprintf(`{"id":%s,"name":"Cool Runnings (1994) UPDATED","location":"AD12 UPDATED","available":false}`, id)
 	assert.Equal(t, body, expected)
 
 	// Test delete

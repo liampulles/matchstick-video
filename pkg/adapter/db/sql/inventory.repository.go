@@ -77,7 +77,7 @@ func (s *InventoryRepositoryImpl) DeleteByID(id entity.ID) error {
 	DELETE FROM inventory_item
 	WHERE 
 		id=@id;`
-	return s.helperService.ExecForError(s.dbService.Get(), query,
+	return s.execExpectingSingleRowAffected(query,
 		goSql.Named("id", id),
 	)
 }
@@ -91,12 +91,29 @@ func (s *InventoryRepositoryImpl) Update(e entity.InventoryItem) error {
 		name=@name, location=@location, available=@available
 	WHERE 
 		id=@id;`
-	return s.helperService.ExecForError(s.dbService.Get(), query,
+	return s.execExpectingSingleRowAffected(query,
 		goSql.Named("name", e.Name()),
 		goSql.Named("location", e.Location()),
 		goSql.Named("available", e.IsAvailable()),
 		goSql.Named("id", e.ID()),
 	)
+}
+
+func (s *InventoryRepositoryImpl) execExpectingSingleRowAffected(query string, args ...interface{}) error {
+	// Run exec to get rows affected
+	rows, err := s.helperService.ExecForRowsAffected(s.dbService.Get(), query, args...)
+	if err != nil {
+		return fmt.Errorf("cannot execute exec - db exec error: %w", err)
+	}
+
+	// Verify rows affected is 1
+	if rows == 0 {
+		return db.NewNotFoundError("inventory item")
+	}
+	if rows != 1 {
+		return fmt.Errorf("exec error: expected 1 entity to be affected, but was: %d", rows)
+	}
+	return nil
 }
 
 func (s *InventoryRepositoryImpl) singleEntityQuery(query string, args ...interface{}) (entity.InventoryItem, error) {

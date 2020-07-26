@@ -232,14 +232,14 @@ func (suite *InventoryRepositoryTestSuite) TestDeleteByID_WhenHelperServiceFails
 	DELETE FROM inventory_item
 	WHERE 
 		id=@id;`
-	expectedErr := "mock.error"
+	expectedErr := "cannot execute exec - db exec error: mock.error"
 
 	// Setup mocks
-	mockErr := fmt.Errorf(expectedErr)
+	mockErr := fmt.Errorf("mock.error")
 	suite.mockDbService.On("Get").Return(suite.db)
-	suite.mockHelperService.On("ExecForError", suite.db, expectedSql,
+	suite.mockHelperService.On("ExecForRowsAffected", suite.db, expectedSql,
 		goSql.Named("id", idFixture),
-	).Return(mockErr)
+	).Return(int64(-1), mockErr)
 
 	// Exercise SUT
 	err := suite.sut.DeleteByID(idFixture)
@@ -248,7 +248,55 @@ func (suite *InventoryRepositoryTestSuite) TestDeleteByID_WhenHelperServiceFails
 	suite.EqualError(err, expectedErr)
 }
 
-func (suite *InventoryRepositoryTestSuite) TestDeleteByID_WhenHelperServiceSucceeds_ShouldPass() {
+func (suite *InventoryRepositoryTestSuite) TestDeleteByID_WhenNoRowsAffected_ShouldFail() {
+	// Setup fixture
+	idFixture := entity.ID(101)
+
+	// Setup expectations
+	expectedSql := `
+	DELETE FROM inventory_item
+	WHERE 
+		id=@id;`
+	expectedErr := "entity not found: type=[inventory item]"
+
+	// Setup mocks
+	suite.mockDbService.On("Get").Return(suite.db)
+	suite.mockHelperService.On("ExecForRowsAffected", suite.db, expectedSql,
+		goSql.Named("id", idFixture),
+	).Return(int64(0), nil)
+
+	// Exercise SUT
+	err := suite.sut.DeleteByID(idFixture)
+
+	// Verify results
+	suite.EqualError(err, expectedErr)
+}
+
+func (suite *InventoryRepositoryTestSuite) TestDeleteByID_WhenMoreThanOneRowAffected_ShouldFail() {
+	// Setup fixture
+	idFixture := entity.ID(101)
+
+	// Setup expectations
+	expectedSql := `
+	DELETE FROM inventory_item
+	WHERE 
+		id=@id;`
+	expectedErr := "exec error: expected 1 entity to be affected, but was: 2"
+
+	// Setup mocks
+	suite.mockDbService.On("Get").Return(suite.db)
+	suite.mockHelperService.On("ExecForRowsAffected", suite.db, expectedSql,
+		goSql.Named("id", idFixture),
+	).Return(int64(2), nil)
+
+	// Exercise SUT
+	err := suite.sut.DeleteByID(idFixture)
+
+	// Verify results
+	suite.EqualError(err, expectedErr)
+}
+
+func (suite *InventoryRepositoryTestSuite) TestDeleteByID_WhenOneRowAffected_ShouldPass() {
 	// Setup fixture
 	idFixture := entity.ID(101)
 
@@ -260,9 +308,9 @@ func (suite *InventoryRepositoryTestSuite) TestDeleteByID_WhenHelperServiceSucce
 
 	// Setup mocks
 	suite.mockDbService.On("Get").Return(suite.db)
-	suite.mockHelperService.On("ExecForError", suite.db, expectedSql,
+	suite.mockHelperService.On("ExecForRowsAffected", suite.db, expectedSql,
 		goSql.Named("id", idFixture),
-	).Return(nil)
+	).Return(int64(1), nil)
 
 	// Exercise SUT
 	err := suite.sut.DeleteByID(idFixture)
@@ -279,22 +327,22 @@ func (suite *InventoryRepositoryTestSuite) TestUpdate_WhenHelperServiceFails_Sho
 		name=@name, location=@location, available=@available
 	WHERE 
 		id=@id;`
-	expectedErr := "mock.error"
+	expectedErr := "cannot execute exec - db exec error: mock.error"
 
 	// Setup mocks
 	mockEntity := &entityMocks.MockInventoryItem{}
-	mockErr := fmt.Errorf(expectedErr)
+	mockErr := fmt.Errorf("mock.error")
 	suite.mockDbService.On("Get").Return(suite.db)
 	mockEntity.On("ID").Return(entity.ID(101)).
 		On("Name").Return("some.name").
 		On("Location").Return("some.location").
 		On("IsAvailable").Return(true)
-	suite.mockHelperService.On("ExecForError", suite.db, expectedSql,
+	suite.mockHelperService.On("ExecForRowsAffected", suite.db, expectedSql,
 		goSql.Named("name", "some.name"),
 		goSql.Named("location", "some.location"),
 		goSql.Named("available", true),
 		goSql.Named("id", entity.ID(101)),
-	).Return(mockErr)
+	).Return(int64(-1), mockErr)
 
 	// Exercise SUT
 	err := suite.sut.Update(mockEntity)
@@ -303,7 +351,69 @@ func (suite *InventoryRepositoryTestSuite) TestUpdate_WhenHelperServiceFails_Sho
 	suite.EqualError(err, expectedErr)
 }
 
-func (suite *InventoryRepositoryTestSuite) TestUpdate_WhenHelperServiceSucceeds_ShouldPass() {
+func (suite *InventoryRepositoryTestSuite) TestUpdate_WhenNoRowsAffected_ShouldFail() {
+	// Setup expectations
+	expectedSql := `
+	UPDATE inventory_item
+	SET
+		name=@name, location=@location, available=@available
+	WHERE 
+		id=@id;`
+	expectedErr := "entity not found: type=[inventory item]"
+
+	// Setup mocks
+	mockEntity := &entityMocks.MockInventoryItem{}
+	suite.mockDbService.On("Get").Return(suite.db)
+	mockEntity.On("ID").Return(entity.ID(101)).
+		On("Name").Return("some.name").
+		On("Location").Return("some.location").
+		On("IsAvailable").Return(true)
+	suite.mockHelperService.On("ExecForRowsAffected", suite.db, expectedSql,
+		goSql.Named("name", "some.name"),
+		goSql.Named("location", "some.location"),
+		goSql.Named("available", true),
+		goSql.Named("id", entity.ID(101)),
+	).Return(int64(0), nil)
+
+	// Exercise SUT
+	err := suite.sut.Update(mockEntity)
+
+	// Verify results
+	suite.EqualError(err, expectedErr)
+}
+
+func (suite *InventoryRepositoryTestSuite) TestUpdate_WhenMoreThanOneRowAffected_ShouldFail() {
+	// Setup expectations
+	expectedSql := `
+	UPDATE inventory_item
+	SET
+		name=@name, location=@location, available=@available
+	WHERE 
+		id=@id;`
+	expectedErr := "exec error: expected 1 entity to be affected, but was: 2"
+
+	// Setup mocks
+	mockEntity := &entityMocks.MockInventoryItem{}
+	suite.mockDbService.On("Get").Return(suite.db)
+	mockEntity.On("ID").Return(entity.ID(101)).
+		On("Name").Return("some.name").
+		On("Location").Return("some.location").
+		On("IsAvailable").Return(true)
+	suite.mockHelperService.On("ExecForRowsAffected", suite.db, expectedSql,
+		goSql.Named("name", "some.name"),
+		goSql.Named("location", "some.location"),
+		goSql.Named("available", true),
+		goSql.Named("id", entity.ID(101)),
+	).Return(int64(2), nil)
+
+	// Exercise SUT
+	err := suite.sut.Update(mockEntity)
+
+	// Verify results
+	suite.EqualError(err, expectedErr)
+}
+
+func (suite *InventoryRepositoryTestSuite) TestUpdate_WhenOneRowAffected_ShouldPass() {
 	// Setup expectations
 	expectedSql := `
 	UPDATE inventory_item
@@ -319,12 +429,12 @@ func (suite *InventoryRepositoryTestSuite) TestUpdate_WhenHelperServiceSucceeds_
 		On("Name").Return("some.name").
 		On("Location").Return("some.location").
 		On("IsAvailable").Return(true)
-	suite.mockHelperService.On("ExecForError", suite.db, expectedSql,
+	suite.mockHelperService.On("ExecForRowsAffected", suite.db, expectedSql,
 		goSql.Named("name", "some.name"),
 		goSql.Named("location", "some.location"),
 		goSql.Named("available", true),
 		goSql.Named("id", entity.ID(101)),
-	).Return(nil)
+	).Return(int64(1), nil)
 
 	// Exercise SUT
 	err := suite.sut.Update(mockEntity)

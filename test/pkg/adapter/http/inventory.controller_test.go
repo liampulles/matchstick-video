@@ -64,6 +64,10 @@ func (suite *InventoryControllerTestSuite) TestGetHandlers_ShouldReturnAllHandle
 			Method:      goHttp.MethodDelete,
 			PathPattern: "/inventory/{id}",
 		}: suite.sut.Delete,
+		http.HandlerPattern{
+			Method:      goHttp.MethodPut,
+			PathPattern: "/inventory/{id}/checkout",
+		}: suite.sut.Delete,
 	}
 
 	// Exercise SUT
@@ -494,6 +498,92 @@ func (suite *InventoryControllerTestSuite) TestDelete_WhenInventoryServicePasses
 
 	// Exercise SUT
 	actual := suite.sut.Delete(requestFixture)
+
+	// Verify results
+	suite.Equal(expected, actual)
+}
+
+func (suite *InventoryControllerTestSuite) TestCheckout_WhenParameterConverterFails_ShouldFail() {
+	// Setup fixture
+	pathParamFixture := map[string]string{"some": "param"}
+	requestFixture := &http.Request{
+		PathParam: pathParamFixture,
+	}
+
+	// Setup expectations
+	expected := &http.Response{
+		StatusCode: 101,
+		Body:       []byte("some.response"),
+	}
+
+	// Setup mocks
+	mockErr := fmt.Errorf("some.error")
+	suite.mockParameterConverter.On("ToEntityID", pathParamFixture, "id").
+		Return(entity.InvalidID, mockErr)
+	suite.mockResponseFactory.On("CreateFromError", mockErr).
+		Return(expected)
+
+	// Exercise SUT
+	actual := suite.sut.Checkout(requestFixture)
+
+	// Verify results
+	suite.Equal(expected, actual)
+}
+
+func (suite *InventoryControllerTestSuite) TestCheckout_WhenInventoryServiceFails_ShouldFail() {
+	// Setup fixture
+	pathParamFixture := map[string]string{"some": "param"}
+	requestFixture := &http.Request{
+		PathParam: pathParamFixture,
+	}
+
+	// Setup expectations
+	expected := &http.Response{
+		StatusCode: 101,
+		Body:       []byte("some.response"),
+	}
+
+	// Setup mocks
+	mockID := entity.ID(101)
+	mockErr := fmt.Errorf("some.error")
+	suite.mockParameterConverter.On("ToEntityID", pathParamFixture, "id").
+		Return(mockID, nil)
+	suite.mockInventoryService.On("Checkout", mockID).
+		Return(mockErr)
+	suite.mockResponseFactory.On("CreateFromError", mockErr).
+		Return(expected)
+
+	// Exercise SUT
+	actual := suite.sut.Checkout(requestFixture)
+
+	// Verify results
+	suite.Equal(expected, actual)
+}
+
+func (suite *InventoryControllerTestSuite) TestCheckout_WhenInventoryServicePasses_ShouldReturnAsExpected() {
+	// Setup fixture
+	pathParamFixture := map[string]string{"some": "param"}
+	requestFixture := &http.Request{
+		PathParam: pathParamFixture,
+	}
+
+	// Setup expectations
+	expected := &http.Response{
+		StatusCode: 101,
+		Body:       []byte("some.response"),
+	}
+
+	// Setup mocks
+	mockID := entity.ID(101)
+	suite.mockParameterConverter.On("ToEntityID", pathParamFixture, "id").
+		Return(mockID, nil)
+	suite.mockInventoryService.On("Checkout", mockID).
+		Return(nil)
+	suite.mockResponseFactory.On("CreateEmpty", uint(204)).
+		Return(expected)
+
+	// Exercise SUT
+	actual := suite.sut.Checkout(requestFixture)
 
 	// Verify results
 	suite.Equal(expected, actual)
