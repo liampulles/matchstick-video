@@ -41,7 +41,7 @@ func TestCreateServerFactory_GivenValidConfig_ShouldPass(t *testing.T) {
 	assert.NotNil(t, actual)
 }
 
-func TestCreateApp_SmokeTest(t *testing.T) {
+func TestCreateApp_GivenDefaultConfiguration_ShouldWire(t *testing.T) {
 	// Exercise SUT
-	wire.CreateApp(goConfig.NewEnvSource())
+	wire.CreateApp(goConfig.MapSource(map[string]string{}))
 }
