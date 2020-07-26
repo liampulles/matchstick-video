@@ -38,12 +38,6 @@ func (s *MockService) Delete(id entity.ID) error {
 	return args.Error(0)
 }
 
-// IsAvailable is for mocking
-func (s *MockService) IsAvailable(id entity.ID) (bool, error) {
-	args := s.Called(id)
-	return args.Bool(0), args.Error(1)
-}
-
 // Checkout is for mocking
 func (s *MockService) Checkout(id entity.ID) error {
 	args := s.Called(id)

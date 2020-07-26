@@ -266,42 +266,6 @@ func (suite *ServiceImplTestSuite) TestDelete_WhenDelegatesSucceed_ShouldReturnA
 	suite.NoError(err)
 }
 
-func (suite *ServiceImplTestSuite) TestIsAvailable_WhenRepositoryFails_ShouldFail() {
-	// Setup fixture
-	idFixture := entity.ID(101)
-
-	// Setup mocks
-	mockErr := fmt.Errorf("mock.error")
-	suite.mockRepository.On("FindByID", idFixture).Return(nil, mockErr)
-
-	// Setup expectations
-	expectedErr := "could not determine if inventory item is available - repository error: mock.error"
-
-	// Exercise SUT
-	actual, err := suite.sut.IsAvailable(idFixture)
-
-	// Verify results
-	suite.False(actual)
-	suite.EqualError(err, expectedErr)
-}
-
-func (suite *ServiceImplTestSuite) TestIsAvailable_WhenDelegatesSucceed_ShouldReturnAsExpected() {
-	// Setup fixture
-	idFixture := entity.ID(101)
-
-	// Setup mocks
-	mockEntity := &entityMocks.MockInventoryItem{Data: "mock.data.1"}
-	mockEntity.On("IsAvailable").Return(true)
-	suite.mockRepository.On("FindByID", idFixture).Return(mockEntity, nil)
-
-	// Exercise SUT
-	actual, err := suite.sut.IsAvailable(idFixture)
-
-	// Verify results
-	suite.NoError(err)
-	suite.True(actual)
-}
-
 func (suite *ServiceImplTestSuite) TestCheckout_WhenRepositoryFindFails_ShouldFail() {
 	// Setup fixture
 	idFixture := entity.ID(101)

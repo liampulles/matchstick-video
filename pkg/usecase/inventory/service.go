@@ -13,7 +13,6 @@ type Service interface {
 	Update(entity.ID, *UpdateItemVO) error
 	Delete(entity.ID) error
 
-	IsAvailable(entity.ID) (bool, error)
 	Checkout(entity.ID) error
 	CheckIn(entity.ID) error
 }
@@ -102,16 +101,6 @@ func (s *ServiceImpl) Delete(id entity.ID) error {
 		return fmt.Errorf("could not delete inventory item - repository error: %w", err)
 	}
 	return nil
-}
-
-// IsAvailable determines if the entity pointed to by the id can be checked out.
-func (s *ServiceImpl) IsAvailable(id entity.ID) (bool, error) {
-	found, err := s.inventoryRepository.FindByID(id)
-	if err != nil {
-		return false, fmt.Errorf("could not determine if inventory item is available - repository error: %w", err)
-	}
-
-	return found.IsAvailable(), nil
 }
 
 // Checkout marks an entity as unavailable, and persists that information.
