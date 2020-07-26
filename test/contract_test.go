@@ -26,8 +26,28 @@ func TestMain(m *testing.M) {
 }
 
 func TestInventoryItemLifecycle_ShouldCreateRetrieveUpdateAndDelete(t *testing.T) {
+	// Test update on a non-existant item
+	resp := putJSON(t, "/inventory/999", `{
+		"Name": "Cool Runnings (1994) UPDATED",
+		"Location": "AD12 UPDATED"
+	}`)
+	assertNotFound(t, resp)
+	body := extractString(t, resp)
+	expected := fmt.Sprintf(`could not update inventory item - repository error: entity not found: type=[inventory item]`)
+	assert.Equal(t, body, expected)
+
+	// Test delete on a non-existant item
+	resp = putJSON(t, "/inventory/999", `{ 
+		"Name": "Cool Runnings (1994) UPDATED",
+		"Location": "AD12 UPDATED"
+	}`)
+	assertNotFound(t, resp)
+	body = extractString(t, resp)
+	expected = fmt.Sprintf(`could not update inventory item - repository error: entity not found: type=[inventory item]`)
+	assert.Equal(t, body, expected)
+
 	// Test create
-	resp := postJSON(t, "/inventory", `{
+	resp = postJSON(t, "/inventory", `{
 		"Name": "Cool Runnings (1994)",
 		"Location": "AD12"
 	}`)
@@ -36,8 +56,9 @@ func TestInventoryItemLifecycle_ShouldCreateRetrieveUpdateAndDelete(t *testing.T
 	// Test read
 	id := extractString(t, resp)
 	resp = get(t, "/inventory/"+id)
-	body := extractString(t, resp)
-	expected := fmt.Sprintf(`{"id":%s,"name":"Cool Runnings (1994)","location":"AD12","available":true}`, id)
+	assertOk(t, resp)
+	body = extractString(t, resp)
+	expected = fmt.Sprintf(`{"id":%s,"name":"Cool Runnings (1994)","location":"AD12","available":true}`, id)
 	assert.Equal(t, body, expected)
 
 	// Test update
@@ -50,13 +71,20 @@ func TestInventoryItemLifecycle_ShouldCreateRetrieveUpdateAndDelete(t *testing.T
 	// Test read... for update
 	resp = get(t, "/inventory/"+id)
 	body = extractString(t, resp)
+	assertOk(t, resp)
 	expected = fmt.Sprintf(`{"id":%s,"name":"Cool Runnings (1994) UPDATED","location":"AD12 UPDATED","available":true}`, id)
 	assert.Equal(t, body, expected)
 
 	// Test delete
 	resp = delete(t, "/inventory/"+id)
 	assertNoContent(t, resp)
-	// TODO: Need to make sure we get appropriate 404's
+
+	// Test read... for delete
+	resp = get(t, "/inventory/"+id)
+	body = extractString(t, resp)
+	assertNotFound(t, resp)
+	expected = fmt.Sprintf(`could not read inventory item - repository error: entity not found: type=[inventory item]`)
+	assert.Equal(t, body, expected)
 }
 
 func delete(t *testing.T, path string) *http.Response {
@@ -127,12 +155,20 @@ func teardown(cmd *exec.Cmd) {
 	}
 }
 
+func assertOk(t *testing.T, resp *http.Response) {
+	assert.Equal(t, 200, resp.StatusCode, "expected OK")
+}
+
 func assertCreated(t *testing.T, resp *http.Response) {
 	assert.Equal(t, 201, resp.StatusCode, "expected Created")
 }
 
 func assertNoContent(t *testing.T, resp *http.Response) {
 	assert.Equal(t, 204, resp.StatusCode, "expected No Content")
+}
+
+func assertNotFound(t *testing.T, resp *http.Response) {
+	assert.Equal(t, 404, resp.StatusCode, "expected Not Found")
 }
 
 func extractString(t *testing.T, resp *http.Response) string {

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"strconv"
 
+	"github.com/liampulles/matchstick-video/pkg/adapter/db"
 	"github.com/liampulles/matchstick-video/pkg/domain/commonerror"
 	"github.com/liampulles/matchstick-video/pkg/domain/entity"
 )
@@ -80,6 +81,8 @@ func determineCodeAndSpecificError(err error) (uint, error) {
 			return 400, v
 		case *commonerror.NotImplemented:
 			return 501, v
+		case *db.NotFoundError:
+			return 404, v
 		}
 
 		nextErr = errors.Unwrap(nextErr)

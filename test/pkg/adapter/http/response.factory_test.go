@@ -6,6 +6,7 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
+	"github.com/liampulles/matchstick-video/pkg/adapter/db"
 	"github.com/liampulles/matchstick-video/pkg/adapter/http"
 	"github.com/liampulles/matchstick-video/pkg/domain/commonerror"
 	"github.com/liampulles/matchstick-video/pkg/domain/entity"
@@ -82,6 +83,24 @@ func (suite *ResponseFactoryImplTestSuite) TestCreateFromError_WhenIsNotImplemen
 		ContentType: "text/plain; charset=utf-8",
 		StatusCode:  501,
 		Body:        []byte("method not implemented for package=[some.package], struct=[some.struct], method=[some.method]"),
+	}
+
+	// Exercise SUT
+	actual := suite.sut.CreateFromError(fixture)
+
+	// Verify results
+	suite.Equal(expected, actual)
+}
+
+func (suite *ResponseFactoryImplTestSuite) TestCreateFromError_WhenIsNotFoundError_ShouldReturnNotFound() {
+	// Setup fixture
+	fixture := db.NewNotFoundError("some.type")
+
+	// Setup expectations
+	expected := &http.Response{
+		ContentType: "text/plain; charset=utf-8",
+		StatusCode:  404,
+		Body:        []byte("entity not found: type=[some.type]"),
 	}
 
 	// Exercise SUT

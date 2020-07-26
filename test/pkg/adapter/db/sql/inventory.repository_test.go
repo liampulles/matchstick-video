@@ -76,7 +76,7 @@ func (suite *InventoryRepositoryTestSuite) TestFindByID_WhenHelperServiceFails_S
 	suite.EqualError(err, expectedErr)
 }
 
-func (suite *InventoryRepositoryTestSuite) TestFindByID_WhenScanFails_ShouldFail() {
+func (suite *InventoryRepositoryTestSuite) TestFindByID_WhenScanFails_ShouldFailWithNotFound() {
 	// Setup fixture
 	idFixture := entity.ID(101)
 
@@ -90,7 +90,7 @@ func (suite *InventoryRepositoryTestSuite) TestFindByID_WhenScanFails_ShouldFail
 	FROM inventory_item
 	WHERE 
 		id=@id;`
-	expectedErr := "cannot execute query - db scan error: mock.error"
+	expectedErr := "entity not found: type=[inventory item]"
 
 	// Setup mocks
 	// -> missing element

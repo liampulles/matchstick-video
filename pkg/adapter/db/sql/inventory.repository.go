@@ -4,6 +4,7 @@ import (
 	goSql "database/sql"
 	"fmt"
 
+	"github.com/liampulles/matchstick-video/pkg/adapter/db"
 	"github.com/liampulles/matchstick-video/pkg/domain/entity"
 	usecaseInventory "github.com/liampulles/matchstick-video/pkg/usecase/inventory"
 )
@@ -108,7 +109,7 @@ func (s *InventoryRepositoryImpl) singleEntityQuery(query string, args ...interf
 	// Extract data from the row
 	res, err := s.scanInventoryItem(row)
 	if err != nil {
-		return nil, fmt.Errorf("cannot execute query - db scan error: %w", err)
+		return nil, db.NewNotFoundError("inventory item")
 	}
 	return res, nil
 }

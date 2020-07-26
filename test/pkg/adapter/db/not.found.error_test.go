@@ -6,15 +6,14 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/liampulles/matchstick-video/pkg/adapter/db"
-	"github.com/liampulles/matchstick-video/pkg/domain/entity"
 )
 
 func TestNotFoundError_Error_ShouldReturnCorrectMessage(t *testing.T) {
 	// Setup fixture
-	err := db.NewNotFoundError("some.type", entity.ID(101))
+	err := db.NewNotFoundError("some.type")
 
 	// Setup expectations
-	expected := "entity not found: type=[some.type], id=[101]"
+	expected := "entity not found: type=[some.type]"
 
 	// Verify results
 	assert.EqualError(t, err, expected)
