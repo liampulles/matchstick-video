@@ -15,7 +15,6 @@ import (
 
 type ServiceImplTestSuite struct {
 	suite.Suite
-	// TODO: Make Mock struct names consistent
 	mockRepository     *inventoryMocks.MockRepository
 	mockEntityFactory  *inventoryMocks.MockEntityFactory
 	mockEntityModifier *inventoryMocks.MockEntityModifier
