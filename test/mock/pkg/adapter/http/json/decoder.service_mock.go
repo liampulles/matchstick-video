@@ -7,15 +7,15 @@ import (
 	"github.com/liampulles/matchstick-video/pkg/usecase/inventory"
 )
 
-// DecoderServiceMock is for mocking
-type DecoderServiceMock struct {
+// MockDecoderService is for mocking
+type MockDecoderService struct {
 	mock.Mock
 }
 
-var _ json.DecoderService = &DecoderServiceMock{}
+var _ json.DecoderService = &MockDecoderService{}
 
 // ToInventoryCreateItemVo is for mocking
-func (d *DecoderServiceMock) ToInventoryCreateItemVo(json []byte) (*inventory.CreateItemVO, error) {
+func (d *MockDecoderService) ToInventoryCreateItemVo(json []byte) (*inventory.CreateItemVO, error) {
 	args := d.Called(json)
 	return safeArgsGetCreateItemVo(args, 0), args.Error(1)
 }

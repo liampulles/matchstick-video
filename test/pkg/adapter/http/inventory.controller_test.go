@@ -18,11 +18,11 @@ import (
 
 type InventoryControllerTestSuite struct {
 	suite.Suite
-	mockInventoryService   *inventoryMocks.ServiceMock
-	mockDecoderService     *jsonMocks.DecoderServiceMock
-	mockEncoderService     *jsonMocks.EncoderServiceMock
-	mockResponseFactory    *httpMocks.ResponseFactoryMock
-	mockParameterConverter *httpMocks.ParameterConverterMock
+	mockInventoryService   *inventoryMocks.MockService
+	mockDecoderService     *jsonMocks.MockDecoderService
+	mockEncoderService     *jsonMocks.MockEncoderService
+	mockResponseFactory    *httpMocks.MockResponseFactory
+	mockParameterConverter *httpMocks.MockParameterConverter
 	sut                    *http.InventoryControllerImpl
 }
 
@@ -31,11 +31,11 @@ func TestInventoryControllerTestSuite(t *testing.T) {
 }
 
 func (suite *InventoryControllerTestSuite) SetupTest() {
-	suite.mockInventoryService = &inventoryMocks.ServiceMock{}
-	suite.mockDecoderService = &jsonMocks.DecoderServiceMock{}
-	suite.mockEncoderService = &jsonMocks.EncoderServiceMock{}
-	suite.mockResponseFactory = &httpMocks.ResponseFactoryMock{}
-	suite.mockParameterConverter = &httpMocks.ParameterConverterMock{}
+	suite.mockInventoryService = &inventoryMocks.MockService{}
+	suite.mockDecoderService = &jsonMocks.MockDecoderService{}
+	suite.mockEncoderService = &jsonMocks.MockEncoderService{}
+	suite.mockResponseFactory = &httpMocks.MockResponseFactory{}
+	suite.mockParameterConverter = &httpMocks.MockParameterConverter{}
 	suite.sut = http.NewInventoryControllerImpl(
 		suite.mockInventoryService,
 		suite.mockDecoderService,

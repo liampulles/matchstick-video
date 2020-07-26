@@ -7,15 +7,15 @@ import (
 	"github.com/liampulles/matchstick-video/pkg/usecase/inventory"
 )
 
-// EncoderServiceMock is for mocking
-type EncoderServiceMock struct {
+// MockEncoderService is for mocking
+type MockEncoderService struct {
 	mock.Mock
 }
 
-var _ json.EncoderService = &EncoderServiceMock{}
+var _ json.EncoderService = &MockEncoderService{}
 
 // FromInventoryItemView is for mocking
-func (d *EncoderServiceMock) FromInventoryItemView(view *inventory.ViewVO) ([]byte, error) {
+func (d *MockEncoderService) FromInventoryItemView(view *inventory.ViewVO) ([]byte, error) {
 	args := d.Called(view)
 	return safeArgsGetBytes(args, 0), args.Error(1)
 }

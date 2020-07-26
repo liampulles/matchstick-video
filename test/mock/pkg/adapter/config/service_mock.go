@@ -6,27 +6,27 @@ import (
 	"github.com/liampulles/matchstick-video/pkg/adapter/config"
 )
 
-// StoreMock is for mocking
-type StoreMock struct {
+// MockStore is for mocking
+type MockStore struct {
 	mock.Mock
 }
 
-var _ config.Store = &StoreMock{}
+var _ config.Store = &MockStore{}
 
 // GetPort is for mocking
-func (s *StoreMock) GetPort() int {
+func (s *MockStore) GetPort() int {
 	args := s.Called()
 	return args.Int(0)
 }
 
 // GetDbDriver is for mocking
-func (s *StoreMock) GetDbDriver() string {
+func (s *MockStore) GetDbDriver() string {
 	args := s.Called()
 	return args.String(0)
 }
 
 // GetMigrationSource is for mocking
-func (s *StoreMock) GetMigrationSource() string {
+func (s *MockStore) GetMigrationSource() string {
 	args := s.Called()
 	return args.String(0)
 }

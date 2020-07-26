@@ -6,26 +6,26 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-// ResponseWriterMock is for mocking
-type ResponseWriterMock struct {
+// MockResponseWriter is for mocking
+type MockResponseWriter struct {
 	mock.Mock
 }
 
-var _ http.ResponseWriter = &ResponseWriterMock{}
+var _ http.ResponseWriter = &MockResponseWriter{}
 
 // Header is for mocking
-func (r *ResponseWriterMock) Header() http.Header {
+func (r *MockResponseWriter) Header() http.Header {
 	args := r.Called()
 	return args.Get(0).(http.Header)
 }
 
-func (r *ResponseWriterMock) Write(data []byte) (int, error) {
+func (r *MockResponseWriter) Write(data []byte) (int, error) {
 	args := r.Called(data)
 	return args.Int(0), args.Error(1)
 }
 
 // WriteHeader is for mocking
-func (r *ResponseWriterMock) WriteHeader(statusCode int) {
+func (r *MockResponseWriter) WriteHeader(statusCode int) {
 	r.Called(statusCode)
 	return
 }

@@ -7,15 +7,15 @@ import (
 	"github.com/liampulles/matchstick-video/pkg/domain"
 )
 
-// ServerConfigurationMock is for mocking
-type ServerConfigurationMock struct {
+// MockServerConfiguration is for mocking
+type MockServerConfiguration struct {
 	mock.Mock
 }
 
-var _ http.ServerConfiguration = &ServerConfigurationMock{}
+var _ http.ServerConfiguration = &MockServerConfiguration{}
 
 // CreateRunnable is for mocking
-func (s *ServerConfigurationMock) CreateRunnable(handlers map[http.HandlerPattern]http.Handler) domain.Runnable {
+func (s *MockServerConfiguration) CreateRunnable(handlers map[http.HandlerPattern]http.Handler) domain.Runnable {
 	args := s.Called(handlers)
 	return args.Get(0).(domain.Runnable)
 }

@@ -6,21 +6,21 @@ import (
 	"github.com/liampulles/matchstick-video/pkg/domain/entity"
 )
 
-// InventoryItemConstructorMock is for mocking
-type InventoryItemConstructorMock struct {
+// MockInventoryItemConstructor is for mocking
+type MockInventoryItemConstructor struct {
 	mock.Mock
 }
 
-var _ entity.InventoryItemConstructor = &InventoryItemConstructorMock{}
+var _ entity.InventoryItemConstructor = &MockInventoryItemConstructor{}
 
 // NewAvailable is for mocking
-func (i *InventoryItemConstructorMock) NewAvailable(name string, location string) (entity.InventoryItem, error) {
+func (i *MockInventoryItemConstructor) NewAvailable(name string, location string) (entity.InventoryItem, error) {
 	args := i.Called(name, location)
 	return safeArgsGetInventoryItem(args, 0), args.Error(1)
 }
 
 // Reincarnate is for mocking
-func (i *InventoryItemConstructorMock) Reincarnate(id entity.ID, name string, location string, available bool) entity.InventoryItem {
+func (i *MockInventoryItemConstructor) Reincarnate(id entity.ID, name string, location string, available bool) entity.InventoryItem {
 	args := i.Called(id, name, location, available)
 	return safeArgsGetInventoryItem(args, 0)
 }

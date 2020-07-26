@@ -20,9 +20,9 @@ type InventoryRepositoryTestSuite struct {
 	suite.Suite
 	db                *goSql.DB
 	mockDb            sqlmock.Sqlmock
-	mockDbService     *sqlMocks.DatabaseServiceMock
-	mockHelperService *sqlMocks.HelperServiceMock
-	mockConstructor   *entityMocks.InventoryItemConstructorMock
+	mockDbService     *sqlMocks.MockDatabaseStore
+	mockHelperService *sqlMocks.MockHelperService
+	mockConstructor   *entityMocks.MockInventoryItemConstructor
 	sut               *sql.InventoryRepositoryImpl
 }
 
@@ -37,9 +37,9 @@ func (suite *InventoryRepositoryTestSuite) SetupTest() {
 	}
 	suite.db = db
 	suite.mockDb = mock
-	suite.mockDbService = &sqlMocks.DatabaseServiceMock{}
-	suite.mockHelperService = &sqlMocks.HelperServiceMock{}
-	suite.mockConstructor = &entityMocks.InventoryItemConstructorMock{}
+	suite.mockDbService = &sqlMocks.MockDatabaseStore{}
+	suite.mockHelperService = &sqlMocks.MockHelperService{}
+	suite.mockConstructor = &entityMocks.MockInventoryItemConstructor{}
 	suite.sut = sql.NewInventoryRepositoryImpl(
 		suite.mockDbService, suite.mockHelperService, suite.mockConstructor,
 	)
@@ -129,7 +129,7 @@ func (suite *InventoryRepositoryTestSuite) TestFindByID_WhenDBSucceeds_ShouldRet
 	// Setup mocks
 	// -> missing element
 	mockRow := &sqlMocks.RowMock{}
-	mockEntity := &entityMocks.InventoryItemMock{Data: "some.data"}
+	mockEntity := &entityMocks.MockInventoryItem{Data: "some.data"}
 	suite.mockDbService.On("Get").Return(suite.db)
 	suite.mockHelperService.
 		On("SingleRowQuery", suite.db, expectedSql, goSql.Named("id", idFixture)).
@@ -166,7 +166,7 @@ func (suite *InventoryRepositoryTestSuite) TestCreate_WhenHelperServiceFails_Sho
 	expectedErr := "mock.error"
 
 	// Setup mocks
-	mockEntity := &entityMocks.InventoryItemMock{}
+	mockEntity := &entityMocks.MockInventoryItem{}
 	mockErr := fmt.Errorf(expectedErr)
 	suite.mockDbService.On("Get").Return(suite.db)
 	mockEntity.On("Name").Return("some.name").
@@ -204,7 +204,7 @@ func (suite *InventoryRepositoryTestSuite) TestCreate_WhenHelperServiceSucceeds_
 	expectedID := entity.ID(101)
 
 	// Setup mocks
-	mockEntity := &entityMocks.InventoryItemMock{}
+	mockEntity := &entityMocks.MockInventoryItem{}
 	suite.mockDbService.On("Get").Return(suite.db)
 	mockEntity.On("Name").Return("some.name").
 		On("Location").Return("some.location").
@@ -282,7 +282,7 @@ func (suite *InventoryRepositoryTestSuite) TestUpdate_WhenHelperServiceFails_Sho
 	expectedErr := "mock.error"
 
 	// Setup mocks
-	mockEntity := &entityMocks.InventoryItemMock{}
+	mockEntity := &entityMocks.MockInventoryItem{}
 	mockErr := fmt.Errorf(expectedErr)
 	suite.mockDbService.On("Get").Return(suite.db)
 	mockEntity.On("ID").Return(entity.ID(101)).
@@ -313,7 +313,7 @@ func (suite *InventoryRepositoryTestSuite) TestUpdate_WhenHelperServiceSucceeds_
 		id=@id;`
 
 	// Setup mocks
-	mockEntity := &entityMocks.InventoryItemMock{}
+	mockEntity := &entityMocks.MockInventoryItem{}
 	suite.mockDbService.On("Get").Return(suite.db)
 	mockEntity.On("ID").Return(entity.ID(101)).
 		On("Name").Return("some.name").

@@ -7,15 +7,15 @@ import (
 	"github.com/liampulles/matchstick-video/pkg/domain/entity"
 )
 
-// ParameterConverterMock is for mocking
-type ParameterConverterMock struct {
+// MockParameterConverter is for mocking
+type MockParameterConverter struct {
 	mock.Mock
 }
 
-var _ http.ParameterConverter = &ParameterConverterMock{}
+var _ http.ParameterConverter = &MockParameterConverter{}
 
 // ToEntityID is for mocking
-func (p *ParameterConverterMock) ToEntityID(m map[string]string, param string) (entity.ID, error) {
+func (p *MockParameterConverter) ToEntityID(m map[string]string, param string) (entity.ID, error) {
 	args := p.Called(m, param)
 	return args.Get(0).(entity.ID), args.Error(1)
 }

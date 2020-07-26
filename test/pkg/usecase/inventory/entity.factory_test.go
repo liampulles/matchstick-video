@@ -13,7 +13,7 @@ import (
 
 type EntityFactoryTestSuite struct {
 	suite.Suite
-	mockConstructor *entityMocks.InventoryItemConstructorMock
+	mockConstructor *entityMocks.MockInventoryItemConstructor
 	sut             *inventory.EntityFactoryImpl
 }
 
@@ -22,7 +22,7 @@ func TestEntityFactoryTestSuite(t *testing.T) {
 }
 
 func (suite *EntityFactoryTestSuite) SetupTest() {
-	suite.mockConstructor = &entityMocks.InventoryItemConstructorMock{}
+	suite.mockConstructor = &entityMocks.MockInventoryItemConstructor{}
 	suite.sut = inventory.NewEntityFactoryImpl(suite.mockConstructor)
 }
 
@@ -34,7 +34,7 @@ func (suite *EntityFactoryTestSuite) TestCreateFromVO_ShouldCallConstructorAndRe
 	}
 
 	// Setup mocks
-	mockEntity := &entityMocks.InventoryItemMock{}
+	mockEntity := &entityMocks.MockInventoryItem{}
 	mockError := fmt.Errorf("some.error")
 	suite.mockConstructor.On("NewAvailable", "some.name", "some.location").Return(mockEntity, mockError)
 

@@ -9,15 +9,15 @@ import (
 	muxDriver "github.com/liampulles/matchstick-video/pkg/driver/http/mux"
 )
 
-// HandlerMapperMock is for mocking
-type HandlerMapperMock struct {
+// MockHandlerMapper is for mocking
+type MockHandlerMapper struct {
 	mock.Mock
 }
 
-var _ muxDriver.HandlerMapper = &HandlerMapperMock{}
+var _ muxDriver.HandlerMapper = &MockHandlerMapper{}
 
 // Map is for mocking
-func (h *HandlerMapperMock) Map(handler http.Handler) muxDriver.Handler {
+func (h *MockHandlerMapper) Map(handler http.Handler) muxDriver.Handler {
 	args := h.Called(handler)
 	return args.Get(0).(func(goHttp.ResponseWriter, *goHttp.Request))
 }

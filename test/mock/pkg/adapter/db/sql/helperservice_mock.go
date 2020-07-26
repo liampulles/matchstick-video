@@ -9,15 +9,15 @@ import (
 	"github.com/liampulles/matchstick-video/pkg/domain/entity"
 )
 
-// HelperServiceMock is for mocking
-type HelperServiceMock struct {
+// MockHelperService is for mocking
+type MockHelperService struct {
 	mock.Mock
 }
 
-var _ sql.HelperService = &HelperServiceMock{}
+var _ sql.HelperService = &MockHelperService{}
 
 // ExecForError is for mocking
-func (s *HelperServiceMock) ExecForError(db *goSql.DB, query string, args ...interface{}) error {
+func (s *MockHelperService) ExecForError(db *goSql.DB, query string, args ...interface{}) error {
 	allArgs := make([]interface{}, 0)
 	allArgs = append(allArgs, db, query)
 	allArgs = append(allArgs, args...)
@@ -26,7 +26,7 @@ func (s *HelperServiceMock) ExecForError(db *goSql.DB, query string, args ...int
 }
 
 // ExecForID is for mocking
-func (s *HelperServiceMock) ExecForID(db *goSql.DB, query string, args ...interface{}) (entity.ID, error) {
+func (s *MockHelperService) ExecForID(db *goSql.DB, query string, args ...interface{}) (entity.ID, error) {
 	allArgs := make([]interface{}, 0)
 	allArgs = append(allArgs, db, query)
 	allArgs = append(allArgs, args...)
@@ -35,7 +35,7 @@ func (s *HelperServiceMock) ExecForID(db *goSql.DB, query string, args ...interf
 }
 
 // SingleRowQuery is for mocking
-func (s *HelperServiceMock) SingleRowQuery(db *goSql.DB, query string, args ...interface{}) (sql.Row, error) {
+func (s *MockHelperService) SingleRowQuery(db *goSql.DB, query string, args ...interface{}) (sql.Row, error) {
 	allArgs := make([]interface{}, 0)
 	allArgs = append(allArgs, db, query)
 	allArgs = append(allArgs, args...)

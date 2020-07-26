@@ -9,21 +9,21 @@ import (
 	muxDriver "github.com/liampulles/matchstick-video/pkg/driver/http/mux"
 )
 
-// IOMapperMock is for mocking
-type IOMapperMock struct {
+// MockIOMapper is for mocking
+type MockIOMapper struct {
 	mock.Mock
 }
 
-var _ muxDriver.IOMapper = &IOMapperMock{}
+var _ muxDriver.IOMapper = &MockIOMapper{}
 
 // MapRequest is for mocking
-func (i *IOMapperMock) MapRequest(req *goHttp.Request) (*adapterHttp.Request, error) {
+func (i *MockIOMapper) MapRequest(req *goHttp.Request) (*adapterHttp.Request, error) {
 	args := i.Called(req)
 	return safeArgsGetRequest(args, 0), args.Error(1)
 }
 
 // MapResponse is for mocking
-func (i *IOMapperMock) MapResponse(adapterRes *adapterHttp.Response, goRes goHttp.ResponseWriter) {
+func (i *MockIOMapper) MapResponse(adapterRes *adapterHttp.Response, goRes goHttp.ResponseWriter) {
 	i.Called(adapterRes, goRes)
 	return
 }

@@ -19,7 +19,7 @@ import (
 
 type IOMapperImplTestSuite struct {
 	suite.Suite
-	mockMuxWrapper *muxMocks.WrapperMock
+	mockMuxWrapper *muxMocks.MockWrapper
 	sut            *muxDriver.IOMapperImpl
 }
 
@@ -28,7 +28,7 @@ func TestIOMapperImplTestSuite(t *testing.T) {
 }
 
 func (suite *IOMapperImplTestSuite) SetupTest() {
-	suite.mockMuxWrapper = &muxMocks.WrapperMock{}
+	suite.mockMuxWrapper = &muxMocks.MockWrapper{}
 	suite.sut = muxDriver.NewIOMapperImpl(
 		suite.mockMuxWrapper,
 	)
@@ -102,7 +102,7 @@ func (suite *IOMapperImplTestSuite) TestMapResponse_ShouldWriteToResponse() {
 	}
 
 	// Setup mocks
-	mockResponse := &httpMocks.ResponseWriterMock{}
+	mockResponse := &httpMocks.MockResponseWriter{}
 	mockHeaders := goHttp.Header(make(map[string][]string))
 	mockResponse.On("Header").Return(mockHeaders)
 	mockResponse.On("WriteHeader", 101).Return()

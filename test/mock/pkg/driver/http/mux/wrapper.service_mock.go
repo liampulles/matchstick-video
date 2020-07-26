@@ -42,21 +42,21 @@ func (r *RouterMock) ServeHTTP(res goHttp.ResponseWriter, req *goHttp.Request) {
 	return
 }
 
-// WrapperMock is for mocking
-type WrapperMock struct {
+// MockWrapper is for mocking
+type MockWrapper struct {
 	mock.Mock
 }
 
-var _ muxDriver.Wrapper = &WrapperMock{}
+var _ muxDriver.Wrapper = &MockWrapper{}
 
 // NewRouter is for mocking
-func (w *WrapperMock) NewRouter() muxDriver.Router {
+func (w *MockWrapper) NewRouter() muxDriver.Router {
 	args := w.Called()
 	return safeArgsGetRouterMock(args, 0)
 }
 
 // Vars is for mocking
-func (w *WrapperMock) Vars(req *goHttp.Request) map[string]string {
+func (w *MockWrapper) Vars(req *goHttp.Request) map[string]string {
 	args := w.Called(req)
 	return args.Get(0).(map[string]string)
 }

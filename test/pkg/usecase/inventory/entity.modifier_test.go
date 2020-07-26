@@ -31,7 +31,7 @@ func (suite *EntityModifierTestSuite) TestModifyWithUpdateItemVO_WhenEntityChang
 	}
 
 	// Setup mocks
-	mockEntity := &entityMocks.InventoryItemMock{}
+	mockEntity := &entityMocks.MockInventoryItem{}
 	mockErr := fmt.Errorf("mock.error")
 	mockEntity.On("ChangeName", "some.name").Return(mockErr)
 
@@ -53,7 +53,7 @@ func (suite *EntityModifierTestSuite) TestModifyWithUpdateItemVO_WhenEntityChang
 	}
 
 	// Setup mocks
-	mockEntity := &entityMocks.InventoryItemMock{}
+	mockEntity := &entityMocks.MockInventoryItem{}
 	mockErr := fmt.Errorf("mock.error")
 	mockEntity.On("ChangeName", "some.name").Return(nil)
 	mockEntity.On("ChangeLocation", "some.location").Return(mockErr)
@@ -76,7 +76,7 @@ func (suite *EntityModifierTestSuite) TestModifyWithUpdateItemVO_WhenChangesSucc
 	}
 
 	// Setup mocks
-	mockEntity := &entityMocks.InventoryItemMock{}
+	mockEntity := &entityMocks.MockInventoryItem{}
 	mockEntity.On("ChangeName", "some.name").Return(nil)
 	mockEntity.On("ChangeLocation", "some.location").Return(nil)
 

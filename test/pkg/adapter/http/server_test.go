@@ -14,8 +14,8 @@ import (
 
 type ServerFactoryTestSuite struct {
 	suite.Suite
-	mockInventoryController *httpMocks.ControllerMock
-	mockServerConfiguration *httpMocks.ServerConfigurationMock
+	mockInventoryController *httpMocks.MockController
+	mockServerConfiguration *httpMocks.MockServerConfiguration
 	sut                     *http.ServerFactoryImpl
 }
 
@@ -24,8 +24,8 @@ func TestServerFactoryTestSuite(t *testing.T) {
 }
 
 func (suite *ServerFactoryTestSuite) SetupTest() {
-	suite.mockInventoryController = &httpMocks.ControllerMock{}
-	suite.mockServerConfiguration = &httpMocks.ServerConfigurationMock{}
+	suite.mockInventoryController = &httpMocks.MockController{}
+	suite.mockServerConfiguration = &httpMocks.MockServerConfiguration{}
 	suite.sut = http.NewServerFactoryImpl(
 		suite.mockInventoryController,
 		suite.mockServerConfiguration,

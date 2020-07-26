@@ -17,7 +17,7 @@ import (
 
 type HandlerMapperImplTestSuite struct {
 	suite.Suite
-	mockIoMapper *muxMocks.IOMapperMock
+	mockIoMapper *muxMocks.MockIOMapper
 	sut          *muxDriver.HandlerMapperImpl
 }
 
@@ -26,7 +26,7 @@ func TestHandlerMapperImplTestSuite(t *testing.T) {
 }
 
 func (suite *HandlerMapperImplTestSuite) SetupTest() {
-	suite.mockIoMapper = &muxMocks.IOMapperMock{}
+	suite.mockIoMapper = &muxMocks.MockIOMapper{}
 	suite.sut = muxDriver.NewHandlerMapperImpl(
 		suite.mockIoMapper,
 	)
@@ -38,7 +38,7 @@ func (suite *HandlerMapperImplTestSuite) TestMap_WhenIoMapperRequestFails_Should
 
 	// Setup mocks
 	mockHandler := &mockHandlerStruct{}
-	mockResponse := &httpMocks.ResponseWriterMock{}
+	mockResponse := &httpMocks.MockResponseWriter{}
 	mockErr := fmt.Errorf("mock.error")
 	suite.mockIoMapper.On("MapRequest", requestFixture).
 		Return(nil, mockErr)
@@ -59,7 +59,7 @@ func (suite *HandlerMapperImplTestSuite) TestMap_WhenIoMapperResponseReturns_Sho
 
 	// Setup mocks
 	mockHandler := &mockHandlerStruct{}
-	mockResponse := &httpMocks.ResponseWriterMock{}
+	mockResponse := &httpMocks.MockResponseWriter{}
 	mockAdapterReq := &http.Request{Body: []byte("some.data")}
 	mockAdapterResp := &http.Response{StatusCode: 200}
 	suite.mockIoMapper.On("MapRequest", requestFixture).

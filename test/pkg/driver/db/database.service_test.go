@@ -12,7 +12,7 @@ import (
 
 func TestNewDatabaseServiceImpl_GivenUnknownDbDriver_ShouldFail(t *testing.T) {
 	// Setup mocks
-	cfgMock := &configMocks.StoreMock{}
+	cfgMock := &configMocks.MockStore{}
 	cfgMock.On("GetDbDriver").Return("not.a.driver")
 
 	// Exercise SUT
@@ -25,7 +25,7 @@ func TestNewDatabaseServiceImpl_GivenUnknownDbDriver_ShouldFail(t *testing.T) {
 
 func TestNewDatabaseServiceImpl_GivenSqlite3Driver_ShouldPass(t *testing.T) {
 	// Setup mocks
-	cfgMock := &configMocks.StoreMock{}
+	cfgMock := &configMocks.MockStore{}
 	cfgMock.On("GetDbDriver").Return("sqlite3")
 	cfgMock.On("GetMigrationSource").Return("file://../../../../migrations")
 

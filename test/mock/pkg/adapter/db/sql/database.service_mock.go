@@ -8,15 +8,15 @@ import (
 	"github.com/liampulles/matchstick-video/pkg/adapter/db/sql"
 )
 
-// DatabaseServiceMock is for mocking
-type DatabaseServiceMock struct {
+// MockDatabaseStore is for mocking
+type MockDatabaseStore struct {
 	mock.Mock
 }
 
-var _ sql.DatabaseService = &DatabaseServiceMock{}
+var _ sql.DatabaseService = &MockDatabaseStore{}
 
 // Get is for mocking
-func (m *DatabaseServiceMock) Get() *goSql.DB {
+func (m *MockDatabaseStore) Get() *goSql.DB {
 	args := m.Called()
 	return safeArgsGetSQLDb(args, 0)
 }

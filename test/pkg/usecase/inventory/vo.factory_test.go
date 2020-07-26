@@ -26,7 +26,7 @@ func (suite *VOFactoryImplTestSuite) SetupTest() {
 
 func (suite *VOFactoryImplTestSuite) TestCreateViewVOFromEntity_ShouldMapFields() {
 	// Setup mocks
-	mockEntity := &entityMocks.InventoryItemMock{}
+	mockEntity := &entityMocks.MockInventoryItem{}
 	mockEntity.On("ID").Return(entity.ID(101))
 	mockEntity.On("Name").Return("some.name")
 	mockEntity.On("Location").Return("some.location")

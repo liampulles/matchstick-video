@@ -16,9 +16,9 @@ import (
 
 type ServerConfigurationImplTestSuite struct {
 	suite.Suite
-	mockConfigStore   *configMocks.StoreMock
-	mockHandlerMapper *muxMocks.HandlerMapperMock
-	mockMuxWrapper    *muxMocks.WrapperMock
+	mockConfigStore   *configMocks.MockStore
+	mockHandlerMapper *muxMocks.MockHandlerMapper
+	mockMuxWrapper    *muxMocks.MockWrapper
 	sut               *muxDriver.ServerConfigurationImpl
 }
 
@@ -27,9 +27,9 @@ func TestServerConfigurationImplTestSuite(t *testing.T) {
 }
 
 func (suite *ServerConfigurationImplTestSuite) SetupTest() {
-	suite.mockConfigStore = &configMocks.StoreMock{}
-	suite.mockHandlerMapper = &muxMocks.HandlerMapperMock{}
-	suite.mockMuxWrapper = &muxMocks.WrapperMock{}
+	suite.mockConfigStore = &configMocks.MockStore{}
+	suite.mockHandlerMapper = &muxMocks.MockHandlerMapper{}
+	suite.mockMuxWrapper = &muxMocks.MockWrapper{}
 	suite.sut = muxDriver.NewServerConfigurationImpl(
 		suite.mockConfigStore,
 		suite.mockHandlerMapper,

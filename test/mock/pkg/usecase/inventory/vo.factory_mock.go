@@ -7,15 +7,15 @@ import (
 	"github.com/liampulles/matchstick-video/pkg/usecase/inventory"
 )
 
-// VOFactoryMock is for mocking
-type VOFactoryMock struct {
+// MockVOFactory is for mocking
+type MockVOFactory struct {
 	mock.Mock
 }
 
-var _ inventory.VOFactory = &VOFactoryMock{}
+var _ inventory.VOFactory = &MockVOFactory{}
 
 // CreateViewVOFromEntity is for mocking
-func (v *VOFactoryMock) CreateViewVOFromEntity(e entity.InventoryItem) *inventory.ViewVO {
+func (v *MockVOFactory) CreateViewVOFromEntity(e entity.InventoryItem) *inventory.ViewVO {
 	args := v.Called(e)
 	return safeArgsGetViewVO(args, 0)
 }
