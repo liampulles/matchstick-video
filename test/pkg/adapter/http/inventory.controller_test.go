@@ -47,27 +47,31 @@ func (suite *InventoryControllerTestSuite) SetupTest() {
 
 func (suite *InventoryControllerTestSuite) TestGetHandlers_ShouldReturnAllHandlers() {
 	// Setup expectations
-	expected := map[http.HandlerPattern]http.Handler{
+	expected := []http.HandlerPattern{
 		http.HandlerPattern{
 			Method:      goHttp.MethodPost,
 			PathPattern: "/inventory",
-		}: suite.sut.Create,
+		},
 		http.HandlerPattern{
 			Method:      goHttp.MethodGet,
 			PathPattern: "/inventory/{id}",
-		}: suite.sut.ReadDetails,
+		},
 		http.HandlerPattern{
 			Method:      goHttp.MethodPut,
 			PathPattern: "/inventory/{id}",
-		}: suite.sut.Update,
+		},
 		http.HandlerPattern{
 			Method:      goHttp.MethodDelete,
 			PathPattern: "/inventory/{id}",
-		}: suite.sut.Delete,
+		},
 		http.HandlerPattern{
 			Method:      goHttp.MethodPut,
 			PathPattern: "/inventory/{id}/checkout",
-		}: suite.sut.Delete,
+		},
+		http.HandlerPattern{
+			Method:      goHttp.MethodPut,
+			PathPattern: "/inventory/{id}/checkin",
+		},
 	}
 
 	// Exercise SUT
@@ -589,12 +593,98 @@ func (suite *InventoryControllerTestSuite) TestCheckout_WhenInventoryServicePass
 	suite.Equal(expected, actual)
 }
 
+func (suite *InventoryControllerTestSuite) TestCheckIn_WhenParameterConverterFails_ShouldFail() {
+	// Setup fixture
+	pathParamFixture := map[string]string{"some": "param"}
+	requestFixture := &http.Request{
+		PathParam: pathParamFixture,
+	}
+
+	// Setup expectations
+	expected := &http.Response{
+		StatusCode: 101,
+		Body:       []byte("some.response"),
+	}
+
+	// Setup mocks
+	mockErr := fmt.Errorf("some.error")
+	suite.mockParameterConverter.On("ToEntityID", pathParamFixture, "id").
+		Return(entity.InvalidID, mockErr)
+	suite.mockResponseFactory.On("CreateFromError", mockErr).
+		Return(expected)
+
+	// Exercise SUT
+	actual := suite.sut.CheckIn(requestFixture)
+
+	// Verify results
+	suite.Equal(expected, actual)
+}
+
+func (suite *InventoryControllerTestSuite) TestCheckIn_WhenInventoryServiceFails_ShouldFail() {
+	// Setup fixture
+	pathParamFixture := map[string]string{"some": "param"}
+	requestFixture := &http.Request{
+		PathParam: pathParamFixture,
+	}
+
+	// Setup expectations
+	expected := &http.Response{
+		StatusCode: 101,
+		Body:       []byte("some.response"),
+	}
+
+	// Setup mocks
+	mockID := entity.ID(101)
+	mockErr := fmt.Errorf("some.error")
+	suite.mockParameterConverter.On("ToEntityID", pathParamFixture, "id").
+		Return(mockID, nil)
+	suite.mockInventoryService.On("CheckIn", mockID).
+		Return(mockErr)
+	suite.mockResponseFactory.On("CreateFromError", mockErr).
+		Return(expected)
+
+	// Exercise SUT
+	actual := suite.sut.CheckIn(requestFixture)
+
+	// Verify results
+	suite.Equal(expected, actual)
+}
+
+func (suite *InventoryControllerTestSuite) TestCheckIn_WhenInventoryServicePasses_ShouldReturnAsExpected() {
+	// Setup fixture
+	pathParamFixture := map[string]string{"some": "param"}
+	requestFixture := &http.Request{
+		PathParam: pathParamFixture,
+	}
+
+	// Setup expectations
+	expected := &http.Response{
+		StatusCode: 101,
+		Body:       []byte("some.response"),
+	}
+
+	// Setup mocks
+	mockID := entity.ID(101)
+	suite.mockParameterConverter.On("ToEntityID", pathParamFixture, "id").
+		Return(mockID, nil)
+	suite.mockInventoryService.On("CheckIn", mockID).
+		Return(nil)
+	suite.mockResponseFactory.On("CreateEmpty", uint(204)).
+		Return(expected)
+
+	// Exercise SUT
+	actual := suite.sut.CheckIn(requestFixture)
+
+	// Verify results
+	suite.Equal(expected, actual)
+}
+
 // EqualKeys matches the keys of a map
-func equalKeys(expected, actual map[http.HandlerPattern]http.Handler) error {
+func equalKeys(expected []http.HandlerPattern, actual map[http.HandlerPattern]http.Handler) error {
 	if len(actual) != len(expected) {
 		return fmt.Errorf("Maps are different lengths. Expected: %d, Actual: %d", len(expected), len(actual))
 	}
-	for k := range expected {
+	for _, k := range expected {
 		if _, ok := actual[k]; !ok {
 			return fmt.Errorf("Key mismatch. Expected: %v, but was not in Actual.", k)
 		}

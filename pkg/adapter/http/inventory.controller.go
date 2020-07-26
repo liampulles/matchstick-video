@@ -47,6 +47,7 @@ func (i *InventoryControllerImpl) GetHandlers() map[HandlerPattern]Handler {
 	addHandler(handlers, http.MethodPut, "/inventory/{id}", i.Update)
 	addHandler(handlers, http.MethodDelete, "/inventory/{id}", i.Delete)
 	addHandler(handlers, http.MethodPut, "/inventory/{id}/checkout", i.Checkout)
+	addHandler(handlers, http.MethodPut, "/inventory/{id}/checkin", i.CheckIn)
 
 	return handlers
 }
@@ -144,6 +145,23 @@ func (i *InventoryControllerImpl) Checkout(request *Request) *Response {
 
 	// Delegate to service
 	if err = i.inventoryService.Checkout(id); err != nil {
+		return i.responseFactory.CreateFromError(err)
+	}
+
+	// Create response
+	return i.responseFactory.CreateEmpty(204)
+}
+
+// CheckIn can be called to check in an inventory item.
+func (i *InventoryControllerImpl) CheckIn(request *Request) *Response {
+	// Extract ID from path params
+	id, err := i.parameterConverter.ToEntityID(request.PathParam, "id")
+	if err != nil {
+		return i.responseFactory.CreateFromError(err)
+	}
+
+	// Delegate to service
+	if err = i.inventoryService.CheckIn(id); err != nil {
 		return i.responseFactory.CreateFromError(err)
 	}
 
