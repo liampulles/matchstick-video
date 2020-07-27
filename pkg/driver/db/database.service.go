@@ -18,6 +18,10 @@ var dbProviders map[string]dbProvider = map[string]dbProvider{
 		constructor: newTempSQLite3DB,
 		migrator:    migrateSQLite3DB,
 	},
+	"postgres": {
+		constructor: newPostgreSQLDB,
+		migrator:    migratePostgreSQLDB,
+	},
 }
 
 // DatabaseServiceImpl implements DatabaseService

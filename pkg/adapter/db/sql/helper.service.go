@@ -9,7 +9,6 @@ import (
 )
 
 // Row encapsulates *goSql.Row for testing purposes
-// TODO: Own types should go in their own file, or shared file if simple.
 type Row interface {
 	Scan(dest ...interface{}) error
 }

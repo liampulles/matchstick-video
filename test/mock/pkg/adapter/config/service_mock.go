@@ -30,3 +30,33 @@ func (s *MockStore) GetMigrationSource() string {
 	args := s.Called()
 	return args.String(0)
 }
+
+// GetDbUser is for mocking
+func (s *MockStore) GetDbUser() string {
+	args := s.Called()
+	return args.String(0)
+}
+
+// GetDbPassword is for mocking
+func (s *MockStore) GetDbPassword() string {
+	args := s.Called()
+	return args.String(0)
+}
+
+// GetDbHost is for mocking
+func (s *MockStore) GetDbHost() string {
+	args := s.Called()
+	return args.String(0)
+}
+
+// GetDbPort is for mocking
+func (s *MockStore) GetDbPort() int {
+	args := s.Called()
+	return args.Int(0)
+}
+
+// GetDbName is for mocking
+func (s *MockStore) GetDbName() string {
+	args := s.Called()
+	return args.String(0)
+}
