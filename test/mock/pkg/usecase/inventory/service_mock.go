@@ -27,9 +27,9 @@ func (s *MockService) ReadDetails(id entity.ID) (*inventory.ViewVO, error) {
 }
 
 // ReadAll is for mocking
-func (s *MockService) ReadAll() ([]inventory.ViewVO, error) {
+func (s *MockService) ReadAll() ([]inventory.ThinViewVO, error) {
 	args := s.Called()
-	return safeArgsGetViewVOs(args, 0), args.Error(1)
+	return safeArgsGetThinViewVOs(args, 0), args.Error(1)
 }
 
 // Update is for mocking

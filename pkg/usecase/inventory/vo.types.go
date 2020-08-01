@@ -23,3 +23,11 @@ type ViewVO struct {
 	Location  string
 	Available bool
 }
+
+// ThinViewVO outlines an inventory item, so that
+// the client can then read the details of
+// individual items.
+type ThinViewVO struct {
+	ID   entity.ID
+	Name string
+}

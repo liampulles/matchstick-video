@@ -20,8 +20,8 @@ func (d *MockEncoderService) FromInventoryItemView(view *inventory.ViewVO) ([]by
 	return safeArgsGetBytes(args, 0), args.Error(1)
 }
 
-// FromInventoryItemViews is for mcoking
-func (d *MockEncoderService) FromInventoryItemViews(views []inventory.ViewVO) ([]byte, error) {
+// FromInventoryItemThinViews is for mocking
+func (d *MockEncoderService) FromInventoryItemThinViews(views []inventory.ThinViewVO) ([]byte, error) {
 	args := d.Called(views)
 	return safeArgsGetBytes(args, 0), args.Error(1)
 }

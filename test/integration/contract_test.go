@@ -30,7 +30,7 @@ func TestMain(m *testing.M) {
 func TestInventoryItemLifecycle_ShouldCreateRetrieveUpdateAndDelete(t *testing.T) {
 	// Test update on a non-existant item
 	resp := putJSON(t, "/inventory/999", `{
-		"Name": "Cool Runnings (1994) UPDATED",
+		"Name": "Cool Runnings (1993) UPDATED",
 		"Location": "AD12 UPDATED"
 	}`)
 	assertNotFound(t, resp)
@@ -61,7 +61,7 @@ func TestInventoryItemLifecycle_ShouldCreateRetrieveUpdateAndDelete(t *testing.T
 
 	// Test create
 	resp = postJSON(t, "/inventory", `{
-		"Name": "Cool Runnings (1994)",
+		"Name": "Cool Runnings (1993)",
 		"Location": "AD12"
 	}`)
 	assertCreated(t, resp)
@@ -71,19 +71,19 @@ func TestInventoryItemLifecycle_ShouldCreateRetrieveUpdateAndDelete(t *testing.T
 	resp = get(t, "/inventory/"+id)
 	assertOk(t, resp)
 	body = extractString(t, resp)
-	expected = fmt.Sprintf(`{"id":%s,"name":"Cool Runnings (1994)","location":"AD12","available":true}`, id)
+	expected = fmt.Sprintf(`{"id":%s,"name":"Cool Runnings (1993)","location":"AD12","available":true}`, id)
 	assert.Equal(t, body, expected)
 
 	// Test read all
 	resp = get(t, "/inventory")
 	assertOk(t, resp)
 	body = extractString(t, resp)
-	expected = fmt.Sprintf(`[{"id":%s,"name":"Cool Runnings (1994)","location":"AD12","available":true}]`, id)
+	expected = fmt.Sprintf(`[{"id":%s,"name":"Cool Runnings (1993)"}]`, id)
 	assert.Equal(t, body, expected)
 
 	// Test update
 	resp = putJSON(t, "/inventory/"+id, `{
-		"Name": "Cool Runnings (1994) UPDATED",
+		"Name": "Cool Runnings (1993) UPDATED",
 		"Location": "AD12 UPDATED"
 	}`)
 	assertNoContent(t, resp)
@@ -92,7 +92,7 @@ func TestInventoryItemLifecycle_ShouldCreateRetrieveUpdateAndDelete(t *testing.T
 	resp = get(t, "/inventory/"+id)
 	body = extractString(t, resp)
 	assertOk(t, resp)
-	expected = fmt.Sprintf(`{"id":%s,"name":"Cool Runnings (1994) UPDATED","location":"AD12 UPDATED","available":true}`, id)
+	expected = fmt.Sprintf(`{"id":%s,"name":"Cool Runnings (1993) UPDATED","location":"AD12 UPDATED","available":true}`, id)
 	assert.Equal(t, body, expected)
 
 	// Test checkout
@@ -103,7 +103,7 @@ func TestInventoryItemLifecycle_ShouldCreateRetrieveUpdateAndDelete(t *testing.T
 	resp = get(t, "/inventory/"+id)
 	body = extractString(t, resp)
 	assertOk(t, resp)
-	expected = fmt.Sprintf(`{"id":%s,"name":"Cool Runnings (1994) UPDATED","location":"AD12 UPDATED","available":false}`, id)
+	expected = fmt.Sprintf(`{"id":%s,"name":"Cool Runnings (1993) UPDATED","location":"AD12 UPDATED","available":false}`, id)
 	assert.Equal(t, body, expected)
 
 	// Test check in
@@ -114,7 +114,7 @@ func TestInventoryItemLifecycle_ShouldCreateRetrieveUpdateAndDelete(t *testing.T
 	resp = get(t, "/inventory/"+id)
 	body = extractString(t, resp)
 	assertOk(t, resp)
-	expected = fmt.Sprintf(`{"id":%s,"name":"Cool Runnings (1994) UPDATED","location":"AD12 UPDATED","available":true}`, id)
+	expected = fmt.Sprintf(`{"id":%s,"name":"Cool Runnings (1993) UPDATED","location":"AD12 UPDATED","available":true}`, id)
 	assert.Equal(t, body, expected)
 
 	// Test delete

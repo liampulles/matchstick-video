@@ -20,10 +20,10 @@ func (v *MockVOFactory) CreateViewVOFromEntity(e entity.InventoryItem) *inventor
 	return safeArgsGetViewVO(args, 0)
 }
 
-// CreateViewVOsFromEntities is for mcoking
-func (v *MockVOFactory) CreateViewVOsFromEntities(entities []entity.InventoryItem) []inventory.ViewVO {
+// CreateThinViewVOsFromEntities is for mocking
+func (v *MockVOFactory) CreateThinViewVOsFromEntities(entities []entity.InventoryItem) []inventory.ThinViewVO {
 	args := v.Called(entities)
-	return safeArgsGetViewVOs(args, 0)
+	return safeArgsGetThinViewVOs(args, 0)
 }
 
 func safeArgsGetViewVO(args mock.Arguments, idx int) *inventory.ViewVO {
@@ -33,8 +33,8 @@ func safeArgsGetViewVO(args mock.Arguments, idx int) *inventory.ViewVO {
 	return nil
 }
 
-func safeArgsGetViewVOs(args mock.Arguments, idx int) []inventory.ViewVO {
-	if val, ok := args.Get(idx).([]inventory.ViewVO); ok {
+func safeArgsGetThinViewVOs(args mock.Arguments, idx int) []inventory.ThinViewVO {
+	if val, ok := args.Get(idx).([]inventory.ThinViewVO); ok {
 		return val
 	}
 	return nil

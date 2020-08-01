@@ -333,10 +333,10 @@ func (suite *InventoryControllerTestSuite) TestReadAll_WhenEncoderServiceFails_S
 
 	// Setup mocks
 	mockErr := fmt.Errorf("mock.error")
-	mockVos := []inventory.ViewVO{inventory.ViewVO{Name: "some.name"}}
+	mockVos := []inventory.ThinViewVO{inventory.ThinViewVO{Name: "some.name"}}
 	suite.mockInventoryService.On("ReadAll").
 		Return(mockVos, nil)
-	suite.mockEncoderService.On("FromInventoryItemViews", mockVos).
+	suite.mockEncoderService.On("FromInventoryItemThinViews", mockVos).
 		Return(nil, mockErr)
 	suite.mockResponseFactory.On("CreateFromError", mockErr).
 		Return(expected)
@@ -359,11 +359,11 @@ func (suite *InventoryControllerTestSuite) TestReadAll_WhenEncoderServicePasses_
 	}
 
 	// Setup mocks
-	mockVos := []inventory.ViewVO{inventory.ViewVO{Name: "some.name"}}
+	mockVos := []inventory.ThinViewVO{inventory.ThinViewVO{Name: "some.name"}}
 	mockJson := []byte("some.json")
 	suite.mockInventoryService.On("ReadAll").
 		Return(mockVos, nil)
-	suite.mockEncoderService.On("FromInventoryItemViews", mockVos).
+	suite.mockEncoderService.On("FromInventoryItemThinViews", mockVos).
 		Return(mockJson, nil)
 	suite.mockResponseFactory.On("CreateJSON", uint(200), mockJson).
 		Return(expected)

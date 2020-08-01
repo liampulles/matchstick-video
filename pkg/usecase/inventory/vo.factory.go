@@ -7,7 +7,7 @@ import (
 // VOFactory is used to create inventory VOs
 type VOFactory interface {
 	CreateViewVOFromEntity(entity.InventoryItem) *ViewVO
-	CreateViewVOsFromEntities([]entity.InventoryItem) []ViewVO
+	CreateThinViewVOsFromEntities([]entity.InventoryItem) []ThinViewVO
 }
 
 // VOFactoryImpl implements VOFactory
@@ -31,12 +31,19 @@ func (v *VOFactoryImpl) CreateViewVOFromEntity(e entity.InventoryItem) *ViewVO {
 	}
 }
 
-// CreateViewVOsFromEntities maps an entity to a view vo
-func (v *VOFactoryImpl) CreateViewVOsFromEntities(entities []entity.InventoryItem) []ViewVO {
-	var results []ViewVO
+// CreateThinViewVOsFromEntities maps an entity to a view vo
+func (v *VOFactoryImpl) CreateThinViewVOsFromEntities(entities []entity.InventoryItem) []ThinViewVO {
+	var results []ThinViewVO
 	for _, e := range entities {
-		view := v.CreateViewVOFromEntity(e)
+		view := v.createThinViewVOFromEntity(e)
 		results = append(results, *view)
 	}
 	return results
+}
+
+func (v *VOFactoryImpl) createThinViewVOFromEntity(e entity.InventoryItem) *ThinViewVO {
+	return &ThinViewVO{
+		ID:   e.ID(),
+		Name: e.Name(),
+	}
 }

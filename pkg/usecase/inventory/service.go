@@ -10,7 +10,7 @@ import (
 type Service interface {
 	Create(*CreateItemVO) (entity.ID, error)
 	ReadDetails(entity.ID) (*ViewVO, error)
-	ReadAll() ([]ViewVO, error)
+	ReadAll() ([]ThinViewVO, error)
 	Update(entity.ID, *UpdateItemVO) error
 	Delete(entity.ID) error
 
@@ -75,7 +75,7 @@ func (s *ServiceImpl) ReadDetails(id entity.ID) (*ViewVO, error) {
 }
 
 // ReadAll retrieves all entities and returns views of them.
-func (s *ServiceImpl) ReadAll() ([]ViewVO, error) {
+func (s *ServiceImpl) ReadAll() ([]ThinViewVO, error) {
 	// Retrieve entity
 	found, err := s.inventoryRepository.FindAll()
 	if err != nil {
@@ -83,7 +83,7 @@ func (s *ServiceImpl) ReadAll() ([]ViewVO, error) {
 	}
 
 	// Create VO
-	vos := s.voFactory.CreateViewVOsFromEntities(found)
+	vos := s.voFactory.CreateThinViewVOsFromEntities(found)
 
 	return vos, nil
 }

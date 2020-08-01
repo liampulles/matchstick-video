@@ -104,7 +104,7 @@ func (i *InventoryControllerImpl) ReadAll(request *Request) *Response {
 	}
 
 	// Encode to JSON
-	json, err := i.encoderService.FromInventoryItemViews(vos)
+	json, err := i.encoderService.FromInventoryItemThinViews(vos)
 	if err != nil {
 		return i.responseFactory.CreateFromError(err)
 	}

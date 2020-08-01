@@ -164,8 +164,8 @@ func (suite *ServiceImplTestSuite) TestReadAll_WhenRepositoryFails_ShouldFail() 
 
 func (suite *ServiceImplTestSuite) TestReadAll_WhenDelegatesSucceed_ShouldReturnAsExpected() {
 	// Setup expectations
-	expected := []inventory.ViewVO{
-		inventory.ViewVO{
+	expected := []inventory.ThinViewVO{
+		inventory.ThinViewVO{
 			Name: "some.name",
 		},
 	}
@@ -174,7 +174,7 @@ func (suite *ServiceImplTestSuite) TestReadAll_WhenDelegatesSucceed_ShouldReturn
 	mockEntity := &entityMocks.MockInventoryItem{Data: "mock.data"}
 	mockEntities := []entity.InventoryItem{mockEntity}
 	suite.mockRepository.On("FindAll").Return(mockEntities, nil)
-	suite.mockVoFactory.On("CreateViewVOsFromEntities", mockEntities).Return(expected)
+	suite.mockVoFactory.On("CreateThinViewVOsFromEntities", mockEntities).Return(expected)
 
 	// Exercise SUT
 	actual, err := suite.sut.ReadAll()

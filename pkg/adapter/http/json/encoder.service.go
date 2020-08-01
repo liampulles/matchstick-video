@@ -11,7 +11,7 @@ import (
 // EncoderService converts items to JSON
 type EncoderService interface {
 	FromInventoryItemView(*inventory.ViewVO) ([]byte, error)
-	FromInventoryItemViews([]inventory.ViewVO) ([]byte, error)
+	FromInventoryItemThinViews([]inventory.ThinViewVO) ([]byte, error)
 }
 
 // EncoderServiceImpl implements EncoderService
@@ -32,9 +32,14 @@ type jsonViewVO struct {
 	Available bool      `json:"available"`
 }
 
+type jsonThinViewVO struct {
+	ID   entity.ID `json:"id"`
+	Name string    `json:"name"`
+}
+
 // FromInventoryItemView converts a view to JSON
 func (e *EncoderServiceImpl) FromInventoryItemView(view *inventory.ViewVO) ([]byte, error) {
-	intermediary := mapIntermediary(view)
+	intermediary := mapViewIntermediary(view)
 
 	bytes, err := json.Marshal(intermediary)
 	if err != nil {
@@ -43,11 +48,11 @@ func (e *EncoderServiceImpl) FromInventoryItemView(view *inventory.ViewVO) ([]by
 	return bytes, nil
 }
 
-// FromInventoryItemViews views to JSON
-func (e *EncoderServiceImpl) FromInventoryItemViews(views []inventory.ViewVO) ([]byte, error) {
-	intermediaries := make([]jsonViewVO, 0)
+// FromInventoryItemThinViews views to JSON
+func (e *EncoderServiceImpl) FromInventoryItemThinViews(views []inventory.ThinViewVO) ([]byte, error) {
+	intermediaries := make([]jsonThinViewVO, 0)
 	for _, view := range views {
-		intermediary := mapIntermediary(&view)
+		intermediary := mapThinViewIntermediary(&view)
 		intermediaries = append(intermediaries, *intermediary)
 	}
 
@@ -58,11 +63,18 @@ func (e *EncoderServiceImpl) FromInventoryItemViews(views []inventory.ViewVO) ([
 	return bytes, nil
 }
 
-func mapIntermediary(view *inventory.ViewVO) *jsonViewVO {
+func mapViewIntermediary(view *inventory.ViewVO) *jsonViewVO {
 	return &jsonViewVO{
 		ID:        view.ID,
 		Name:      view.Name,
 		Location:  view.Location,
 		Available: view.Available,
+	}
+}
+
+func mapThinViewIntermediary(view *inventory.ThinViewVO) *jsonThinViewVO {
+	return &jsonThinViewVO{
+		ID:   view.ID,
+		Name: view.Name,
 	}
 }
