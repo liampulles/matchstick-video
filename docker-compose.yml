@@ -29,4 +29,4 @@ services:
       DB_PASSWORD: password
       DB_NAME: matchvid
       DB_PORT: 5432
-      DB_HOST: localhost
+      DB_HOST: db
