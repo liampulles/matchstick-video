@@ -114,15 +114,11 @@ Example response:
 [
     {
         "id": 1,
-        "name": "Cool Runnings (1993)",
-        "location": "AD12",
-        "available": true
+        "name": "Cool Runnings (1993)"
     },
     {
         "id": 2,
-        "name": "The Matrix (1999)",
-        "location": "DC01",
-        "available": false
+        "name": "The Matrix (1999)"
     }
 ]
 ```
