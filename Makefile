@@ -2,17 +2,26 @@
 # This is used by Travis CI.
 ci: clean coverage.txt
 coverage.txt: install
-	go test -race -coverprofile=coverage.txt -covermode=atomic -coverpkg=./pkg/...,./ ./...
+	docker-compose stop integration-test-db
+	docker-compose rm -f integration-test-db
+	docker-compose up -d integration-test-db
+	sleep 2
+	go test -tags integration -race -coverprofile=coverage.txt -covermode=atomic -coverpkg=./pkg/...,./ ./...
+	docker-compose stop integration-test-db
 view-cover: clean coverage.txt
 	go tool cover -html=coverage.txt
-test: build
+unit-test:
 	go test ./test/...
 build:
 	go build ./...
 install: build
 	go install ./...
-docker-build:
-	docker build -t lpulles/matchstick-video:latest .
+run:
+	docker-compose stop db
+	docker-compose rm -f db
+	docker-compose up -d db
+	sleep 2
+	matchstick-video
 inspect: build
 	golint ./...
 update:

@@ -16,8 +16,8 @@ type Row interface {
 // HelperService encapsulates some common methods on sql.DB.
 type HelperService interface {
 	ExecForRowsAffected(db *goSql.DB, query string, args ...interface{}) (int64, error)
-	ExecForID(db *goSql.DB, query string, args ...interface{}) (entity.ID, error)
 	SingleRowQuery(db *goSql.DB, query string, args ...interface{}) (Row, error)
+	SingleQueryForID(db *goSql.DB, query string, args ...interface{}) (entity.ID, error)
 }
 
 // HelperServiceImpl implements the HelperService interface
@@ -43,22 +43,6 @@ func (s *HelperServiceImpl) ExecForRowsAffected(db *goSql.DB, query string, args
 	return res.RowsAffected()
 }
 
-// ExecForID will perform exec type SQL and return the last insert id.
-func (s *HelperServiceImpl) ExecForID(db *goSql.DB, query string, args ...interface{}) (entity.ID, error) {
-	// Perform the exec
-	res, err := s.exec(db, query, args...)
-	if err != nil {
-		return entity.InvalidID, err
-	}
-
-	// Return the last insert id
-	id, err := res.LastInsertId()
-	if err != nil {
-		return entity.InvalidID, err
-	}
-	return entity.ID(id), nil
-}
-
 // SingleRowQuery will run a query type SQL which gives a single Row
 func (s *HelperServiceImpl) SingleRowQuery(db *goSql.DB, query string, args ...interface{}) (Row, error) {
 	// Prepare the query
@@ -70,6 +54,23 @@ func (s *HelperServiceImpl) SingleRowQuery(db *goSql.DB, query string, args ...i
 
 	// Run the query to get row
 	return stmt.QueryRowContext(ctx, args...), nil
+}
+
+// SingleQueryForID will run SQL which returns an id, and return the entity form of
+// the id
+func (s *HelperServiceImpl) SingleQueryForID(db *goSql.DB, query string, args ...interface{}) (entity.ID, error) {
+	// Get the row
+	row, err := s.SingleRowQuery(db, query, args...)
+	if err != nil {
+		return entity.InvalidID, err
+	}
+
+	// Scan for the ID
+	var id entity.ID
+	if err = row.Scan(&id); err != nil {
+		return entity.InvalidID, err
+	}
+	return id, nil
 }
 
 func (s *HelperServiceImpl) exec(db *goSql.DB, query string, args ...interface{}) (sql.Result, error) {

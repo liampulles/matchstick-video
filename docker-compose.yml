@@ -1,0 +1,32 @@
+version: '3'
+services:
+  db:
+    image: postgres
+    ports:
+      - "5432:5432"
+    # volumes:
+    #  - /data/matchstick-video/db:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: matchvid
+      POSTGRES_DB: matchvid
+  integration-test-db:
+    image: postgres
+    ports:
+      - "5050:5432"
+    environment:
+      POSTGRES_PASSWORD: integration
+      POSTGRES_USER: integration
+      POSTGRES_DB: integration
+  web:
+    image: lpulles/matchstick-video
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      DB_USER: matchvid
+      DB_PASSWORD: password
+      DB_NAME: matchvid
+      DB_PORT: 5432
+      DB_HOST: localhost

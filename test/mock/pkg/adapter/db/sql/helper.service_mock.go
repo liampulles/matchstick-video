@@ -25,15 +25,6 @@ func (s *MockHelperService) ExecForRowsAffected(db *goSql.DB, query string, args
 	return a.Get(0).(int64), a.Error(1)
 }
 
-// ExecForID is for mocking
-func (s *MockHelperService) ExecForID(db *goSql.DB, query string, args ...interface{}) (entity.ID, error) {
-	allArgs := make([]interface{}, 0)
-	allArgs = append(allArgs, db, query)
-	allArgs = append(allArgs, args...)
-	a := s.Called(allArgs...)
-	return a.Get(0).(entity.ID), a.Error(1)
-}
-
 // SingleRowQuery is for mocking
 func (s *MockHelperService) SingleRowQuery(db *goSql.DB, query string, args ...interface{}) (sql.Row, error) {
 	allArgs := make([]interface{}, 0)
@@ -41,6 +32,15 @@ func (s *MockHelperService) SingleRowQuery(db *goSql.DB, query string, args ...i
 	allArgs = append(allArgs, args...)
 	a := s.Called(allArgs...)
 	return safeArgsGetRow(a, 0), a.Error(1)
+}
+
+// SingleQueryForID is for mocking
+func (s *MockHelperService) SingleQueryForID(db *goSql.DB, query string, args ...interface{}) (entity.ID, error) {
+	allArgs := make([]interface{}, 0)
+	allArgs = append(allArgs, db, query)
+	allArgs = append(allArgs, args...)
+	a := s.Called(allArgs...)
+	return a.Get(0).(entity.ID), a.Error(1)
 }
 
 func safeArgsGetRow(args mock.Arguments, idx int) sql.Row {

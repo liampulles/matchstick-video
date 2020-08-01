@@ -10,7 +10,6 @@ import (
 // to be injected
 type Store interface {
 	GetPort() int
-	GetDbDriver() string
 	GetMigrationSource() string
 	GetDbUser() string
 	GetDbPassword() string
@@ -40,13 +39,12 @@ func NewStoreImpl(source goConfig.Source) (*StoreImpl, error) {
 	// Set defaults
 	store := &StoreImpl{
 		port:            8080,
-		dbDriver:        "sqlite3",
 		migrationSource: "file://migrations",
-		dbUser:          "",
-		dbPassword:      "",
-		dbHost:          "",
-		dbPort:          0,
-		dbName:          "",
+		dbUser:          "matchvid",
+		dbPassword:      "password",
+		dbHost:          "localhost",
+		dbPort:          5432,
+		dbName:          "matchvid",
 	}
 
 	// Read in from source
@@ -69,11 +67,6 @@ func NewStoreImpl(source goConfig.Source) (*StoreImpl, error) {
 // GetPort returns the configured port for the server
 func (s *StoreImpl) GetPort() int {
 	return s.port
-}
-
-// GetDbDriver returns the set database driver
-func (s *StoreImpl) GetDbDriver() string {
-	return s.dbDriver
 }
 
 // GetMigrationSource returns the source for database migrations to run

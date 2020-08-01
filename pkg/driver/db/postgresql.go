@@ -40,7 +40,7 @@ func migratePostgreSQLDB(cfg config.Store, sqlDB *sql.DB) error {
 	}
 
 	// Run migrations
-	if err = m.Up(); err != nil {
+	if err = m.Up(); err != nil && err != migrate.ErrNoChange {
 		return fmt.Errorf("could not migrate postgres db - up error: %w", err)
 	}
 
@@ -60,16 +60,6 @@ func getConnectionString(cfg config.Store) string {
 	user := cfg.GetDbUser()
 	pass := cfg.GetDbPassword()
 	name := cfg.GetDbName()
-
-	// Use defaults if all undefined
-	if host == "" && port == 0 && user == "" && pass == "" {
-		fmt.Println("Using default PostgreSQL config...")
-		host = "localhost"
-		port = 5432
-		user = "postgres"
-		pass = ""
-		name = "postgres"
-	}
 
 	return fmt.Sprintf("user=%s password=%s host=%s port=%d database=%s sslmode=disable",
 		user, pass, host, port, name,

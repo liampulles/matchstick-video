@@ -1,4 +1,6 @@
-package test
+// +build integration
+
+package integration
 
 import (
 	"fmt"
@@ -169,9 +171,13 @@ func setup() *exec.Cmd {
 	cmd := exec.Command("matchstick-video")
 	cmd.Env = []string{
 		"PORT=9010",
-		"DB_DRIVER=sqlite3",
-		"MIGRATION_SOURCE=file://../migrations",
+		"MIGRATION_SOURCE=file://../../migrations",
+		"DB_USER=integration",
+		"DB_PASSWORD=integration",
+		"DB_NAME=integration",
+		"DB_PORT=5050",
 	}
+
 	if err := cmd.Start(); err != nil {
 		panic(err)
 	}

@@ -1,7 +1,6 @@
 package sql
 
 import (
-	goSql "database/sql"
 	"fmt"
 
 	"github.com/liampulles/matchstick-video/pkg/adapter/db"
@@ -43,13 +42,15 @@ func (s *InventoryRepositoryImpl) FindByID(id entity.ID) (entity.InventoryItem, 
 		available 
 	FROM inventory_item
 	WHERE 
-		id=@id;`
-	return s.singleEntityQuery(query, goSql.Named("id", id))
+		id=$1;`
+	return s.singleEntityQuery(query, id)
 }
 
 // Create persists a new entity. The ID is ignored in the input entity, and the
 // generated id is then returned.
 func (s *InventoryRepositoryImpl) Create(e entity.InventoryItem) (entity.ID, error) {
+	// TODO: Return specific errors for unique constraint violations
+	// and parse those as 400's. Do for update as well.
 	query := `
 	INSERT INTO inventory_item
 		(
@@ -57,16 +58,12 @@ func (s *InventoryRepositoryImpl) Create(e entity.InventoryItem) (entity.ID, err
 			location, 
 			available
 		)
-	VALUES 
-		(
-			@name, 
-			@location, 
-			@available
-		);`
-	return s.helperService.ExecForID(s.dbService.Get(), query,
-		goSql.Named("name", e.Name()),
-		goSql.Named("location", e.Location()),
-		goSql.Named("available", e.IsAvailable()),
+	VALUES ($1, $2, $3)
+	RETURNING id;`
+	return s.helperService.SingleQueryForID(s.dbService.Get(), query,
+		e.Name(),
+		e.Location(),
+		e.IsAvailable(),
 	)
 }
 
@@ -76,10 +73,8 @@ func (s *InventoryRepositoryImpl) DeleteByID(id entity.ID) error {
 	query := `
 	DELETE FROM inventory_item
 	WHERE 
-		id=@id;`
-	return s.execExpectingSingleRowAffected(query,
-		goSql.Named("id", id),
-	)
+		id=$1;`
+	return s.execExpectingSingleRowAffected(query, id)
 }
 
 // Update persists new data for all fields in the given inventory item,
@@ -88,14 +83,14 @@ func (s *InventoryRepositoryImpl) Update(e entity.InventoryItem) error {
 	query := `
 	UPDATE inventory_item
 	SET
-		name=@name, location=@location, available=@available
+		name=$1, location=$2, available=$3
 	WHERE 
-		id=@id;`
+		id=$4;`
 	return s.execExpectingSingleRowAffected(query,
-		goSql.Named("name", e.Name()),
-		goSql.Named("location", e.Location()),
-		goSql.Named("available", e.IsAvailable()),
-		goSql.Named("id", e.ID()),
+		e.Name(),
+		e.Location(),
+		e.IsAvailable(),
+		e.ID(),
 	)
 }
 
