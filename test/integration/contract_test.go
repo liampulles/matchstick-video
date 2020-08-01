@@ -74,6 +74,13 @@ func TestInventoryItemLifecycle_ShouldCreateRetrieveUpdateAndDelete(t *testing.T
 	expected = fmt.Sprintf(`{"id":%s,"name":"Cool Runnings (1994)","location":"AD12","available":true}`, id)
 	assert.Equal(t, body, expected)
 
+	// Test read all
+	resp = get(t, "/inventory")
+	assertOk(t, resp)
+	body = extractString(t, resp)
+	expected = fmt.Sprintf(`[{"id":%s,"name":"Cool Runnings (1994)","location":"AD12","available":true}]`, id)
+	assert.Equal(t, body, expected)
+
 	// Test update
 	resp = putJSON(t, "/inventory/"+id, `{
 		"Name": "Cool Runnings (1994) UPDATED",

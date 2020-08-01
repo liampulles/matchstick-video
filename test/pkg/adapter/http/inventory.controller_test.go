@@ -57,6 +57,10 @@ func (suite *InventoryControllerTestSuite) TestGetHandlers_ShouldReturnAllHandle
 			PathPattern: "/inventory/{id}",
 		},
 		http.HandlerPattern{
+			Method:      goHttp.MethodGet,
+			PathPattern: "/inventory",
+		},
+		http.HandlerPattern{
 			Method:      goHttp.MethodPut,
 			PathPattern: "/inventory/{id}",
 		},
@@ -288,6 +292,84 @@ func (suite *InventoryControllerTestSuite) TestReadDetails_WhenEncoderServicePas
 
 	// Exercise SUT
 	actual := suite.sut.ReadDetails(requestFixture)
+
+	// Verify results
+	suite.Equal(expected, actual)
+}
+
+func (suite *InventoryControllerTestSuite) TestReadAll_WhenInventoryServiceFails_ShouldFail() {
+	// Setup fixture
+	requestFixture := &http.Request{}
+
+	// Setup expectations
+	expected := &http.Response{
+		StatusCode: 101,
+		Body:       []byte("some.response"),
+	}
+
+	// Setup mocks
+	mockErr := fmt.Errorf("mock.error")
+	suite.mockInventoryService.On("ReadAll").
+		Return(nil, mockErr)
+	suite.mockResponseFactory.On("CreateFromError", mockErr).
+		Return(expected)
+
+	// Exercise SUT
+	actual := suite.sut.ReadAll(requestFixture)
+
+	// Verify results
+	suite.Equal(expected, actual)
+}
+
+func (suite *InventoryControllerTestSuite) TestReadAll_WhenEncoderServiceFails_ShouldFail() {
+	// Setup fixture
+	requestFixture := &http.Request{}
+
+	// Setup expectations
+	expected := &http.Response{
+		StatusCode: 101,
+		Body:       []byte("some.response"),
+	}
+
+	// Setup mocks
+	mockErr := fmt.Errorf("mock.error")
+	mockVos := []inventory.ViewVO{inventory.ViewVO{Name: "some.name"}}
+	suite.mockInventoryService.On("ReadAll").
+		Return(mockVos, nil)
+	suite.mockEncoderService.On("FromInventoryItemViews", mockVos).
+		Return(nil, mockErr)
+	suite.mockResponseFactory.On("CreateFromError", mockErr).
+		Return(expected)
+
+	// Exercise SUT
+	actual := suite.sut.ReadAll(requestFixture)
+
+	// Verify results
+	suite.Equal(expected, actual)
+}
+
+func (suite *InventoryControllerTestSuite) TestReadAll_WhenEncoderServicePasses_ShouldReturnOK() {
+	// Setup fixture
+	requestFixture := &http.Request{}
+
+	// Setup expectations
+	expected := &http.Response{
+		StatusCode: 101,
+		Body:       []byte("some.response"),
+	}
+
+	// Setup mocks
+	mockVos := []inventory.ViewVO{inventory.ViewVO{Name: "some.name"}}
+	mockJson := []byte("some.json")
+	suite.mockInventoryService.On("ReadAll").
+		Return(mockVos, nil)
+	suite.mockEncoderService.On("FromInventoryItemViews", mockVos).
+		Return(mockJson, nil)
+	suite.mockResponseFactory.On("CreateJSON", uint(200), mockJson).
+		Return(expected)
+
+	// Exercise SUT
+	actual := suite.sut.ReadAll(requestFixture)
 
 	// Verify results
 	suite.Equal(expected, actual)

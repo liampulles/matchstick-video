@@ -20,6 +20,12 @@ func (d *MockEncoderService) FromInventoryItemView(view *inventory.ViewVO) ([]by
 	return safeArgsGetBytes(args, 0), args.Error(1)
 }
 
+// FromInventoryItemViews is for mcoking
+func (d *MockEncoderService) FromInventoryItemViews(views []inventory.ViewVO) ([]byte, error) {
+	args := d.Called(views)
+	return safeArgsGetBytes(args, 0), args.Error(1)
+}
+
 func safeArgsGetBytes(args mock.Arguments, idx int) []byte {
 	if val, ok := args.Get(idx).([]byte); ok {
 		return val

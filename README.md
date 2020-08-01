@@ -76,7 +76,7 @@ Example body:
 
 ```json
 {
-    "name": "Cool Runnings (1994)",
+    "name": "Cool Runnings (1993)",
     "location": "AD12"
 }
 ```
@@ -96,10 +96,35 @@ Example response:
 ```json
 {
     "id": 1,
-    "name": "Cool Runnings (1994)",
+    "name": "Cool Runnings (1993)",
     "location": "AD12",
     "available": true
 }
+```
+
+#### Read all
+
+GET on `/inventory`
+
+Example response:
+
+`200`:
+
+```json
+[
+    {
+        "id": 1,
+        "name": "Cool Runnings (1993)",
+        "location": "AD12",
+        "available": true
+    },
+    {
+        "id": 2,
+        "name": "The Matrix (1999)",
+        "location": "DC01",
+        "available": false
+    }
+]
 ```
 
 #### Update
@@ -110,7 +135,7 @@ Example body:
 
 ```json
 {
-    "name": "Cool Runnings (1994) UPDATED",
+    "name": "Cool Runnings (1993) UPDATED",
     "location": "AD12 UPDATED"
 }
 ```

@@ -44,6 +44,7 @@ func (i *InventoryControllerImpl) GetHandlers() map[HandlerPattern]Handler {
 
 	addHandler(handlers, http.MethodPost, "/inventory", i.Create)
 	addHandler(handlers, http.MethodGet, "/inventory/{id}", i.ReadDetails)
+	addHandler(handlers, http.MethodGet, "/inventory", i.ReadAll)
 	addHandler(handlers, http.MethodPut, "/inventory/{id}", i.Update)
 	addHandler(handlers, http.MethodDelete, "/inventory/{id}", i.Delete)
 	addHandler(handlers, http.MethodPut, "/inventory/{id}/checkout", i.Checkout)
@@ -86,6 +87,24 @@ func (i *InventoryControllerImpl) ReadDetails(request *Request) *Response {
 
 	// Encode to JSON
 	json, err := i.encoderService.FromInventoryItemView(vo)
+	if err != nil {
+		return i.responseFactory.CreateFromError(err)
+	}
+
+	// Create response
+	return i.responseFactory.CreateJSON(200, json)
+}
+
+// ReadAll can be called to get details on all inventory items
+func (i *InventoryControllerImpl) ReadAll(request *Request) *Response {
+	// Delegate to service
+	vos, err := i.inventoryService.ReadAll()
+	if err != nil {
+		return i.responseFactory.CreateFromError(err)
+	}
+
+	// Encode to JSON
+	json, err := i.encoderService.FromInventoryItemViews(vos)
 	if err != nil {
 		return i.responseFactory.CreateFromError(err)
 	}
