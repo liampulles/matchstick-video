@@ -32,14 +32,10 @@ func TestCreateServerFactory_GivenBadDBConfig_ShouldFail(t *testing.T) {
 	fixture := goConfig.MapSource(map[string]string{
 		"DB_HOST": "not.a.url",
 	})
-
-	// Setup expectations
-	expectedErr := "could not create database service - could not migrate db: could not migrate postgres db - driver error: failed to connect to `host=not.a.url user=matchvid database=matchvid`: hostname resolving error (lookup not.a.url: no such host)"
-
 	// Exercise SUT
 	actual, err := wire.CreateServerFactory(fixture)
 
 	// Verify results
 	assert.Nil(t, actual)
-	assert.EqualError(t, err, expectedErr)
+	assert.Error(t, err)
 }
