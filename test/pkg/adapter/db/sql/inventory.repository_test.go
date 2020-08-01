@@ -148,6 +148,149 @@ func (suite *InventoryRepositoryTestSuite) TestFindByID_WhenDBSucceeds_ShouldRet
 	suite.Equal(mockEntity, actual)
 }
 
+func (suite *InventoryRepositoryTestSuite) TestFindAll_WhenHelperServiceFails_ShouldFail() {
+	// Setup expectations
+	expectedSql := `
+	SELECT 
+		id, 
+		name, 
+		location, 
+		available 
+	FROM inventory_item;`
+	expectedErr := "cannot execute query - db get row error: mock.error"
+
+	// Setup mocks
+	mockErr := fmt.Errorf("mock.error")
+	suite.mockDbService.On("Get").Return(suite.db)
+	suite.mockHelperService.
+		On("ManyRowsQuery", suite.db, expectedSql).
+		Return(nil, mockErr)
+
+	// Exercise SUT
+	actual, err := suite.sut.FindAll()
+
+	// Verify results
+	suite.Nil(actual)
+	suite.EqualError(err, expectedErr)
+}
+
+func (suite *InventoryRepositoryTestSuite) TestFindAll_WhenScanFails_ShouldFail() {
+	// Setup expectations
+	expectedSql := `
+	SELECT 
+		id, 
+		name, 
+		location, 
+		available 
+	FROM inventory_item;`
+	expectedErr := "entity not found: type=[inventory item]"
+
+	// Setup mocks
+	mockRows := &sqlMocks.RowsMock{}
+	mockErr := fmt.Errorf("mock.error")
+	suite.mockDbService.On("Get").Return(suite.db)
+	suite.mockHelperService.
+		On("ManyRowsQuery", suite.db, expectedSql).
+		Return(mockRows, nil)
+	mockRows.On("Next").Return(true)
+	mockRows.
+		On("Scan", mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(mockErr)
+
+	// Exercise SUT
+	actual, err := suite.sut.FindAll()
+
+	// Verify results
+	suite.Nil(actual)
+	suite.EqualError(err, expectedErr)
+}
+
+func (suite *InventoryRepositoryTestSuite) TestFindAll_WhenRowsErrFails_ShouldFail() {
+	// Setup expectations
+	expectedSql := `
+	SELECT 
+		id, 
+		name, 
+		location, 
+		available 
+	FROM inventory_item;`
+	expectedErr := "cannot execute query - db row iteration error: mock.error"
+
+	// Setup mocks
+	mockRows := &sqlMocks.RowsMock{}
+	mockErr := fmt.Errorf("mock.error")
+	suite.mockDbService.On("Get").Return(suite.db)
+	suite.mockHelperService.
+		On("ManyRowsQuery", suite.db, expectedSql).
+		Return(mockRows, nil)
+	mockRows.On("Next").Return(false)
+	mockRows.On("Err").Return(mockErr)
+
+	// Exercise SUT
+	actual, err := suite.sut.FindAll()
+
+	// Verify results
+	suite.Nil(actual)
+	suite.EqualError(err, expectedErr)
+}
+
+func (suite *InventoryRepositoryTestSuite) TestFindAll_WhenCloseFails_ShouldFail() {
+	// Setup expectations
+	expectedSql := `
+	SELECT 
+		id, 
+		name, 
+		location, 
+		available 
+	FROM inventory_item;`
+	expectedErr := "cannot execute query - db row close error: mock.error"
+
+	// Setup mocks
+	mockRows := &sqlMocks.RowsMock{}
+	mockErr := fmt.Errorf("mock.error")
+	suite.mockDbService.On("Get").Return(suite.db)
+	suite.mockHelperService.
+		On("ManyRowsQuery", suite.db, expectedSql).
+		Return(mockRows, nil)
+	mockRows.On("Next").Return(false)
+	mockRows.On("Err").Return(nil)
+	mockRows.On("Close").Return(mockErr)
+
+	// Exercise SUT
+	actual, err := suite.sut.FindAll()
+
+	// Verify results
+	suite.Nil(actual)
+	suite.EqualError(err, expectedErr)
+}
+
+func (suite *InventoryRepositoryTestSuite) TestFindAll_WhenClosePasses_ShouldPass() {
+	// Setup expectations
+	expectedSql := `
+	SELECT 
+		id, 
+		name, 
+		location, 
+		available 
+	FROM inventory_item;`
+
+	// Setup mocks
+	mockRows := &sqlMocks.RowsMock{}
+	suite.mockDbService.On("Get").Return(suite.db)
+	suite.mockHelperService.
+		On("ManyRowsQuery", suite.db, expectedSql).
+		Return(mockRows, nil)
+	mockRows.On("Next").Return(false)
+	mockRows.On("Err").Return(nil)
+	mockRows.On("Close").Return(nil)
+
+	// Exercise SUT
+	_, err := suite.sut.FindAll()
+
+	// Verify results
+	suite.NoError(err)
+}
+
 func (suite *InventoryRepositoryTestSuite) TestCreate_WhenHelperServiceFails_ShouldFail() {
 	// Setup expectations
 	expectedSql := `

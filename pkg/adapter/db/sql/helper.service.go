@@ -15,7 +15,7 @@ type Row interface {
 
 // Rows encapsulates *goSql.Rows for testing purposes
 type Rows interface {
-	Scan(dest ...interface{}) error
+	Row
 	Close() error
 	Err() error
 	Next() bool

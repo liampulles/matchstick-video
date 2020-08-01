@@ -46,6 +46,18 @@ func (s *InventoryRepositoryImpl) FindByID(id entity.ID) (entity.InventoryItem, 
 	return s.singleEntityQuery(query, id)
 }
 
+// FindAll retrieves all the inventory items in the database
+func (s *InventoryRepositoryImpl) FindAll() ([]entity.InventoryItem, error) {
+	query := `
+	SELECT 
+		id, 
+		name, 
+		location, 
+		available 
+	FROM inventory_item;`
+	return s.manyEntityQuery(query)
+}
+
 // Create persists a new entity. The ID is ignored in the input entity, and the
 // generated id is then returned.
 func (s *InventoryRepositoryImpl) Create(e entity.InventoryItem) (entity.ID, error) {
@@ -124,6 +136,31 @@ func (s *InventoryRepositoryImpl) singleEntityQuery(query string, args ...interf
 		return nil, db.NewNotFoundError("inventory item")
 	}
 	return res, nil
+}
+
+func (s *InventoryRepositoryImpl) manyEntityQuery(query string, args ...interface{}) ([]entity.InventoryItem, error) {
+	// Run the query to get a row
+	rows, err := s.helperService.ManyRowsQuery(s.dbService.Get(), query, args...)
+	if err != nil {
+		return nil, fmt.Errorf("cannot execute query - db get row error: %w", err)
+	}
+
+	// Extract data from the row
+	var results []entity.InventoryItem
+	for rows.Next() {
+		res, err := s.scanInventoryItem(rows)
+		if err != nil {
+			return nil, db.NewNotFoundError("inventory item")
+		}
+		results = append(results, res)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("cannot execute query - db row iteration error: %w", err)
+	}
+	if err = rows.Close(); err != nil {
+		return nil, fmt.Errorf("cannot execute query - db row close error: %w", err)
+	}
+	return results, nil
 }
 
 func (s *InventoryRepositoryImpl) scanInventoryItem(row Row) (entity.InventoryItem, error) {

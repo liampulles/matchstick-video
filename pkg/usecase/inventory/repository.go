@@ -9,6 +9,7 @@ import (
 type Repository interface {
 	Create(entity.InventoryItem) (entity.ID, error)
 	FindByID(entity.ID) (entity.InventoryItem, error)
+	FindAll() ([]entity.InventoryItem, error)
 	Update(entity.InventoryItem) error
 	DeleteByID(entity.ID) error
 }

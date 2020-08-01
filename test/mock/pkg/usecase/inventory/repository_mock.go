@@ -26,6 +26,12 @@ func (m *MockRepository) FindByID(id entity.ID) (entity.InventoryItem, error) {
 	return safeArgsGetInventoryItem(args, 0), args.Error(1)
 }
 
+// FindAll is for mocking
+func (m *MockRepository) FindAll() ([]entity.InventoryItem, error) {
+	args := m.Called()
+	return safeArgsGetInventoryItems(args, 0), args.Error(1)
+}
+
 // Update is for mocking
 func (m *MockRepository) Update(e entity.InventoryItem) error {
 	args := m.Called(e)
@@ -40,6 +46,13 @@ func (m *MockRepository) DeleteByID(id entity.ID) error {
 
 func safeArgsGetInventoryItem(args mock.Arguments, idx int) entity.InventoryItem {
 	if val, ok := args.Get(idx).(entity.InventoryItem); ok {
+		return val
+	}
+	return nil
+}
+
+func safeArgsGetInventoryItems(args mock.Arguments, idx int) []entity.InventoryItem {
+	if val, ok := args.Get(idx).([]entity.InventoryItem); ok {
 		return val
 	}
 	return nil
