@@ -21,7 +21,6 @@ type Store interface {
 // StoreImpl implements store
 type StoreImpl struct {
 	port            int
-	dbDriver        string
 	migrationSource string
 	dbUser          string
 	dbPassword      string
@@ -50,7 +49,6 @@ func NewStoreImpl(source goConfig.Source) (*StoreImpl, error) {
 	// Read in from source
 	if err := goConfig.LoadProperties(typedSource,
 		goConfig.IntProp("PORT", &store.port, false),
-		goConfig.StrProp("DB_DRIVER", &store.dbDriver, false),
 		goConfig.StrProp("MIGRATION_SOURCE", &store.migrationSource, false),
 		goConfig.StrProp("DB_USER", &store.dbUser, false),
 		goConfig.StrProp("DB_PASSWORD", &store.dbPassword, false),

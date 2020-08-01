@@ -13,10 +13,20 @@ type Row interface {
 	Scan(dest ...interface{}) error
 }
 
+// Rows encapsulates *goSql.Rows for testing purposes
+type Rows interface {
+	Scan(dest ...interface{}) error
+	Close() error
+	Err() error
+	Next() bool
+	NextResultSet() bool
+}
+
 // HelperService encapsulates some common methods on sql.DB.
 type HelperService interface {
 	ExecForRowsAffected(db *goSql.DB, query string, args ...interface{}) (int64, error)
 	SingleRowQuery(db *goSql.DB, query string, args ...interface{}) (Row, error)
+	ManyRowsQuery(db *goSql.DB, query string, args ...interface{}) (Rows, error)
 	SingleQueryForID(db *goSql.DB, query string, args ...interface{}) (entity.ID, error)
 }
 
@@ -54,6 +64,19 @@ func (s *HelperServiceImpl) SingleRowQuery(db *goSql.DB, query string, args ...i
 
 	// Run the query to get row
 	return stmt.QueryRowContext(ctx, args...), nil
+}
+
+// ManyRowsQuery will run a query type SQL which gives many rows
+func (s *HelperServiceImpl) ManyRowsQuery(db *goSql.DB, query string, args ...interface{}) (Rows, error) {
+	// Prepare the query
+	ctx := context.TODO()
+	stmt, err := db.PrepareContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+
+	// Run the query to get rows
+	return stmt.QueryContext(ctx, args...)
 }
 
 // SingleQueryForID will run SQL which returns an id, and return the entity form of

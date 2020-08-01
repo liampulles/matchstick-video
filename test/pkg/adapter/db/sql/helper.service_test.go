@@ -240,6 +240,74 @@ func (suite *HelperServiceTestSuite) TestSingleQueryForID_WhenScanPasses_ShouldR
 	suite.Equal(entity.ID(101), actual)
 }
 
+func (suite *HelperServiceTestSuite) TestManyRowsQuery_WhenPrepareContextFails_ShouldFail() {
+	// Setup fixture
+	queryFixture := "some.query"
+	arg1Fixture := "arg.1"
+	arg2Fixture := 2
+
+	// Setup expectations
+	expectedErr := "mock.error"
+
+	// Setup mocks
+	mockErr := fmt.Errorf(expectedErr)
+	suite.mockDb.ExpectPrepare(queryFixture).
+		WillReturnError(mockErr)
+
+	// Exercise SUT
+	actual, err := suite.sut.ManyRowsQuery(suite.db, queryFixture, arg1Fixture, arg2Fixture)
+
+	// Verify results
+	suite.Nil(actual)
+	suite.EqualError(err, expectedErr)
+}
+
+func (suite *HelperServiceTestSuite) TestManyRowsQuery_WhenQueryRowContextFails_ShouldFail() {
+	// Setup fixture
+	queryFixture := "some.query"
+	arg1Fixture := "arg.1"
+	arg2Fixture := 2
+
+	// Setup expectations
+	expectedErr := "mock.error"
+
+	// Setup mocks
+	mockErr := fmt.Errorf(expectedErr)
+	suite.mockDb.ExpectPrepare(queryFixture).
+		ExpectQuery().
+		WithArgs(arg1Fixture, arg2Fixture).
+		WillReturnError(mockErr)
+
+	// Exercise SUT
+	actual, err := suite.sut.ManyRowsQuery(suite.db, queryFixture, arg1Fixture, arg2Fixture)
+
+	// Verify results
+	suite.Nil(actual)
+	suite.EqualError(err, expectedErr)
+}
+
+func (suite *HelperServiceTestSuite) TestManyRowsQuery_WhenQueryRowContextPasses_ShouldReturnAsExpected() {
+	// Setup fixture
+	queryFixture := "some.query"
+	arg1Fixture := "arg.1"
+	arg2Fixture := 2
+
+	// Setup mocks
+	mockRows := suite.mockDb.NewRows([]string{"some", "columns"}).
+		FromCSVString("with,data")
+	suite.mockDb.ExpectPrepare(queryFixture).
+		ExpectQuery().
+		WithArgs(arg1Fixture, arg2Fixture).
+		WillReturnRows(mockRows)
+
+	// Exercise SUT
+	actual, err := suite.sut.ManyRowsQuery(suite.db, queryFixture, arg1Fixture, arg2Fixture)
+
+	// Verify results
+	suite.NoError(err)
+	suite.NotNil(actual)
+}
+
 type mockResult struct {
 	mock.Mock
 	Data string

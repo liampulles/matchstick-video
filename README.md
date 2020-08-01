@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="#status">Status</a> •
-  <a href="#install">Install</a> •
+  <a href="#run">Run</a> •
   <a href="#configuration">Configuration</a> •
   <a href="#usage">Usage</a> •
   <a href="#benchmark">Benchmark</a> •
@@ -42,9 +42,9 @@
 
 Matchstick Video is currently in heavy development.
 
-## Install
+## Run
 
-### Native
+First you'll need a PostgreSQL DB running. The easist way is to clone the repo and run `docker-compose up -d db`.
 
 Either download a release from the releases page, or clone and run `make install`, and execute:
 
@@ -52,28 +52,100 @@ Either download a release from the releases page, or clone and run `make install
 matchstick-video
 ```
 
-### Docker
-
-Either pull `lpulles/matchstick-video:latest`, or clone and run `make docker-build`, and execute:
-
-```bash
-docker run -p 8080:8080 lpulles/matchstick-video:latest
-```
-
 ## Configuration
 
 You can set the following environment variables:
 
-* `PORT`: What port to run the server on. Defaults to `8080`
-* `LOGLEVEL`: What level to log at. Valid levels: [`INFO`, `ERROR`]. Defaults to `INFO`.
+* `PORT`: What port to run the server on. Defaults to `8080`.
+* `MIGRATION_SOURCE`: Folder which contains DB migrations. Defaults to `file://migrations`.
+* `DB_USER`: Username for DB. Defaults to `matchvid`'
+* `DB_PASSWORD`: Password for DB. Defaults to `password`.
+* `DB_HOST`: Host where the DB can be accessed. Defaults to `localhost`.
+* `DB_PORT`: Port where the DB can be accessed. Defaults to `5432`.
+* `DB_NAME`: Name of the database. Defaults to `matchvid`.
 
 ## Usage
 
-TODO
+### Inventory Items
+
+#### Create
+
+POST on `/inventory`
+
+Example body:
+
+```json
+{
+    "name": "Cool Runnings (1994)",
+    "location": "AD12"
+}
+```
+
+Example response:
+
+`201`: 1
+
+#### Read one
+
+GET on `/inventory/{id}`
+
+Example response:
+
+`200`:
+
+```json
+{
+    "id": 1,
+    "name": "Cool Runnings (1994)",
+    "location": "AD12",
+    "available": true
+}
+```
+
+#### Update
+
+PUT on `/inventory/{id}`
+
+Example body:
+
+```json
+{
+    "name": "Cool Runnings (1994) UPDATED",
+    "location": "AD12 UPDATED"
+}
+```
+
+Example response:
+
+`204`
+
+#### Delete
+
+DELETE on `/inventory/{id}`
+
+Example response:
+
+`204`
+
+#### Check out
+
+PUT on `/inventory/{id}/checkout`
+
+Example response:
+
+`204`
+
+#### Check in
+
+PUT on `/inventory/{id}/checkin`
+
+Example response:
+
+`204`
 
 ## Benchmark
 
-Result of `matchstick-video 2>/dev/null & siege -t30s http://127.0.0.1:8080`
+Result of `matchstick-video 2>/dev/null & siege -t30s http://127.0.0.1:8080/inventory`
 
 TODO
 
