@@ -26,6 +26,12 @@ func (s *MockService) ReadDetails(id entity.ID) (*inventory.ViewVO, error) {
 	return safeArgsGetViewVO(args, 0), args.Error(1)
 }
 
+// ReadAll is for mocking
+func (s *MockService) ReadAll() ([]inventory.ViewVO, error) {
+	args := s.Called()
+	return safeArgsGetViewVOs(args, 0), args.Error(1)
+}
+
 // Update is for mocking
 func (s *MockService) Update(id entity.ID, vo *inventory.UpdateItemVO) error {
 	args := s.Called(id, vo)

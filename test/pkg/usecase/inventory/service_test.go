@@ -146,6 +146,44 @@ func (suite *ServiceImplTestSuite) TestReadDetails_WhenDelegatesSucceed_ShouldRe
 	suite.Equal(actual, expected)
 }
 
+func (suite *ServiceImplTestSuite) TestReadAll_WhenRepositoryFails_ShouldFail() {
+	// Setup mocks
+	mockErr := fmt.Errorf("mock.error")
+	suite.mockRepository.On("FindAll").Return(nil, mockErr)
+
+	// Setup expectations
+	expectedErr := "could not read inventory items - repository error: mock.error"
+
+	// Exercise SUT
+	actual, err := suite.sut.ReadAll()
+
+	// Verify results
+	suite.Nil(actual)
+	suite.EqualError(err, expectedErr)
+}
+
+func (suite *ServiceImplTestSuite) TestReadAll_WhenDelegatesSucceed_ShouldReturnAsExpected() {
+	// Setup expectations
+	expected := []inventory.ViewVO{
+		inventory.ViewVO{
+			Name: "some.name",
+		},
+	}
+
+	// Setup mocks
+	mockEntity := &entityMocks.MockInventoryItem{Data: "mock.data"}
+	mockEntities := []entity.InventoryItem{mockEntity}
+	suite.mockRepository.On("FindAll").Return(mockEntities, nil)
+	suite.mockVoFactory.On("CreateViewVOsFromEntities", mockEntities).Return(expected)
+
+	// Exercise SUT
+	actual, err := suite.sut.ReadAll()
+
+	// Verify results
+	suite.NoError(err)
+	suite.Equal(actual, expected)
+}
+
 func (suite *ServiceImplTestSuite) TestUpdate_WhenRepositoryFindFails_ShouldFail() {
 	// Setup fixture
 	idFixture := entity.ID(101)

@@ -20,8 +20,21 @@ func (v *MockVOFactory) CreateViewVOFromEntity(e entity.InventoryItem) *inventor
 	return safeArgsGetViewVO(args, 0)
 }
 
+// CreateViewVOsFromEntities is for mcoking
+func (v *MockVOFactory) CreateViewVOsFromEntities(entities []entity.InventoryItem) []inventory.ViewVO {
+	args := v.Called(entities)
+	return safeArgsGetViewVOs(args, 0)
+}
+
 func safeArgsGetViewVO(args mock.Arguments, idx int) *inventory.ViewVO {
 	if val, ok := args.Get(idx).(*inventory.ViewVO); ok {
+		return val
+	}
+	return nil
+}
+
+func safeArgsGetViewVOs(args mock.Arguments, idx int) []inventory.ViewVO {
+	if val, ok := args.Get(idx).([]inventory.ViewVO); ok {
 		return val
 	}
 	return nil

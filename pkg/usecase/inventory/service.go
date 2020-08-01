@@ -10,6 +10,7 @@ import (
 type Service interface {
 	Create(*CreateItemVO) (entity.ID, error)
 	ReadDetails(entity.ID) (*ViewVO, error)
+	ReadAll() ([]ViewVO, error)
 	Update(entity.ID, *UpdateItemVO) error
 	Delete(entity.ID) error
 
@@ -71,6 +72,20 @@ func (s *ServiceImpl) ReadDetails(id entity.ID) (*ViewVO, error) {
 	vo := s.voFactory.CreateViewVOFromEntity(found)
 
 	return vo, nil
+}
+
+// ReadAll retrieves all entities and returns views of them.
+func (s *ServiceImpl) ReadAll() ([]ViewVO, error) {
+	// Retrieve entity
+	found, err := s.inventoryRepository.FindAll()
+	if err != nil {
+		return nil, fmt.Errorf("could not read inventory items - repository error: %w", err)
+	}
+
+	// Create VO
+	vos := s.voFactory.CreateViewVOsFromEntities(found)
+
+	return vos, nil
 }
 
 // Update modifies an existing entity as directed by a vo, and
