@@ -1,4 +1,4 @@
-//abuild integration
+// +build integration
 
 package integration
 
