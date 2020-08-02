@@ -16,37 +16,37 @@ type MockHelperService struct {
 
 var _ sql.HelperService = &MockHelperService{}
 
-// ExecForRowsAffected is for mocking
-func (s *MockHelperService) ExecForRowsAffected(db *goSql.DB, query string, args ...interface{}) (int64, error) {
+// ExecForSingleItem is for mocking
+func (s *MockHelperService) ExecForSingleItem(db *goSql.DB, query string, args ...interface{}) error {
 	allArgs := make([]interface{}, 0)
 	allArgs = append(allArgs, db, query)
 	allArgs = append(allArgs, args...)
 	a := s.Called(allArgs...)
-	return a.Get(0).(int64), a.Error(1)
+	return a.Error(0)
 }
 
 // SingleRowQuery is for mocking
-func (s *MockHelperService) SingleRowQuery(db *goSql.DB, query string, args ...interface{}) (sql.Row, error) {
+func (s *MockHelperService) SingleRowQuery(db *goSql.DB, query string, scanFunc sql.ScanFunc, _type string, args ...interface{}) error {
 	allArgs := make([]interface{}, 0)
-	allArgs = append(allArgs, db, query)
+	allArgs = append(allArgs, db, query, scanFunc, _type)
 	allArgs = append(allArgs, args...)
 	a := s.Called(allArgs...)
-	return safeArgsGetRow(a, 0), a.Error(1)
+	return a.Error(0)
 }
 
 // ManyRowsQuery is for mocking
-func (s *MockHelperService) ManyRowsQuery(db *goSql.DB, query string, args ...interface{}) (sql.Rows, error) {
+func (s *MockHelperService) ManyRowsQuery(db *goSql.DB, query string, scanFunc sql.ScanFunc, _type string, args ...interface{}) error {
 	allArgs := make([]interface{}, 0)
-	allArgs = append(allArgs, db, query)
+	allArgs = append(allArgs, db, query, scanFunc, _type)
 	allArgs = append(allArgs, args...)
 	a := s.Called(allArgs...)
-	return safeArgsGetRows(a, 0), a.Error(1)
+	return a.Error(0)
 }
 
 // SingleQueryForID is for mocking
-func (s *MockHelperService) SingleQueryForID(db *goSql.DB, query string, args ...interface{}) (entity.ID, error) {
+func (s *MockHelperService) SingleQueryForID(db *goSql.DB, query string, _type string, args ...interface{}) (entity.ID, error) {
 	allArgs := make([]interface{}, 0)
-	allArgs = append(allArgs, db, query)
+	allArgs = append(allArgs, db, query, _type)
 	allArgs = append(allArgs, args...)
 	a := s.Called(allArgs...)
 	return a.Get(0).(entity.ID), a.Error(1)

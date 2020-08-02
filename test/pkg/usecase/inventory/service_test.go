@@ -73,7 +73,7 @@ func (suite *ServiceImplTestSuite) TestCreate_WhenRepositoryFails_ShouldFail() {
 	suite.mockRepository.On("Create", mockEntity).Return(entity.InvalidID, mockErr)
 
 	// Setup expectations
-	expectedErr := "could not create inventory item - repository error: mock.error"
+	expectedErr := "could not create inventory item - repository create error: mock.error"
 
 	// Exercise SUT
 	actual, err := suite.sut.Create(voFixture)
@@ -114,7 +114,7 @@ func (suite *ServiceImplTestSuite) TestReadDetails_WhenRepositoryFails_ShouldFai
 	suite.mockRepository.On("FindByID", idFixture).Return(nil, mockErr)
 
 	// Setup expectations
-	expectedErr := "could not read inventory item - repository error: mock.error"
+	expectedErr := "could not read inventory item - repository find error: mock.error"
 
 	// Exercise SUT
 	actual, err := suite.sut.ReadDetails(idFixture)
@@ -152,7 +152,7 @@ func (suite *ServiceImplTestSuite) TestReadAll_WhenRepositoryFails_ShouldFail() 
 	suite.mockRepository.On("FindAll").Return(nil, mockErr)
 
 	// Setup expectations
-	expectedErr := "could not read inventory items - repository error: mock.error"
+	expectedErr := "could not read inventory items - repository find error: mock.error"
 
 	// Exercise SUT
 	actual, err := suite.sut.ReadAll()
@@ -196,7 +196,7 @@ func (suite *ServiceImplTestSuite) TestUpdate_WhenRepositoryFindFails_ShouldFail
 	suite.mockRepository.On("FindByID", entity.ID(101)).Return(nil, mockErr)
 
 	// Setup expectations
-	expectedErr := "could not update inventory item - repository error: mock.error"
+	expectedErr := "could not update inventory item - repository find error: mock.error"
 
 	// Exercise SUT
 	err := suite.sut.Update(idFixture, voFixture)
@@ -236,7 +236,7 @@ func (suite *ServiceImplTestSuite) TestUpdate_WhenRepositoryUpdateFails_ShouldFa
 	}
 
 	// Setup expectations
-	expectedErr := "could not update inventory item - repository error: mock.error"
+	expectedErr := "could not update inventory item - repository update error: mock.error"
 
 	// Setup mocks
 	mockEntity := &entityMocks.MockInventoryItem{Data: "mock.data"}
@@ -281,7 +281,7 @@ func (suite *ServiceImplTestSuite) TestDelete_WhenRepositoryFails_ShouldFail() {
 	suite.mockRepository.On("DeleteByID", idFixture).Return(mockErr)
 
 	// Setup expectations
-	expectedErr := "could not delete inventory item - repository error: mock.error"
+	expectedErr := "could not delete inventory item - repository delete error: mock.error"
 
 	// Exercise SUT
 	err := suite.sut.Delete(idFixture)
@@ -313,7 +313,7 @@ func (suite *ServiceImplTestSuite) TestCheckout_WhenRepositoryFindFails_ShouldFa
 	suite.mockRepository.On("FindByID", idFixture).Return(nil, mockErr)
 
 	// Setup expectations
-	expectedErr := "could not checkout inventory item - repository error: mock.error"
+	expectedErr := "could not checkout inventory item - repository find error: mock.error"
 
 	// Exercise SUT
 	err := suite.sut.Checkout(idFixture)
@@ -354,7 +354,7 @@ func (suite *ServiceImplTestSuite) TestCheckout_WhenRepositoryUpdateFails_Should
 	suite.mockRepository.On("Update", mockEntity).Return(mockErr)
 
 	// Setup expectations
-	expectedErr := "could not checkout inventory item - repository error: mock.error"
+	expectedErr := "could not checkout inventory item - repository update error: mock.error"
 
 	// Exercise SUT
 	err := suite.sut.Checkout(idFixture)
@@ -389,7 +389,7 @@ func (suite *ServiceImplTestSuite) TestCheckIn_WhenRepositoryFindFails_ShouldFai
 	suite.mockRepository.On("FindByID", idFixture).Return(nil, mockErr)
 
 	// Setup expectations
-	expectedErr := "could not check in inventory item - repository error: mock.error"
+	expectedErr := "could not check in inventory item - repository find error: mock.error"
 
 	// Exercise SUT
 	err := suite.sut.CheckIn(idFixture)
@@ -430,7 +430,7 @@ func (suite *ServiceImplTestSuite) TestCheckIn_WhenRepositoryUpdateFails_ShouldF
 	suite.mockRepository.On("Update", mockEntity).Return(mockErr)
 
 	// Setup expectations
-	expectedErr := "could not check in inventory item - repository error: mock.error"
+	expectedErr := "could not check in inventory item - repository update error: mock.error"
 
 	// Exercise SUT
 	err := suite.sut.CheckIn(idFixture)

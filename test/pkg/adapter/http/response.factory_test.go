@@ -110,6 +110,24 @@ func (suite *ResponseFactoryImplTestSuite) TestCreateFromError_WhenIsNotFoundErr
 	suite.Equal(expected, actual)
 }
 
+func (suite *ResponseFactoryImplTestSuite) TestCreateFromError_WhenIsUniqueConstraintError_ShouldReturnValidationError() {
+	// Setup fixture
+	fixture := db.NewUniqueConstraintError(fmt.Errorf("some.error"))
+
+	// Setup expectations
+	expected := &http.Response{
+		ContentType: "text/plain; charset=utf-8",
+		StatusCode:  400,
+		Body:        []byte("uniqueness constraint error: some.error"),
+	}
+
+	// Exercise SUT
+	actual := suite.sut.CreateFromError(fixture)
+
+	// Verify results
+	suite.Equal(expected, actual)
+}
+
 func (suite *ResponseFactoryImplTestSuite) TestCreateFromError_WhenIsArbitraryError_ShouldReturnInternalServerError() {
 	// Setup fixture
 	fixture := fmt.Errorf("some.error")

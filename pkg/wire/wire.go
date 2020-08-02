@@ -4,6 +4,7 @@ import (
 	goConfig "github.com/liampulles/go-config"
 
 	"github.com/liampulles/matchstick-video/pkg/adapter/config"
+	adapterDb "github.com/liampulles/matchstick-video/pkg/adapter/db"
 	"github.com/liampulles/matchstick-video/pkg/adapter/db/sql"
 	"github.com/liampulles/matchstick-video/pkg/adapter/http"
 	"github.com/liampulles/matchstick-video/pkg/adapter/http/json"
@@ -36,9 +37,10 @@ func CreateServerFactory(source goConfig.Source) (http.ServerFactory, error) {
 	if err != nil {
 		return nil, err
 	}
+	errorParser := adapterDb.NewErrorParserImpl()
 
 	// --- NEXT TAP ---
-	helperService := sql.NewHelperServiceImpl()
+	helperService := sql.NewHelperServiceImpl(errorParser)
 	databaseService, err := db.NewDatabaseServiceImpl(
 		configStore,
 	)

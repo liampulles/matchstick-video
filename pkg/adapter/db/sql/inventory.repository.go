@@ -1,9 +1,6 @@
 package sql
 
 import (
-	"fmt"
-
-	"github.com/liampulles/matchstick-video/pkg/adapter/db"
 	"github.com/liampulles/matchstick-video/pkg/domain/entity"
 	usecaseInventory "github.com/liampulles/matchstick-video/pkg/usecase/inventory"
 )
@@ -61,8 +58,6 @@ func (s *InventoryRepositoryImpl) FindAll() ([]entity.InventoryItem, error) {
 // Create persists a new entity. The ID is ignored in the input entity, and the
 // generated id is then returned.
 func (s *InventoryRepositoryImpl) Create(e entity.InventoryItem) (entity.ID, error) {
-	// TODO: Return specific errors for unique constraint violations
-	// and parse those as 400's. Do for update as well.
 	query := `
 	INSERT INTO inventory_item
 		(
@@ -72,7 +67,7 @@ func (s *InventoryRepositoryImpl) Create(e entity.InventoryItem) (entity.ID, err
 		)
 	VALUES ($1, $2, $3)
 	RETURNING id;`
-	return s.helperService.SingleQueryForID(s.dbService.Get(), query,
+	return s.helperService.SingleQueryForID(s.dbService.Get(), query, "inventory item",
 		e.Name(),
 		e.Location(),
 		e.IsAvailable(),
@@ -86,7 +81,7 @@ func (s *InventoryRepositoryImpl) DeleteByID(id entity.ID) error {
 	DELETE FROM inventory_item
 	WHERE 
 		id=$1;`
-	return s.execExpectingSingleRowAffected(query, id)
+	return s.helperService.ExecForSingleItem(s.dbService.Get(), query, id)
 }
 
 // Update persists new data for all fields in the given inventory item,
@@ -98,7 +93,7 @@ func (s *InventoryRepositoryImpl) Update(e entity.InventoryItem) error {
 		name=$1, location=$2, available=$3
 	WHERE 
 		id=$4;`
-	return s.execExpectingSingleRowAffected(query,
+	return s.helperService.ExecForSingleItem(s.dbService.Get(), query,
 		e.Name(),
 		e.Location(),
 		e.IsAvailable(),
@@ -106,59 +101,33 @@ func (s *InventoryRepositoryImpl) Update(e entity.InventoryItem) error {
 	)
 }
 
-func (s *InventoryRepositoryImpl) execExpectingSingleRowAffected(query string, args ...interface{}) error {
-	// Run exec to get rows affected
-	rows, err := s.helperService.ExecForRowsAffected(s.dbService.Get(), query, args...)
-	if err != nil {
-		return fmt.Errorf("cannot execute exec - db exec error: %w", err)
-	}
-
-	// Verify rows affected is 1
-	if rows == 0 {
-		return db.NewNotFoundError("inventory item")
-	}
-	if rows != 1 {
-		return fmt.Errorf("exec error: expected 1 entity to be affected, but was: %d", rows)
-	}
-	return nil
-}
-
 func (s *InventoryRepositoryImpl) singleEntityQuery(query string, args ...interface{}) (entity.InventoryItem, error) {
-	// Run the query to get a row
-	row, err := s.helperService.SingleRowQuery(s.dbService.Get(), query, args...)
-	if err != nil {
-		return nil, fmt.Errorf("cannot execute query - db get row error: %w", err)
-	}
+	var result entity.InventoryItem
 
-	// Extract data from the row
-	res, err := s.scanInventoryItem(row)
-	if err != nil {
-		return nil, db.NewNotFoundError("inventory item")
-	}
-	return res, nil
+	// Run the query to get a row
+	err := s.helperService.SingleRowQuery(s.dbService.Get(), query, func(row Row) error {
+		res, err := s.scanInventoryItem(row)
+		result = res
+		return err
+	}, "inventory item", args...)
+
+	return result, err
 }
 
 func (s *InventoryRepositoryImpl) manyEntityQuery(query string, args ...interface{}) ([]entity.InventoryItem, error) {
-	// Run the query to get a row
-	rows, err := s.helperService.ManyRowsQuery(s.dbService.Get(), query, args...)
-	if err != nil {
-		return nil, fmt.Errorf("cannot execute query - db get row error: %w", err)
-	}
-
-	// Extract data from the row
 	var results []entity.InventoryItem
-	for rows.Next() {
-		res, err := s.scanInventoryItem(rows)
-		if err != nil {
-			return nil, db.NewNotFoundError("inventory item")
+
+	// Run the query to get a row
+	err := s.helperService.ManyRowsQuery(s.dbService.Get(), query, func(row Row) error {
+		res, err := s.scanInventoryItem(row)
+		if res != nil {
+			results = append(results, res)
 		}
-		results = append(results, res)
-	}
-	if err = rows.Err(); err != nil {
-		return nil, fmt.Errorf("cannot execute query - db row iteration error: %w", err)
-	}
-	if err = rows.Close(); err != nil {
-		return nil, fmt.Errorf("cannot execute query - db row close error: %w", err)
+		return err
+	}, "inventory item", args...)
+
+	if err != nil {
+		return nil, err
 	}
 	return results, nil
 }

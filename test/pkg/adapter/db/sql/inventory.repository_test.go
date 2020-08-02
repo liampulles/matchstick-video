@@ -59,93 +59,20 @@ func (suite *InventoryRepositoryTestSuite) TestFindByID_WhenHelperServiceFails_S
 	FROM inventory_item
 	WHERE 
 		id=$1;`
-	expectedErr := "cannot execute query - db get row error: mock.error"
+	expectedErr := "mock.error"
 
 	// Setup mocks
 	mockErr := fmt.Errorf("mock.error")
 	suite.mockDbService.On("Get").Return(suite.db)
 	suite.mockHelperService.
-		On("SingleRowQuery", suite.db, expectedSql, idFixture).
-		Return(nil, mockErr)
-
-	// Exercise SUT
-	actual, err := suite.sut.FindByID(idFixture)
-
-	// Verify results
-	suite.Nil(actual)
-	suite.EqualError(err, expectedErr)
-}
-
-func (suite *InventoryRepositoryTestSuite) TestFindByID_WhenScanFails_ShouldFailWithNotFound() {
-	// Setup fixture
-	idFixture := entity.ID(101)
-
-	// Setup expectations
-	expectedSql := `
-	SELECT 
-		id, 
-		name, 
-		location, 
-		available 
-	FROM inventory_item
-	WHERE 
-		id=$1;`
-	expectedErr := "entity not found: type=[inventory item]"
-
-	// Setup mocks
-	// -> missing element
-	mockRow := &sqlMocks.RowMock{}
-	mockErr := fmt.Errorf("mock.error")
-	suite.mockDbService.On("Get").Return(suite.db)
-	suite.mockHelperService.
-		On("SingleRowQuery", suite.db, expectedSql, idFixture).
-		Return(mockRow, nil)
-	mockRow.
-		On("Scan", mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		On("SingleRowQuery", suite.db, expectedSql, mock.Anything, "inventory item", idFixture).
 		Return(mockErr)
+
 	// Exercise SUT
-	actual, err := suite.sut.FindByID(idFixture)
+	_, err := suite.sut.FindByID(idFixture)
 
 	// Verify results
-	suite.Nil(actual)
 	suite.EqualError(err, expectedErr)
-}
-
-func (suite *InventoryRepositoryTestSuite) TestFindByID_WhenDBSucceeds_ShouldReturnEntity() {
-	// Setup fixture
-	idFixture := entity.ID(101)
-
-	// Setup expectations
-	expectedSql := `
-	SELECT 
-		id, 
-		name, 
-		location, 
-		available 
-	FROM inventory_item
-	WHERE 
-		id=$1;`
-
-	// Setup mocks
-	// -> missing element
-	mockRow := &sqlMocks.RowMock{}
-	mockEntity := &entityMocks.MockInventoryItem{Data: "some.data"}
-	suite.mockDbService.On("Get").Return(suite.db)
-	suite.mockHelperService.
-		On("SingleRowQuery", suite.db, expectedSql, idFixture).
-		Return(mockRow, nil)
-	mockRow.
-		On("Scan", mock.Anything, mock.Anything, mock.Anything, mock.Anything).
-		Return(nil)
-	suite.mockConstructor.
-		On("Reincarnate", mock.Anything, mock.Anything, mock.Anything, mock.Anything).
-		Return(mockEntity)
-	// Exercise SUT
-	actual, err := suite.sut.FindByID(idFixture)
-
-	// Verify results
-	suite.NoError(err)
-	suite.Equal(mockEntity, actual)
 }
 
 func (suite *InventoryRepositoryTestSuite) TestFindAll_WhenHelperServiceFails_ShouldFail() {
@@ -157,44 +84,13 @@ func (suite *InventoryRepositoryTestSuite) TestFindAll_WhenHelperServiceFails_Sh
 		location, 
 		available 
 	FROM inventory_item;`
-	expectedErr := "cannot execute query - db get row error: mock.error"
+	expectedErr := "mock.error"
 
 	// Setup mocks
 	mockErr := fmt.Errorf("mock.error")
 	suite.mockDbService.On("Get").Return(suite.db)
 	suite.mockHelperService.
-		On("ManyRowsQuery", suite.db, expectedSql).
-		Return(nil, mockErr)
-
-	// Exercise SUT
-	actual, err := suite.sut.FindAll()
-
-	// Verify results
-	suite.Nil(actual)
-	suite.EqualError(err, expectedErr)
-}
-
-func (suite *InventoryRepositoryTestSuite) TestFindAll_WhenScanFails_ShouldFail() {
-	// Setup expectations
-	expectedSql := `
-	SELECT 
-		id, 
-		name, 
-		location, 
-		available 
-	FROM inventory_item;`
-	expectedErr := "entity not found: type=[inventory item]"
-
-	// Setup mocks
-	mockRows := &sqlMocks.RowsMock{}
-	mockErr := fmt.Errorf("mock.error")
-	suite.mockDbService.On("Get").Return(suite.db)
-	suite.mockHelperService.
-		On("ManyRowsQuery", suite.db, expectedSql).
-		Return(mockRows, nil)
-	mockRows.On("Next").Return(true)
-	mockRows.
-		On("Scan", mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		On("ManyRowsQuery", suite.db, expectedSql, mock.Anything, "inventory item").
 		Return(mockErr)
 
 	// Exercise SUT
@@ -205,66 +101,7 @@ func (suite *InventoryRepositoryTestSuite) TestFindAll_WhenScanFails_ShouldFail(
 	suite.EqualError(err, expectedErr)
 }
 
-func (suite *InventoryRepositoryTestSuite) TestFindAll_WhenRowsErrFails_ShouldFail() {
-	// Setup expectations
-	expectedSql := `
-	SELECT 
-		id, 
-		name, 
-		location, 
-		available 
-	FROM inventory_item;`
-	expectedErr := "cannot execute query - db row iteration error: mock.error"
-
-	// Setup mocks
-	mockRows := &sqlMocks.RowsMock{}
-	mockErr := fmt.Errorf("mock.error")
-	suite.mockDbService.On("Get").Return(suite.db)
-	suite.mockHelperService.
-		On("ManyRowsQuery", suite.db, expectedSql).
-		Return(mockRows, nil)
-	mockRows.On("Next").Return(false)
-	mockRows.On("Err").Return(mockErr)
-
-	// Exercise SUT
-	actual, err := suite.sut.FindAll()
-
-	// Verify results
-	suite.Nil(actual)
-	suite.EqualError(err, expectedErr)
-}
-
-func (suite *InventoryRepositoryTestSuite) TestFindAll_WhenCloseFails_ShouldFail() {
-	// Setup expectations
-	expectedSql := `
-	SELECT 
-		id, 
-		name, 
-		location, 
-		available 
-	FROM inventory_item;`
-	expectedErr := "cannot execute query - db row close error: mock.error"
-
-	// Setup mocks
-	mockRows := &sqlMocks.RowsMock{}
-	mockErr := fmt.Errorf("mock.error")
-	suite.mockDbService.On("Get").Return(suite.db)
-	suite.mockHelperService.
-		On("ManyRowsQuery", suite.db, expectedSql).
-		Return(mockRows, nil)
-	mockRows.On("Next").Return(false)
-	mockRows.On("Err").Return(nil)
-	mockRows.On("Close").Return(mockErr)
-
-	// Exercise SUT
-	actual, err := suite.sut.FindAll()
-
-	// Verify results
-	suite.Nil(actual)
-	suite.EqualError(err, expectedErr)
-}
-
-func (suite *InventoryRepositoryTestSuite) TestFindAll_WhenClosePasses_ShouldPass() {
+func (suite *InventoryRepositoryTestSuite) TestFindAll_WhenHelperServicePasses_ShouldPass() {
 	// Setup expectations
 	expectedSql := `
 	SELECT 
@@ -275,14 +112,10 @@ func (suite *InventoryRepositoryTestSuite) TestFindAll_WhenClosePasses_ShouldPas
 	FROM inventory_item;`
 
 	// Setup mocks
-	mockRows := &sqlMocks.RowsMock{}
 	suite.mockDbService.On("Get").Return(suite.db)
 	suite.mockHelperService.
-		On("ManyRowsQuery", suite.db, expectedSql).
-		Return(mockRows, nil)
-	mockRows.On("Next").Return(false)
-	mockRows.On("Err").Return(nil)
-	mockRows.On("Close").Return(nil)
+		On("ManyRowsQuery", suite.db, expectedSql, mock.Anything, "inventory item").
+		Return(nil)
 
 	// Exercise SUT
 	_, err := suite.sut.FindAll()
@@ -311,7 +144,7 @@ func (suite *InventoryRepositoryTestSuite) TestCreate_WhenHelperServiceFails_Sho
 	mockEntity.On("Name").Return("some.name").
 		On("Location").Return("some.location").
 		On("IsAvailable").Return(true)
-	suite.mockHelperService.On("SingleQueryForID", suite.db, expectedSql,
+	suite.mockHelperService.On("SingleQueryForID", suite.db, expectedSql, "inventory item",
 		"some.name",
 		"some.location",
 		true,
@@ -344,7 +177,7 @@ func (suite *InventoryRepositoryTestSuite) TestCreate_WhenHelperServiceSucceeds_
 	mockEntity.On("Name").Return("some.name").
 		On("Location").Return("some.location").
 		On("IsAvailable").Return(true)
-	suite.mockHelperService.On("SingleQueryForID", suite.db, expectedSql,
+	suite.mockHelperService.On("SingleQueryForID", suite.db, expectedSql, "inventory item",
 		"some.name",
 		"some.location",
 		true,
@@ -367,13 +200,13 @@ func (suite *InventoryRepositoryTestSuite) TestDeleteByID_WhenHelperServiceFails
 	DELETE FROM inventory_item
 	WHERE 
 		id=$1;`
-	expectedErr := "cannot execute exec - db exec error: mock.error"
+	expectedErr := "mock.error"
 
 	// Setup mocks
 	mockErr := fmt.Errorf("mock.error")
 	suite.mockDbService.On("Get").Return(suite.db)
-	suite.mockHelperService.On("ExecForRowsAffected", suite.db, expectedSql, idFixture).
-		Return(int64(-1), mockErr)
+	suite.mockHelperService.On("ExecForSingleItem", suite.db, expectedSql, idFixture).
+		Return(mockErr)
 
 	// Exercise SUT
 	err := suite.sut.DeleteByID(idFixture)
@@ -382,53 +215,7 @@ func (suite *InventoryRepositoryTestSuite) TestDeleteByID_WhenHelperServiceFails
 	suite.EqualError(err, expectedErr)
 }
 
-func (suite *InventoryRepositoryTestSuite) TestDeleteByID_WhenNoRowsAffected_ShouldFail() {
-	// Setup fixture
-	idFixture := entity.ID(101)
-
-	// Setup expectations
-	expectedSql := `
-	DELETE FROM inventory_item
-	WHERE 
-		id=$1;`
-	expectedErr := "entity not found: type=[inventory item]"
-
-	// Setup mocks
-	suite.mockDbService.On("Get").Return(suite.db)
-	suite.mockHelperService.On("ExecForRowsAffected", suite.db, expectedSql, idFixture).
-		Return(int64(0), nil)
-
-	// Exercise SUT
-	err := suite.sut.DeleteByID(idFixture)
-
-	// Verify results
-	suite.EqualError(err, expectedErr)
-}
-
-func (suite *InventoryRepositoryTestSuite) TestDeleteByID_WhenMoreThanOneRowAffected_ShouldFail() {
-	// Setup fixture
-	idFixture := entity.ID(101)
-
-	// Setup expectations
-	expectedSql := `
-	DELETE FROM inventory_item
-	WHERE 
-		id=$1;`
-	expectedErr := "exec error: expected 1 entity to be affected, but was: 2"
-
-	// Setup mocks
-	suite.mockDbService.On("Get").Return(suite.db)
-	suite.mockHelperService.On("ExecForRowsAffected", suite.db, expectedSql, idFixture).
-		Return(int64(2), nil)
-
-	// Exercise SUT
-	err := suite.sut.DeleteByID(idFixture)
-
-	// Verify results
-	suite.EqualError(err, expectedErr)
-}
-
-func (suite *InventoryRepositoryTestSuite) TestDeleteByID_WhenOneRowAffected_ShouldPass() {
+func (suite *InventoryRepositoryTestSuite) TestDeleteByID_WhenHelperServicePasses_ShouldPass() {
 	// Setup fixture
 	idFixture := entity.ID(101)
 
@@ -440,8 +227,8 @@ func (suite *InventoryRepositoryTestSuite) TestDeleteByID_WhenOneRowAffected_Sho
 
 	// Setup mocks
 	suite.mockDbService.On("Get").Return(suite.db)
-	suite.mockHelperService.On("ExecForRowsAffected", suite.db, expectedSql, idFixture).
-		Return(int64(1), nil)
+	suite.mockHelperService.On("ExecForSingleItem", suite.db, expectedSql, idFixture).
+		Return(nil)
 
 	// Exercise SUT
 	err := suite.sut.DeleteByID(idFixture)
@@ -458,7 +245,7 @@ func (suite *InventoryRepositoryTestSuite) TestUpdate_WhenHelperServiceFails_Sho
 		name=$1, location=$2, available=$3
 	WHERE 
 		id=$4;`
-	expectedErr := "cannot execute exec - db exec error: mock.error"
+	expectedErr := "mock.error"
 
 	// Setup mocks
 	mockEntity := &entityMocks.MockInventoryItem{}
@@ -468,12 +255,12 @@ func (suite *InventoryRepositoryTestSuite) TestUpdate_WhenHelperServiceFails_Sho
 		On("Name").Return("some.name").
 		On("Location").Return("some.location").
 		On("IsAvailable").Return(true)
-	suite.mockHelperService.On("ExecForRowsAffected", suite.db, expectedSql,
+	suite.mockHelperService.On("ExecForSingleItem", suite.db, expectedSql,
 		"some.name",
 		"some.location",
 		true,
 		entity.ID(101),
-	).Return(int64(-1), mockErr)
+	).Return(mockErr)
 
 	// Exercise SUT
 	err := suite.sut.Update(mockEntity)
@@ -482,69 +269,7 @@ func (suite *InventoryRepositoryTestSuite) TestUpdate_WhenHelperServiceFails_Sho
 	suite.EqualError(err, expectedErr)
 }
 
-func (suite *InventoryRepositoryTestSuite) TestUpdate_WhenNoRowsAffected_ShouldFail() {
-	// Setup expectations
-	expectedSql := `
-	UPDATE inventory_item
-	SET
-		name=$1, location=$2, available=$3
-	WHERE 
-		id=$4;`
-	expectedErr := "entity not found: type=[inventory item]"
-
-	// Setup mocks
-	mockEntity := &entityMocks.MockInventoryItem{}
-	suite.mockDbService.On("Get").Return(suite.db)
-	mockEntity.On("ID").Return(entity.ID(101)).
-		On("Name").Return("some.name").
-		On("Location").Return("some.location").
-		On("IsAvailable").Return(true)
-	suite.mockHelperService.On("ExecForRowsAffected", suite.db, expectedSql,
-		"some.name",
-		"some.location",
-		true,
-		entity.ID(101),
-	).Return(int64(0), nil)
-
-	// Exercise SUT
-	err := suite.sut.Update(mockEntity)
-
-	// Verify results
-	suite.EqualError(err, expectedErr)
-}
-
-func (suite *InventoryRepositoryTestSuite) TestUpdate_WhenMoreThanOneRowAffected_ShouldFail() {
-	// Setup expectations
-	expectedSql := `
-	UPDATE inventory_item
-	SET
-		name=$1, location=$2, available=$3
-	WHERE 
-		id=$4;`
-	expectedErr := "exec error: expected 1 entity to be affected, but was: 2"
-
-	// Setup mocks
-	mockEntity := &entityMocks.MockInventoryItem{}
-	suite.mockDbService.On("Get").Return(suite.db)
-	mockEntity.On("ID").Return(entity.ID(101)).
-		On("Name").Return("some.name").
-		On("Location").Return("some.location").
-		On("IsAvailable").Return(true)
-	suite.mockHelperService.On("ExecForRowsAffected", suite.db, expectedSql,
-		"some.name",
-		"some.location",
-		true,
-		entity.ID(101),
-	).Return(int64(2), nil)
-
-	// Exercise SUT
-	err := suite.sut.Update(mockEntity)
-
-	// Verify results
-	suite.EqualError(err, expectedErr)
-}
-
-func (suite *InventoryRepositoryTestSuite) TestUpdate_WhenOneRowAffected_ShouldPass() {
+func (suite *InventoryRepositoryTestSuite) TestUpdate_WhenHelperServicePasses_ShouldPass() {
 	// Setup expectations
 	expectedSql := `
 	UPDATE inventory_item
@@ -560,12 +285,12 @@ func (suite *InventoryRepositoryTestSuite) TestUpdate_WhenOneRowAffected_ShouldP
 		On("Name").Return("some.name").
 		On("Location").Return("some.location").
 		On("IsAvailable").Return(true)
-	suite.mockHelperService.On("ExecForRowsAffected", suite.db, expectedSql,
+	suite.mockHelperService.On("ExecForSingleItem", suite.db, expectedSql,
 		"some.name",
 		"some.location",
 		true,
 		entity.ID(101),
-	).Return(int64(1), nil)
+	).Return(nil)
 
 	// Exercise SUT
 	err := suite.sut.Update(mockEntity)

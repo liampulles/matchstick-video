@@ -83,6 +83,8 @@ func determineCodeAndSpecificError(err error) (uint, error) {
 			return 501, v
 		case *db.NotFoundError:
 			return 404, v
+		case *db.UniqueConstraintError:
+			return 400, v
 		}
 
 		nextErr = errors.Unwrap(nextErr)

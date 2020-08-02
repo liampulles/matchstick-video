@@ -4,7 +4,9 @@ import (
 	"context"
 	"database/sql"
 	goSql "database/sql"
+	"fmt"
 
+	"github.com/liampulles/matchstick-video/pkg/adapter/db"
 	"github.com/liampulles/matchstick-video/pkg/domain/entity"
 )
 
@@ -22,27 +24,117 @@ type Rows interface {
 	NextResultSet() bool
 }
 
+// ScanFunc scans a row and returns any errors
+type ScanFunc func(row Row) error
+
 // HelperService encapsulates some common methods on sql.DB.
 type HelperService interface {
-	ExecForRowsAffected(db *goSql.DB, query string, args ...interface{}) (int64, error)
-	SingleRowQuery(db *goSql.DB, query string, args ...interface{}) (Row, error)
-	ManyRowsQuery(db *goSql.DB, query string, args ...interface{}) (Rows, error)
-	SingleQueryForID(db *goSql.DB, query string, args ...interface{}) (entity.ID, error)
+	ExecForSingleItem(db *goSql.DB, query string, args ...interface{}) error
+	SingleRowQuery(db *goSql.DB, query string, scanFunc ScanFunc, _type string, args ...interface{}) error
+	ManyRowsQuery(db *goSql.DB, query string, scanFunc ScanFunc, _type string, args ...interface{}) error
+	SingleQueryForID(db *goSql.DB, query string, _type string, args ...interface{}) (entity.ID, error)
 }
 
 // HelperServiceImpl implements the HelperService interface
-type HelperServiceImpl struct{}
+type HelperServiceImpl struct {
+	errorParser db.ErrorParser
+}
 
 var _ HelperService = &HelperServiceImpl{}
 
 // NewHelperServiceImpl is a constructor
-func NewHelperServiceImpl() *HelperServiceImpl {
-	return &HelperServiceImpl{}
+func NewHelperServiceImpl(errorParser db.ErrorParser) *HelperServiceImpl {
+	return &HelperServiceImpl{
+		errorParser: errorParser,
+	}
 }
 
-// ExecForRowsAffected will perform exec type SQL and return the number of rows
-// affected
-func (s *HelperServiceImpl) ExecForRowsAffected(db *goSql.DB, query string, args ...interface{}) (int64, error) {
+// ExecForSingleItem will perform exec type SQL and verify a single row
+// is affected.
+func (s *HelperServiceImpl) ExecForSingleItem(d *goSql.DB, query string, args ...interface{}) error {
+	// Run exec to get rows affected
+	rows, err := s.execForRowsAffected(d, query, args...)
+	if err != nil {
+		return fmt.Errorf("cannot execute exec - db exec error: %w", err)
+	}
+
+	// Verify rows affected is 1
+	if rows == 0 {
+		return db.NewNotFoundError("inventory item")
+	}
+	if rows != 1 {
+		return fmt.Errorf("exec error: expected 1 entity to be affected, but was: %d", rows)
+	}
+	return nil
+}
+
+// SingleRowQuery will run a query type SQL which gives a single Row
+func (s *HelperServiceImpl) SingleRowQuery(db *goSql.DB, query string, scanFunc ScanFunc, _type string, args ...interface{}) error {
+	// Prepare the query
+	ctx := context.TODO()
+	stmt, err := db.PrepareContext(ctx, query)
+	if err != nil {
+		return fmt.Errorf("cannot execute query - db prepare error: %w", err)
+	}
+
+	// Run the query to get row
+	row := stmt.QueryRowContext(ctx, args...)
+
+	// Scan the row
+	if err = scanFunc(row); err != nil {
+		err = s.errorParser.FromDBRowScan(err, _type)
+		return fmt.Errorf("cannot execute query - db scan error: %w", err)
+	}
+	return nil
+}
+
+// ManyRowsQuery will run a query type SQL which gives many rows
+func (s *HelperServiceImpl) ManyRowsQuery(db *goSql.DB, query string, scanFunc ScanFunc, _type string, args ...interface{}) error {
+	// Prepare the query
+	ctx := context.TODO()
+	stmt, err := db.PrepareContext(ctx, query)
+	if err != nil {
+		return fmt.Errorf("cannot execute query - db prepare error: %w", err)
+	}
+
+	// Run the query to get rows
+	rows, err := stmt.QueryContext(ctx, args...)
+	if err != nil {
+		return fmt.Errorf("cannot execute query - db context error: %w", err)
+	}
+
+	// Extract data from the row
+	for rows.Next() {
+		err := scanFunc(rows)
+		if err != nil {
+			err = s.errorParser.FromDBRowScan(err, _type)
+			return fmt.Errorf("cannot execute query - db scan error: %w", err)
+		}
+	}
+	if err = rows.Err(); err != nil {
+		return fmt.Errorf("cannot execute query - db iteration error: %w", err)
+	}
+	return nil
+}
+
+// SingleQueryForID will run SQL which returns an id, and return the entity form of
+// the id
+func (s *HelperServiceImpl) SingleQueryForID(db *goSql.DB, query string, _type string, args ...interface{}) (entity.ID, error) {
+	var id entity.ID
+
+	// Map the ID, if we can
+	err := s.SingleRowQuery(db, query, func(row Row) error {
+		return row.Scan(&id)
+	}, _type, args...)
+
+	if err != nil {
+		return entity.InvalidID, err
+	}
+
+	return id, nil
+}
+
+func (s *HelperServiceImpl) execForRowsAffected(db *goSql.DB, query string, args ...interface{}) (int64, error) {
 	// Perform the exec
 	res, err := s.exec(db, query, args...)
 	if err != nil {
@@ -51,49 +143,6 @@ func (s *HelperServiceImpl) ExecForRowsAffected(db *goSql.DB, query string, args
 
 	// Return the number of rows affected
 	return res.RowsAffected()
-}
-
-// SingleRowQuery will run a query type SQL which gives a single Row
-func (s *HelperServiceImpl) SingleRowQuery(db *goSql.DB, query string, args ...interface{}) (Row, error) {
-	// Prepare the query
-	ctx := context.TODO()
-	stmt, err := db.PrepareContext(ctx, query)
-	if err != nil {
-		return nil, err
-	}
-
-	// Run the query to get row
-	return stmt.QueryRowContext(ctx, args...), nil
-}
-
-// ManyRowsQuery will run a query type SQL which gives many rows
-func (s *HelperServiceImpl) ManyRowsQuery(db *goSql.DB, query string, args ...interface{}) (Rows, error) {
-	// Prepare the query
-	ctx := context.TODO()
-	stmt, err := db.PrepareContext(ctx, query)
-	if err != nil {
-		return nil, err
-	}
-
-	// Run the query to get rows
-	return stmt.QueryContext(ctx, args...)
-}
-
-// SingleQueryForID will run SQL which returns an id, and return the entity form of
-// the id
-func (s *HelperServiceImpl) SingleQueryForID(db *goSql.DB, query string, args ...interface{}) (entity.ID, error) {
-	// Get the row
-	row, err := s.SingleRowQuery(db, query, args...)
-	if err != nil {
-		return entity.InvalidID, err
-	}
-
-	// Scan for the ID
-	var id entity.ID
-	if err = row.Scan(&id); err != nil {
-		return entity.InvalidID, err
-	}
-	return id, nil
 }
 
 func (s *HelperServiceImpl) exec(db *goSql.DB, query string, args ...interface{}) (sql.Result, error) {

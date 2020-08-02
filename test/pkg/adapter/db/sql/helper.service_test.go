@@ -9,15 +9,18 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 
+	"github.com/liampulles/matchstick-video/test/mock/pkg/adapter/db"
+
 	"github.com/liampulles/matchstick-video/pkg/adapter/db/sql"
 	"github.com/liampulles/matchstick-video/pkg/domain/entity"
 )
 
 type HelperServiceTestSuite struct {
 	suite.Suite
-	db     *goSql.DB
-	mockDb sqlmock.Sqlmock
-	sut    *sql.HelperServiceImpl
+	db              *goSql.DB
+	mockDb          sqlmock.Sqlmock
+	mockErrorParser *db.MockErrorParser
+	sut             *sql.HelperServiceImpl
 }
 
 func TestHelperServiceTestSuite(t *testing.T) {
@@ -25,23 +28,26 @@ func TestHelperServiceTestSuite(t *testing.T) {
 }
 
 func (suite *HelperServiceTestSuite) SetupTest() {
-	db, mock, err := sqlmock.New()
+	d, mock, err := sqlmock.New()
 	if err != nil {
 		panic(err)
 	}
-	suite.db = db
+	suite.db = d
 	suite.mockDb = mock
-	suite.sut = sql.NewHelperServiceImpl()
+	suite.mockErrorParser = &db.MockErrorParser{}
+	suite.sut = sql.NewHelperServiceImpl(
+		suite.mockErrorParser,
+	)
 }
 
-func (suite *HelperServiceTestSuite) TestExecForRowsAffected_WhenPrepareContextFails_ShouldFail() {
+func (suite *HelperServiceTestSuite) TestExecForSingleItem_WhenPrepareContextFails_ShouldFail() {
 	// Setup fixture
 	queryFixture := "some.query"
 	arg1Fixture := "arg.1"
 	arg2Fixture := 2
 
 	// Setup expectations
-	expectedErr := "mock.error"
+	expectedErr := "cannot execute exec - db exec error: mock.error"
 
 	// Setup mocks
 	mockErr := fmt.Errorf("mock.error")
@@ -49,21 +55,20 @@ func (suite *HelperServiceTestSuite) TestExecForRowsAffected_WhenPrepareContextF
 		WillReturnError(mockErr)
 
 	// Exercise SUT
-	actual, err := suite.sut.ExecForRowsAffected(suite.db, queryFixture, arg1Fixture, arg2Fixture)
+	err := suite.sut.ExecForSingleItem(suite.db, queryFixture, arg1Fixture, arg2Fixture)
 
 	// Verify results
-	suite.Equal(int64(-1), actual)
 	suite.EqualError(err, expectedErr)
 }
 
-func (suite *HelperServiceTestSuite) TestExecForRowsAffected_WhenExecContextFails_ShouldFail() {
+func (suite *HelperServiceTestSuite) TestExecForSingleItem_WhenExecContextFails_ShouldFail() {
 	// Setup fixture
 	queryFixture := "some.query"
 	arg1Fixture := "arg.1"
 	arg2Fixture := 2
 
 	// Setup expectations
-	expectedErr := "mock.error"
+	expectedErr := "cannot execute exec - db exec error: mock.error"
 
 	// Setup mocks
 	mockErr := fmt.Errorf("mock.error")
@@ -73,21 +78,20 @@ func (suite *HelperServiceTestSuite) TestExecForRowsAffected_WhenExecContextFail
 		WillReturnError(mockErr)
 
 	// Exercise SUT
-	actual, err := suite.sut.ExecForRowsAffected(suite.db, queryFixture, arg1Fixture, arg2Fixture)
+	err := suite.sut.ExecForSingleItem(suite.db, queryFixture, arg1Fixture, arg2Fixture)
 
 	// Verify results
-	suite.Equal(int64(-1), actual)
 	suite.EqualError(err, expectedErr)
 }
 
-func (suite *HelperServiceTestSuite) TestExecForRowsAffected_WhenRowsAffectedFails_ShouldFail() {
+func (suite *HelperServiceTestSuite) TestExecForSingleItem_WhenRowsAffectedFails_ShouldFail() {
 	// Setup fixture
 	queryFixture := "some.query"
 	arg1Fixture := "arg.1"
 	arg2Fixture := 2
 
 	// Setup expectations
-	expectedErr := "mock.error"
+	expectedErr := "cannot execute exec - db exec error: mock.error"
 
 	// Setup mocks
 	mockResult := &mockResult{}
@@ -99,14 +103,61 @@ func (suite *HelperServiceTestSuite) TestExecForRowsAffected_WhenRowsAffectedFai
 	mockResult.On("RowsAffected").Return(int64(-1), mockErr)
 
 	// Exercise SUT
-	actual, err := suite.sut.ExecForRowsAffected(suite.db, queryFixture, arg1Fixture, arg2Fixture)
+	err := suite.sut.ExecForSingleItem(suite.db, queryFixture, arg1Fixture, arg2Fixture)
 
 	// Verify results
-	suite.Equal(int64(-1), actual)
 	suite.EqualError(err, expectedErr)
 }
 
-func (suite *HelperServiceTestSuite) TestExecForRowsAffected_WhenRowsAffectedPasses_ShouldReturnAsExpected() {
+func (suite *HelperServiceTestSuite) TestExecForSingleItem_WhenRowsAffectedIsZero_ShouldFail() {
+	// Setup fixture
+	queryFixture := "some.query"
+	arg1Fixture := "arg.1"
+	arg2Fixture := 2
+
+	// Setup expectations
+	expectedErr := "entity not found: type=[inventory item]"
+
+	// Setup mocks
+	mockResult := &mockResult{}
+	suite.mockDb.ExpectPrepare(queryFixture).
+		ExpectExec().
+		WithArgs(arg1Fixture, arg2Fixture).
+		WillReturnResult(mockResult)
+	mockResult.On("RowsAffected").Return(int64(0), nil)
+
+	// Exercise SUT
+	err := suite.sut.ExecForSingleItem(suite.db, queryFixture, arg1Fixture, arg2Fixture)
+
+	// Verify results
+	suite.EqualError(err, expectedErr)
+}
+
+func (suite *HelperServiceTestSuite) TestExecForSingleItem_WhenRowsAffectedIsMoreThanOne_ShouldFail() {
+	// Setup fixture
+	queryFixture := "some.query"
+	arg1Fixture := "arg.1"
+	arg2Fixture := 2
+
+	// Setup expectations
+	expectedErr := "exec error: expected 1 entity to be affected, but was: 2"
+
+	// Setup mocks
+	mockResult := &mockResult{}
+	suite.mockDb.ExpectPrepare(queryFixture).
+		ExpectExec().
+		WithArgs(arg1Fixture, arg2Fixture).
+		WillReturnResult(mockResult)
+	mockResult.On("RowsAffected").Return(int64(2), nil)
+
+	// Exercise SUT
+	err := suite.sut.ExecForSingleItem(suite.db, queryFixture, arg1Fixture, arg2Fixture)
+
+	// Verify results
+	suite.EqualError(err, expectedErr)
+}
+
+func (suite *HelperServiceTestSuite) TestExecForSingleItem_WhenRowsAffectedIsOne_ShouldPass() {
 	// Setup fixture
 	queryFixture := "some.query"
 	arg1Fixture := "arg.1"
@@ -118,14 +169,13 @@ func (suite *HelperServiceTestSuite) TestExecForRowsAffected_WhenRowsAffectedPas
 		ExpectExec().
 		WithArgs(arg1Fixture, arg2Fixture).
 		WillReturnResult(mockResult)
-	mockResult.On("RowsAffected").Return(int64(25), nil)
+	mockResult.On("RowsAffected").Return(int64(1), nil)
 
 	// Exercise SUT
-	actual, err := suite.sut.ExecForRowsAffected(suite.db, queryFixture, arg1Fixture, arg2Fixture)
+	err := suite.sut.ExecForSingleItem(suite.db, queryFixture, arg1Fixture, arg2Fixture)
 
 	// Verify results
 	suite.NoError(err)
-	suite.Equal(int64(25), actual)
 }
 
 func (suite *HelperServiceTestSuite) TestSingleRowQuery_WhenPrepareContextFails_ShouldFail() {
@@ -133,24 +183,57 @@ func (suite *HelperServiceTestSuite) TestSingleRowQuery_WhenPrepareContextFails_
 	queryFixture := "some.query"
 	arg1Fixture := "arg.1"
 	arg2Fixture := 2
+	passingFunc := func(row sql.Row) error {
+		return nil
+	}
 
 	// Setup expectations
-	expectedErr := "mock.error"
+	expectedErr := "cannot execute query - db prepare error: mock.error"
 
 	// Setup mocks
-	mockErr := fmt.Errorf(expectedErr)
+	mockErr := fmt.Errorf("mock.error")
 	suite.mockDb.ExpectPrepare(queryFixture).
 		WillReturnError(mockErr)
 
 	// Exercise SUT
-	actual, err := suite.sut.SingleRowQuery(suite.db, queryFixture, arg1Fixture, arg2Fixture)
+	err := suite.sut.SingleRowQuery(suite.db, queryFixture, passingFunc, "some.type", arg1Fixture, arg2Fixture)
 
 	// Verify results
-	suite.Nil(actual)
 	suite.EqualError(err, expectedErr)
 }
 
-func (suite *HelperServiceTestSuite) TestSingleRowQuery_WhenQueryRowContextPasses_ShouldReturnAsExpected() {
+func (suite *HelperServiceTestSuite) TestSingleRowQuery_WhenScanFuncFails_ShouldFail() {
+	// Setup fixture
+	queryFixture := "some.query"
+	arg1Fixture := "arg.1"
+	arg2Fixture := 2
+
+	// Setup expectations
+	expectedErr := "cannot execute query - db scan error: mock.parsed.error"
+
+	// Setup mocks
+	mockErr := fmt.Errorf("mock.error")
+	mockParsedErr := fmt.Errorf("mock.parsed.error")
+	mockRows := suite.mockDb.NewRows([]string{"some", "columns"}).
+		FromCSVString("with,data")
+	failingFunc := func(row sql.Row) error {
+		return mockErr
+	}
+	suite.mockDb.ExpectPrepare(queryFixture).
+		ExpectQuery().
+		WithArgs(arg1Fixture, arg2Fixture).
+		WillReturnRows(mockRows)
+	suite.mockErrorParser.On("FromDBRowScan", mockErr, "some.type").
+		Return(mockParsedErr)
+
+	// Exercise SUT
+	err := suite.sut.SingleRowQuery(suite.db, queryFixture, failingFunc, "some.type", arg1Fixture, arg2Fixture)
+
+	// Verify results
+	suite.EqualError(err, expectedErr)
+}
+
+func (suite *HelperServiceTestSuite) TestSingleRowQuery_WhenScanFuncPasses_ShouldPass() {
 	// Setup fixture
 	queryFixture := "some.query"
 	arg1Fixture := "arg.1"
@@ -159,17 +242,19 @@ func (suite *HelperServiceTestSuite) TestSingleRowQuery_WhenQueryRowContextPasse
 	// Setup mocks
 	mockRows := suite.mockDb.NewRows([]string{"some", "columns"}).
 		FromCSVString("with,data")
+	passingFunc := func(row sql.Row) error {
+		return nil
+	}
 	suite.mockDb.ExpectPrepare(queryFixture).
 		ExpectQuery().
 		WithArgs(arg1Fixture, arg2Fixture).
 		WillReturnRows(mockRows)
 
 	// Exercise SUT
-	actual, err := suite.sut.SingleRowQuery(suite.db, queryFixture, arg1Fixture, arg2Fixture)
+	err := suite.sut.SingleRowQuery(suite.db, queryFixture, passingFunc, "some.type", arg1Fixture, arg2Fixture)
 
 	// Verify results
 	suite.NoError(err)
-	suite.NotNil(actual)
 }
 
 func (suite *HelperServiceTestSuite) TestSingleQueryForID_WhenPrepareContextFails_ShouldFail() {
@@ -179,15 +264,15 @@ func (suite *HelperServiceTestSuite) TestSingleQueryForID_WhenPrepareContextFail
 	arg2Fixture := 2
 
 	// Setup expectations
-	expectedErr := "mock.error"
+	expectedErr := "cannot execute query - db prepare error: mock.error"
 
 	// Setup mocks
-	mockErr := fmt.Errorf(expectedErr)
+	mockErr := fmt.Errorf("mock.error")
 	suite.mockDb.ExpectPrepare(queryFixture).
 		WillReturnError(mockErr)
 
 	// Exercise SUT
-	actual, err := suite.sut.SingleQueryForID(suite.db, queryFixture, arg1Fixture, arg2Fixture)
+	actual, err := suite.sut.SingleQueryForID(suite.db, queryFixture, "some.type", arg1Fixture, arg2Fixture)
 
 	// Verify results
 	suite.Equal(entity.InvalidID, actual)
@@ -201,17 +286,20 @@ func (suite *HelperServiceTestSuite) TestSingleQueryForID_WhenScanFails_ShouldFa
 	arg2Fixture := 2
 
 	// Setup expectations
-	expectedErr := "mock.error"
+	expectedErr := "cannot execute query - db scan error: mock.parsed.error"
 
 	// Setup mocks
-	mockErr := fmt.Errorf(expectedErr)
+	mockErr := fmt.Errorf("mock.error")
+	mockParsedErr := fmt.Errorf("mock.parsed.error")
 	suite.mockDb.ExpectPrepare(queryFixture).
 		ExpectQuery().
 		WithArgs(arg1Fixture, arg2Fixture).
 		WillReturnError(mockErr)
+	suite.mockErrorParser.On("FromDBRowScan", mockErr, "some.type").
+		Return(mockParsedErr)
 
 	// Exercise SUT
-	actual, err := suite.sut.SingleQueryForID(suite.db, queryFixture, arg1Fixture, arg2Fixture)
+	actual, err := suite.sut.SingleQueryForID(suite.db, queryFixture, "some.type", arg1Fixture, arg2Fixture)
 
 	// Verify results
 	suite.Equal(entity.InvalidID, actual)
@@ -233,7 +321,7 @@ func (suite *HelperServiceTestSuite) TestSingleQueryForID_WhenScanPasses_ShouldR
 		WillReturnRows(mockRows)
 
 	// Exercise SUT
-	actual, err := suite.sut.SingleQueryForID(suite.db, queryFixture, arg1Fixture, arg2Fixture)
+	actual, err := suite.sut.SingleQueryForID(suite.db, queryFixture, "some.type", arg1Fixture, arg2Fixture)
 
 	// Verify results
 	suite.NoError(err)
@@ -245,20 +333,22 @@ func (suite *HelperServiceTestSuite) TestManyRowsQuery_WhenPrepareContextFails_S
 	queryFixture := "some.query"
 	arg1Fixture := "arg.1"
 	arg2Fixture := 2
+	passingFunc := func(row sql.Row) error {
+		return nil
+	}
 
 	// Setup expectations
-	expectedErr := "mock.error"
+	expectedErr := "cannot execute query - db prepare error: mock.error"
 
 	// Setup mocks
-	mockErr := fmt.Errorf(expectedErr)
+	mockErr := fmt.Errorf("mock.error")
 	suite.mockDb.ExpectPrepare(queryFixture).
 		WillReturnError(mockErr)
 
 	// Exercise SUT
-	actual, err := suite.sut.ManyRowsQuery(suite.db, queryFixture, arg1Fixture, arg2Fixture)
+	err := suite.sut.ManyRowsQuery(suite.db, queryFixture, passingFunc, "some.type", arg1Fixture, arg2Fixture)
 
 	// Verify results
-	suite.Nil(actual)
 	suite.EqualError(err, expectedErr)
 }
 
@@ -267,49 +357,173 @@ func (suite *HelperServiceTestSuite) TestManyRowsQuery_WhenQueryRowContextFails_
 	queryFixture := "some.query"
 	arg1Fixture := "arg.1"
 	arg2Fixture := 2
+	passingFunc := func(row sql.Row) error {
+		return nil
+	}
 
 	// Setup expectations
-	expectedErr := "mock.error"
+	expectedErr := "cannot execute query - db context error: mock.error"
 
 	// Setup mocks
-	mockErr := fmt.Errorf(expectedErr)
+	mockErr := fmt.Errorf("mock.error")
 	suite.mockDb.ExpectPrepare(queryFixture).
 		ExpectQuery().
 		WithArgs(arg1Fixture, arg2Fixture).
 		WillReturnError(mockErr)
 
 	// Exercise SUT
-	actual, err := suite.sut.ManyRowsQuery(suite.db, queryFixture, arg1Fixture, arg2Fixture)
+	err := suite.sut.ManyRowsQuery(suite.db, queryFixture, passingFunc, "some.type", arg1Fixture, arg2Fixture)
 
 	// Verify results
-	suite.Nil(actual)
 	suite.EqualError(err, expectedErr)
 }
 
-func (suite *HelperServiceTestSuite) TestManyRowsQuery_WhenQueryRowContextPasses_ShouldReturnAsExpected() {
+func (suite *HelperServiceTestSuite) TestManyRowsQuery_WhenScanFuncFails_ShouldFail() {
 	// Setup fixture
 	queryFixture := "some.query"
 	arg1Fixture := "arg.1"
 	arg2Fixture := 2
 
+	// Setup expectations
+	expectedErr := "cannot execute query - db scan error: mock.parsed.error"
+
 	// Setup mocks
-	mockRows := suite.mockDb.NewRows([]string{"some", "columns"}).
-		FromCSVString("with,data")
+	mockErr := fmt.Errorf("mock.error")
+	mockParsedErr := fmt.Errorf("mock.parsed.error")
+	failingFunc := func(row sql.Row) error {
+		return fmt.Errorf("mock.error")
+	}
+	mockRows := suite.mockDb.NewRows([]string{"something"}).
+		FromCSVString("some.data")
+	suite.mockDb.ExpectPrepare(queryFixture).
+		ExpectQuery().
+		WithArgs(arg1Fixture, arg2Fixture).
+		WillReturnRows(mockRows)
+	suite.mockErrorParser.On("FromDBRowScan", mockErr, "some.type").
+		Return(mockParsedErr)
+
+	// Exercise SUT
+	err := suite.sut.ManyRowsQuery(suite.db, queryFixture, failingFunc, "some.type", arg1Fixture, arg2Fixture)
+
+	// Verify results
+	suite.EqualError(err, expectedErr)
+}
+
+func (suite *HelperServiceTestSuite) TestManyRowsQuery_WhenFirstRowScanFails_ShouldFail() {
+	// Setup fixture
+	queryFixture := "some.query"
+	arg1Fixture := "arg.1"
+	arg2Fixture := 2
+	var actual []mockData
+	scanFunc := func(row sql.Row) error {
+		item := mockData{}
+		err := row.Scan(&item.Data)
+		if err == nil {
+			actual = append(actual, item)
+		}
+		return err
+	}
+
+	// Setup expectations
+	expectedErr := "cannot execute query - db iteration error: mock.error"
+
+	// Setup mocks
+	mockErr := fmt.Errorf("mock.error")
+	mockRows := suite.mockDb.NewRows([]string{"something"}).
+		FromCSVString("some.data").
+		RowError(0, mockErr)
 	suite.mockDb.ExpectPrepare(queryFixture).
 		ExpectQuery().
 		WithArgs(arg1Fixture, arg2Fixture).
 		WillReturnRows(mockRows)
 
 	// Exercise SUT
-	actual, err := suite.sut.ManyRowsQuery(suite.db, queryFixture, arg1Fixture, arg2Fixture)
+	err := suite.sut.ManyRowsQuery(suite.db, queryFixture, scanFunc, "some.type", arg1Fixture, arg2Fixture)
+
+	// Verify results
+	suite.EqualError(err, expectedErr)
+}
+
+func (suite *HelperServiceTestSuite) TestManyRowsQuery_WhenSecondRowScanFails_ShouldFail() {
+	// Setup fixture
+	queryFixture := "some.query"
+	arg1Fixture := "arg.1"
+	arg2Fixture := 2
+	var actual []mockData
+	scanFunc := func(row sql.Row) error {
+		item := mockData{}
+		err := row.Scan(&item.Data)
+		if err == nil {
+			actual = append(actual, item)
+		}
+		return err
+	}
+
+	// Setup expectations
+	expectedErr := "cannot execute query - db iteration error: mock.error"
+
+	// Setup mocks
+	mockErr := fmt.Errorf("mock.error")
+	mockRows := suite.mockDb.NewRows([]string{"something"}).
+		FromCSVString("some.data.1").
+		FromCSVString("some.data.2").
+		RowError(1, mockErr)
+	suite.mockDb.ExpectPrepare(queryFixture).
+		ExpectQuery().
+		WithArgs(arg1Fixture, arg2Fixture).
+		WillReturnRows(mockRows)
+
+	// Exercise SUT
+	err := suite.sut.ManyRowsQuery(suite.db, queryFixture, scanFunc, "some.type", arg1Fixture, arg2Fixture)
+
+	// Verify results
+	suite.EqualError(err, expectedErr)
+}
+
+func (suite *HelperServiceTestSuite) TestManyRowsQuery_WhenIterationPasses_ShouldPass() {
+	// Setup fixture
+	queryFixture := "some.query"
+	arg1Fixture := "arg.1"
+	arg2Fixture := 2
+	var actual []mockData
+	scanFunc := func(row sql.Row) error {
+		item := mockData{}
+		err := row.Scan(&item.Data)
+		if err == nil {
+			actual = append(actual, item)
+		}
+		return err
+	}
+
+	// Setup expectations
+	expected := []mockData{
+		mockData{Data: "some.data.1"},
+		mockData{Data: "some.data.2"},
+	}
+
+	// Setup mocks
+	mockRows := suite.mockDb.NewRows([]string{"something"}).
+		FromCSVString("some.data.1").
+		FromCSVString("some.data.2")
+	suite.mockDb.ExpectPrepare(queryFixture).
+		ExpectQuery().
+		WithArgs(arg1Fixture, arg2Fixture).
+		WillReturnRows(mockRows)
+
+	// Exercise SUT
+	err := suite.sut.ManyRowsQuery(suite.db, queryFixture, scanFunc, "some.type", arg1Fixture, arg2Fixture)
 
 	// Verify results
 	suite.NoError(err)
-	suite.NotNil(actual)
+	suite.Equal(expected, actual)
 }
 
 type mockResult struct {
 	mock.Mock
+	Data string
+}
+
+type mockData struct {
 	Data string
 }
 

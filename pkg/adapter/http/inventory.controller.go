@@ -7,6 +7,8 @@ import (
 	"github.com/liampulles/matchstick-video/pkg/usecase/inventory"
 )
 
+// TODO: Create controller integration tests
+
 // InventoryControllerImpl defines controller methods
 // dealing with the inventory resource.
 type InventoryControllerImpl struct {

@@ -1,4 +1,4 @@
-// +build integration
+//abuild integration
 
 package integration
 
@@ -35,29 +35,29 @@ func TestInventoryItemLifecycle_ShouldCreateRetrieveUpdateAndDelete(t *testing.T
 	}`)
 	assertNotFound(t, resp)
 	body := extractString(t, resp)
-	expected := fmt.Sprintf(`could not update inventory item - repository error: entity not found: type=[inventory item]`)
-	assert.Equal(t, body, expected)
+	expected := fmt.Sprintf(`could not update inventory item - repository find error: cannot execute query - db scan error: entity not found: type=[inventory item]`)
+	assert.Equal(t, expected, body)
 
 	// Test delete on a non-existant item
 	resp = delete(t, "/inventory/999")
 	assertNotFound(t, resp)
 	body = extractString(t, resp)
-	expected = fmt.Sprintf(`could not delete inventory item - repository error: entity not found: type=[inventory item]`)
-	assert.Equal(t, body, expected)
+	expected = fmt.Sprintf(`could not delete inventory item - repository delete error: entity not found: type=[inventory item]`)
+	assert.Equal(t, expected, body)
 
 	// Test checkout on a non-existant item
 	resp = putJSON(t, "/inventory/999/checkout", "")
 	assertNotFound(t, resp)
 	body = extractString(t, resp)
-	expected = fmt.Sprintf(`could not checkout inventory item - repository error: entity not found: type=[inventory item]`)
-	assert.Equal(t, body, expected)
+	expected = fmt.Sprintf(`could not checkout inventory item - repository find error: cannot execute query - db scan error: entity not found: type=[inventory item]`)
+	assert.Equal(t, expected, body)
 
 	// Test check in on a non-existant item
 	resp = putJSON(t, "/inventory/999/checkin", "")
 	assertNotFound(t, resp)
 	body = extractString(t, resp)
-	expected = fmt.Sprintf(`could not check in inventory item - repository error: entity not found: type=[inventory item]`)
-	assert.Equal(t, body, expected)
+	expected = fmt.Sprintf(`could not check in inventory item - repository find error: cannot execute query - db scan error: entity not found: type=[inventory item]`)
+	assert.Equal(t, expected, body)
 
 	// Test create
 	resp = postJSON(t, "/inventory", `{
@@ -72,14 +72,34 @@ func TestInventoryItemLifecycle_ShouldCreateRetrieveUpdateAndDelete(t *testing.T
 	assertOk(t, resp)
 	body = extractString(t, resp)
 	expected = fmt.Sprintf(`{"id":%s,"name":"Cool Runnings (1993)","location":"AD12","available":true}`, id)
-	assert.Equal(t, body, expected)
+	assert.Equal(t, expected, body)
+
+	// Test create with same name.. should be constraint violation
+	resp = postJSON(t, "/inventory", `{
+		"Name": "Cool Runnings (1993)",
+		"Location": "CD12"
+	}`)
+	assertBadRequest(t, resp)
+	body = extractString(t, resp)
+	expected = fmt.Sprintf(`could not create inventory item - repository create error: cannot execute query - db scan error: uniqueness constraint error: ERROR: duplicate key value violates unique constraint "inventory_item_name_key" (SQLSTATE 23505)`)
+	assert.Equal(t, expected, body)
+
+	// Test create with invalid name
+	resp = postJSON(t, "/inventory", `{
+		"Name": "",
+		"Location": "AD70"
+	}`)
+	assertBadRequest(t, resp)
+	body = extractString(t, resp)
+	expected = fmt.Sprintf(`could not create inventory item - factory error: validation error: field=[name], problem=[must not be blank]`)
+	assert.Equal(t, expected, body)
 
 	// Test read all
 	resp = get(t, "/inventory")
 	assertOk(t, resp)
 	body = extractString(t, resp)
 	expected = fmt.Sprintf(`[{"id":%s,"name":"Cool Runnings (1993)"}]`, id)
-	assert.Equal(t, body, expected)
+	assert.Equal(t, expected, body)
 
 	// Test update
 	resp = putJSON(t, "/inventory/"+id, `{
@@ -93,7 +113,7 @@ func TestInventoryItemLifecycle_ShouldCreateRetrieveUpdateAndDelete(t *testing.T
 	body = extractString(t, resp)
 	assertOk(t, resp)
 	expected = fmt.Sprintf(`{"id":%s,"name":"Cool Runnings (1993) UPDATED","location":"AD12 UPDATED","available":true}`, id)
-	assert.Equal(t, body, expected)
+	assert.Equal(t, expected, body)
 
 	// Test checkout
 	resp = putJSON(t, "/inventory/"+id+"/checkout", "")
@@ -104,7 +124,7 @@ func TestInventoryItemLifecycle_ShouldCreateRetrieveUpdateAndDelete(t *testing.T
 	body = extractString(t, resp)
 	assertOk(t, resp)
 	expected = fmt.Sprintf(`{"id":%s,"name":"Cool Runnings (1993) UPDATED","location":"AD12 UPDATED","available":false}`, id)
-	assert.Equal(t, body, expected)
+	assert.Equal(t, expected, body)
 
 	// Test check in
 	resp = putJSON(t, "/inventory/"+id+"/checkin", "")
@@ -115,7 +135,7 @@ func TestInventoryItemLifecycle_ShouldCreateRetrieveUpdateAndDelete(t *testing.T
 	body = extractString(t, resp)
 	assertOk(t, resp)
 	expected = fmt.Sprintf(`{"id":%s,"name":"Cool Runnings (1993) UPDATED","location":"AD12 UPDATED","available":true}`, id)
-	assert.Equal(t, body, expected)
+	assert.Equal(t, expected, body)
 
 	// Test delete
 	resp = delete(t, "/inventory/"+id)
@@ -125,8 +145,8 @@ func TestInventoryItemLifecycle_ShouldCreateRetrieveUpdateAndDelete(t *testing.T
 	resp = get(t, "/inventory/"+id)
 	body = extractString(t, resp)
 	assertNotFound(t, resp)
-	expected = fmt.Sprintf(`could not read inventory item - repository error: entity not found: type=[inventory item]`)
-	assert.Equal(t, body, expected)
+	expected = fmt.Sprintf(`could not read inventory item - repository find error: cannot execute query - db scan error: entity not found: type=[inventory item]`)
+	assert.Equal(t, expected, body)
 }
 
 func delete(t *testing.T, path string) *http.Response {
@@ -215,6 +235,10 @@ func assertNoContent(t *testing.T, resp *http.Response) {
 
 func assertNotFound(t *testing.T, resp *http.Response) {
 	assert.Equal(t, 404, resp.StatusCode, "expected Not Found")
+}
+
+func assertBadRequest(t *testing.T, resp *http.Response) {
+	assert.Equal(t, 400, resp.StatusCode, "expected Bad Request")
 }
 
 func extractString(t *testing.T, resp *http.Response) string {

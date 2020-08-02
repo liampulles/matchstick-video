@@ -54,7 +54,7 @@ func (s *ServiceImpl) Create(vo *CreateItemVO) (entity.ID, error) {
 	// Persist it
 	id, err := s.inventoryRepository.Create(e)
 	if err != nil {
-		return entity.InvalidID, fmt.Errorf("could not create inventory item - repository error: %w", err)
+		return entity.InvalidID, fmt.Errorf("could not create inventory item - repository create error: %w", err)
 	}
 
 	return id, nil
@@ -65,7 +65,7 @@ func (s *ServiceImpl) ReadDetails(id entity.ID) (*ViewVO, error) {
 	// Retrieve entity
 	found, err := s.inventoryRepository.FindByID(id)
 	if err != nil {
-		return nil, fmt.Errorf("could not read inventory item - repository error: %w", err)
+		return nil, fmt.Errorf("could not read inventory item - repository find error: %w", err)
 	}
 
 	// Create VO
@@ -79,7 +79,7 @@ func (s *ServiceImpl) ReadAll() ([]ThinViewVO, error) {
 	// Retrieve entity
 	found, err := s.inventoryRepository.FindAll()
 	if err != nil {
-		return nil, fmt.Errorf("could not read inventory items - repository error: %w", err)
+		return nil, fmt.Errorf("could not read inventory items - repository find error: %w", err)
 	}
 
 	// Create VO
@@ -94,7 +94,7 @@ func (s *ServiceImpl) Update(id entity.ID, vo *UpdateItemVO) error {
 	// Retrieve entity
 	found, err := s.inventoryRepository.FindByID(id)
 	if err != nil {
-		return fmt.Errorf("could not update inventory item - repository error: %w", err)
+		return fmt.Errorf("could not update inventory item - repository find error: %w", err)
 	}
 
 	// Modify it
@@ -105,7 +105,7 @@ func (s *ServiceImpl) Update(id entity.ID, vo *UpdateItemVO) error {
 	// Persist it
 	err = s.inventoryRepository.Update(found)
 	if err != nil {
-		return fmt.Errorf("could not update inventory item - repository error: %w", err)
+		return fmt.Errorf("could not update inventory item - repository update error: %w", err)
 	}
 	return nil
 }
@@ -113,7 +113,7 @@ func (s *ServiceImpl) Update(id entity.ID, vo *UpdateItemVO) error {
 // Delete wipes the entity from storage.
 func (s *ServiceImpl) Delete(id entity.ID) error {
 	if err := s.inventoryRepository.DeleteByID(id); err != nil {
-		return fmt.Errorf("could not delete inventory item - repository error: %w", err)
+		return fmt.Errorf("could not delete inventory item - repository delete error: %w", err)
 	}
 	return nil
 }
@@ -123,7 +123,7 @@ func (s *ServiceImpl) Checkout(id entity.ID) error {
 	// Retrieve entity
 	found, err := s.inventoryRepository.FindByID(id)
 	if err != nil {
-		return fmt.Errorf("could not checkout inventory item - repository error: %w", err)
+		return fmt.Errorf("could not checkout inventory item - repository find error: %w", err)
 	}
 
 	// Checkout the entity
@@ -135,7 +135,7 @@ func (s *ServiceImpl) Checkout(id entity.ID) error {
 	// Persist the updated entity
 	err = s.inventoryRepository.Update(found)
 	if err != nil {
-		return fmt.Errorf("could not checkout inventory item - repository error: %w", err)
+		return fmt.Errorf("could not checkout inventory item - repository update error: %w", err)
 	}
 	return nil
 }
@@ -145,7 +145,7 @@ func (s *ServiceImpl) CheckIn(id entity.ID) error {
 	// Retrieve the entity
 	found, err := s.inventoryRepository.FindByID(id)
 	if err != nil {
-		return fmt.Errorf("could not check in inventory item - repository error: %w", err)
+		return fmt.Errorf("could not check in inventory item - repository find error: %w", err)
 	}
 
 	// Check in the entity
@@ -157,7 +157,7 @@ func (s *ServiceImpl) CheckIn(id entity.ID) error {
 	// Persist the modified entity
 	err = s.inventoryRepository.Update(found)
 	if err != nil {
-		return fmt.Errorf("could not check in inventory item - repository error: %w", err)
+		return fmt.Errorf("could not check in inventory item - repository update error: %w", err)
 	}
 	return nil
 }
