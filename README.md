@@ -11,7 +11,6 @@
   <a href="#run">Run</a> •
   <a href="#configuration">Configuration</a> •
   <a href="#usage">Usage</a> •
-  <a href="#benchmark">Benchmark</a> •
   <a href="#contributing">Contributing</a> •
   <a href="#license">License</a>
 </p>
@@ -44,12 +43,18 @@ Matchstick Video is currently in heavy development.
 
 ## Run
 
-First you'll need a PostgreSQL DB running. The easist way is to clone the repo and run `docker-compose up -d db`.
+First you'll need a PostgreSQL DB running. The easiest way is to clone the repo and run `docker-compose up -d db`.
 
 Either download a release from the releases page, or clone and run `make install`, and execute:
 
 ```bash
 matchstick-video
+```
+
+Or, to run the PostgreSQL DB and the app, clone and run:
+
+```bash
+make run
 ```
 
 ## Configuration
@@ -58,7 +63,7 @@ You can set the following environment variables:
 
 * `PORT`: What port to run the server on. Defaults to `8080`.
 * `MIGRATION_SOURCE`: Folder which contains DB migrations. Defaults to `file://migrations`.
-* `DB_USER`: Username for DB. Defaults to `matchvid`'
+* `DB_USER`: Username for DB. Defaults to `matchvid`.
 * `DB_PASSWORD`: Password for DB. Defaults to `password`.
 * `DB_HOST`: Host where the DB can be accessed. Defaults to `localhost`.
 * `DB_PORT`: Port where the DB can be accessed. Defaults to `5432`.
@@ -163,12 +168,6 @@ PUT on `/inventory/{id}/checkin`
 Example response:
 
 `204`
-
-## Benchmark
-
-Result of `matchstick-video 2>/dev/null & siege -t30s http://127.0.0.1:8080/inventory`
-
-TODO
 
 ## Contributing
 
