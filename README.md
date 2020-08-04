@@ -39,7 +39,7 @@
 
 ## Status
 
-Matchstick Video is currently in heavy development.
+Matchstick Video is complete. You can run the app, and check the source code to see how I implemented the Clean Architecture in Go.
 
 ## Run
 
