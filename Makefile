@@ -23,9 +23,14 @@ run:
 	sleep 2
 	matchstick-video
 inspect: build
+	go vet
 	golint ./...
 update:
 	go get -u ./...
+	# TODO: Golint should be replaces by staticcheck and only be installed if binary is unavailable.
+	go mod download golang.org/x/lint
+	go get golang.org/x/lint@v0.0.0-20210508222113-6edffad5e616
+	go install golang.org/x/lint/golint
 pre-commit: update clean coverage.txt inspect
 	go mod tidy
 clean:
