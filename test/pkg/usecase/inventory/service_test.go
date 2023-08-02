@@ -9,7 +9,7 @@ import (
 	entityMocks "github.com/liampulles/matchstick-video/test/mock/pkg/domain/entity"
 	inventoryMocks "github.com/liampulles/matchstick-video/test/mock/pkg/usecase/inventory"
 
-	"github.com/liampulles/matchstick-video/pkg/adapter/db/sql"
+	inventoryRepo "github.com/liampulles/matchstick-video/pkg/adapter/db/sql/inventory"
 	"github.com/liampulles/matchstick-video/pkg/domain/entity"
 	"github.com/liampulles/matchstick-video/pkg/usecase/inventory"
 )
@@ -68,7 +68,7 @@ func (suite *ServiceImplTestSuite) TestCreate_WhenRepositoryFails_ShouldFail() {
 	mockEntity := &entityMocks.MockInventoryItem{Data: "mock.data"}
 	mockErr := fmt.Errorf("mock.error")
 	suite.mockEntityFactory.On("CreateFromVO", voFixture).Return(mockEntity, nil)
-	sql.Create = func(e entity.InventoryItem) (entity.ID, error) {
+	inventoryRepo.Create = func(e entity.InventoryItem) (entity.ID, error) {
 		suite.Equal(mockEntity, e)
 		return entity.InvalidID, mockErr
 	}
@@ -96,7 +96,7 @@ func (suite *ServiceImplTestSuite) TestCreate_WhenDelegatesSucceed_ShouldReturnE
 	// Setup mocks
 	mockEntity := &entityMocks.MockInventoryItem{Data: "mock.data"}
 	suite.mockEntityFactory.On("CreateFromVO", voFixture).Return(mockEntity, nil)
-	sql.Create = func(e entity.InventoryItem) (entity.ID, error) {
+	inventoryRepo.Create = func(e entity.InventoryItem) (entity.ID, error) {
 		suite.Equal(mockEntity, e)
 		return expected, nil
 	}
@@ -115,7 +115,7 @@ func (suite *ServiceImplTestSuite) TestReadDetails_WhenRepositoryFails_ShouldFai
 
 	// Setup mocks
 	mockErr := fmt.Errorf("mock.error")
-	sql.FindByID = func(id entity.ID) (entity.InventoryItem, error) {
+	inventoryRepo.FindByID = func(id entity.ID) (entity.InventoryItem, error) {
 		suite.Equal(idFixture, id)
 		return nil, mockErr
 	}
@@ -142,7 +142,7 @@ func (suite *ServiceImplTestSuite) TestReadDetails_WhenDelegatesSucceed_ShouldRe
 
 	// Setup mocks
 	mockEntity := &entityMocks.MockInventoryItem{Data: "mock.data"}
-	sql.FindByID = func(id entity.ID) (entity.InventoryItem, error) {
+	inventoryRepo.FindByID = func(id entity.ID) (entity.InventoryItem, error) {
 		suite.Equal(idFixture, id)
 		return mockEntity, nil
 	}
@@ -159,7 +159,7 @@ func (suite *ServiceImplTestSuite) TestReadDetails_WhenDelegatesSucceed_ShouldRe
 func (suite *ServiceImplTestSuite) TestReadAll_WhenRepositoryFails_ShouldFail() {
 	// Setup mocks
 	mockErr := fmt.Errorf("mock.error")
-	sql.FindAll = func() ([]entity.InventoryItem, error) {
+	inventoryRepo.FindAll = func() ([]entity.InventoryItem, error) {
 		return nil, mockErr
 	}
 
@@ -185,7 +185,7 @@ func (suite *ServiceImplTestSuite) TestReadAll_WhenDelegatesSucceed_ShouldReturn
 	// Setup mocks
 	mockEntity := &entityMocks.MockInventoryItem{Data: "mock.data"}
 	mockEntities := []entity.InventoryItem{mockEntity}
-	sql.FindAll = func() ([]entity.InventoryItem, error) {
+	inventoryRepo.FindAll = func() ([]entity.InventoryItem, error) {
 		return mockEntities, nil
 	}
 	suite.mockVoFactory.On("CreateThinViewVOsFromEntities", mockEntities).Return(expected)
@@ -207,7 +207,7 @@ func (suite *ServiceImplTestSuite) TestUpdate_WhenRepositoryFindFails_ShouldFail
 
 	// Setup mocks
 	mockErr := fmt.Errorf("mock.error")
-	sql.FindByID = func(id entity.ID) (entity.InventoryItem, error) {
+	inventoryRepo.FindByID = func(id entity.ID) (entity.InventoryItem, error) {
 		suite.Equal(idFixture, id)
 		return nil, mockErr
 	}
@@ -232,7 +232,7 @@ func (suite *ServiceImplTestSuite) TestUpdate_WhenModifierFails_ShouldFail() {
 	// Setup mocks
 	mockErr := fmt.Errorf("mock.error")
 	mockEntity := &entityMocks.MockInventoryItem{Data: "mock.data"}
-	sql.FindByID = func(id entity.ID) (entity.InventoryItem, error) {
+	inventoryRepo.FindByID = func(id entity.ID) (entity.InventoryItem, error) {
 		suite.Equal(idFixture, id)
 		return mockEntity, nil
 	}
@@ -261,12 +261,12 @@ func (suite *ServiceImplTestSuite) TestUpdate_WhenRepositoryUpdateFails_ShouldFa
 	// Setup mocks
 	mockEntity := &entityMocks.MockInventoryItem{Data: "mock.data"}
 	mockErr := fmt.Errorf("mock.error")
-	sql.FindByID = func(id entity.ID) (entity.InventoryItem, error) {
+	inventoryRepo.FindByID = func(id entity.ID) (entity.InventoryItem, error) {
 		suite.Equal(idFixture, id)
 		return mockEntity, nil
 	}
 	suite.mockEntityModifier.On("ModifyWithUpdateItemVO", mockEntity, voFixture).Return(nil)
-	sql.Update = func(e entity.InventoryItem) error {
+	inventoryRepo.Update = func(e entity.InventoryItem) error {
 		suite.Equal(mockEntity, e)
 		return mockErr
 	}
@@ -287,12 +287,12 @@ func (suite *ServiceImplTestSuite) TestUpdate_WhenDelegatesSucceed_ShouldReturnA
 
 	// Setup mocks
 	mockEntity := &entityMocks.MockInventoryItem{Data: "mock.data"}
-	sql.FindByID = func(id entity.ID) (entity.InventoryItem, error) {
+	inventoryRepo.FindByID = func(id entity.ID) (entity.InventoryItem, error) {
 		suite.Equal(idFixture, id)
 		return mockEntity, nil
 	}
 	suite.mockEntityModifier.On("ModifyWithUpdateItemVO", mockEntity, voFixture).Return(nil)
-	sql.Update = func(e entity.InventoryItem) error {
+	inventoryRepo.Update = func(e entity.InventoryItem) error {
 		suite.Equal(mockEntity, e)
 		return nil
 	}
@@ -310,7 +310,7 @@ func (suite *ServiceImplTestSuite) TestDelete_WhenRepositoryFails_ShouldFail() {
 
 	// Setup mocks
 	mockErr := fmt.Errorf("mock.error")
-	sql.DeleteByID = func(id entity.ID) error {
+	inventoryRepo.DeleteByID = func(id entity.ID) error {
 		suite.Equal(idFixture, id)
 		return mockErr
 	}
@@ -330,7 +330,7 @@ func (suite *ServiceImplTestSuite) TestDelete_WhenDelegatesSucceed_ShouldReturnA
 	idFixture := entity.ID(101)
 
 	// Setup mocks
-	sql.DeleteByID = func(id entity.ID) error {
+	inventoryRepo.DeleteByID = func(id entity.ID) error {
 		suite.Equal(idFixture, id)
 		return nil
 	}
@@ -348,7 +348,7 @@ func (suite *ServiceImplTestSuite) TestCheckout_WhenRepositoryFindFails_ShouldFa
 
 	// Setup mocks
 	mockErr := fmt.Errorf("mock.error")
-	sql.FindByID = func(id entity.ID) (entity.InventoryItem, error) {
+	inventoryRepo.FindByID = func(id entity.ID) (entity.InventoryItem, error) {
 		suite.Equal(idFixture, id)
 		return nil, mockErr
 	}
@@ -370,7 +370,7 @@ func (suite *ServiceImplTestSuite) TestCheckout_WhenEntityFails_ShouldFail() {
 	// Setup mocks
 	mockEntity := &entityMocks.MockInventoryItem{Data: "some.data"}
 	mockErr := fmt.Errorf("mock.error")
-	sql.FindByID = func(id entity.ID) (entity.InventoryItem, error) {
+	inventoryRepo.FindByID = func(id entity.ID) (entity.InventoryItem, error) {
 		suite.Equal(idFixture, id)
 		return mockEntity, nil
 	}
@@ -393,12 +393,12 @@ func (suite *ServiceImplTestSuite) TestCheckout_WhenRepositoryUpdateFails_Should
 	// Setup mocks
 	mockEntity := &entityMocks.MockInventoryItem{Data: "some.data"}
 	mockErr := fmt.Errorf("mock.error")
-	sql.FindByID = func(id entity.ID) (entity.InventoryItem, error) {
+	inventoryRepo.FindByID = func(id entity.ID) (entity.InventoryItem, error) {
 		suite.Equal(idFixture, id)
 		return mockEntity, nil
 	}
 	mockEntity.On("Checkout").Return(nil)
-	sql.Update = func(e entity.InventoryItem) error {
+	inventoryRepo.Update = func(e entity.InventoryItem) error {
 		suite.Equal(mockEntity, e)
 		return mockErr
 	}
@@ -419,12 +419,12 @@ func (suite *ServiceImplTestSuite) TestCheckout_WhenDelegatesSucceed_ShouldRetur
 
 	// Setup mocks
 	mockEntity1 := &entityMocks.MockInventoryItem{Data: "some.data.1"}
-	sql.FindByID = func(id entity.ID) (entity.InventoryItem, error) {
+	inventoryRepo.FindByID = func(id entity.ID) (entity.InventoryItem, error) {
 		suite.Equal(idFixture, id)
 		return mockEntity1, nil
 	}
 	mockEntity1.On("Checkout").Return(nil)
-	sql.Update = func(e entity.InventoryItem) error {
+	inventoryRepo.Update = func(e entity.InventoryItem) error {
 		suite.Equal(mockEntity1, e)
 		return nil
 	}
@@ -442,7 +442,7 @@ func (suite *ServiceImplTestSuite) TestCheckIn_WhenRepositoryFindFails_ShouldFai
 
 	// Setup mocks
 	mockErr := fmt.Errorf("mock.error")
-	sql.FindByID = func(id entity.ID) (entity.InventoryItem, error) {
+	inventoryRepo.FindByID = func(id entity.ID) (entity.InventoryItem, error) {
 		suite.Equal(idFixture, id)
 		return nil, mockErr
 	}
@@ -464,7 +464,7 @@ func (suite *ServiceImplTestSuite) TestCheckIn_WhenEntityFails_ShouldFail() {
 	// Setup mocks
 	mockEntity := &entityMocks.MockInventoryItem{Data: "some.data"}
 	mockErr := fmt.Errorf("mock.error")
-	sql.FindByID = func(id entity.ID) (entity.InventoryItem, error) {
+	inventoryRepo.FindByID = func(id entity.ID) (entity.InventoryItem, error) {
 		suite.Equal(idFixture, id)
 		return mockEntity, nil
 	}
@@ -487,12 +487,12 @@ func (suite *ServiceImplTestSuite) TestCheckIn_WhenRepositoryUpdateFails_ShouldF
 	// Setup mocks
 	mockEntity := &entityMocks.MockInventoryItem{Data: "some.data"}
 	mockErr := fmt.Errorf("mock.error")
-	sql.FindByID = func(id entity.ID) (entity.InventoryItem, error) {
+	inventoryRepo.FindByID = func(id entity.ID) (entity.InventoryItem, error) {
 		suite.Equal(idFixture, id)
 		return mockEntity, nil
 	}
 	mockEntity.On("CheckIn").Return(nil)
-	sql.Update = func(e entity.InventoryItem) error {
+	inventoryRepo.Update = func(e entity.InventoryItem) error {
 		suite.Equal(mockEntity, e)
 		return mockErr
 	}
@@ -513,12 +513,12 @@ func (suite *ServiceImplTestSuite) TestCheckIn_WhenDelegatesSucceed_ShouldReturn
 
 	// Setup mocks
 	mockEntity := &entityMocks.MockInventoryItem{Data: "some.data"}
-	sql.FindByID = func(id entity.ID) (entity.InventoryItem, error) {
+	inventoryRepo.FindByID = func(id entity.ID) (entity.InventoryItem, error) {
 		suite.Equal(idFixture, id)
 		return mockEntity, nil
 	}
 	mockEntity.On("CheckIn").Return(nil)
-	sql.Update = func(e entity.InventoryItem) error {
+	inventoryRepo.Update = func(e entity.InventoryItem) error {
 		suite.Equal(mockEntity, e)
 		return nil
 	}

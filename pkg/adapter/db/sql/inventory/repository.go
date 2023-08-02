@@ -1,6 +1,7 @@
-package sql
+package inventory
 
 import (
+	"github.com/liampulles/matchstick-video/pkg/adapter/db/sql"
 	"github.com/liampulles/matchstick-video/pkg/domain/entity"
 )
 
@@ -42,7 +43,7 @@ var Create = func(e entity.InventoryItem) (entity.ID, error) {
 		)
 	VALUES ($1, $2, $3)
 	RETURNING id;`
-	return SingleQueryForID(query, "inventory item",
+	return sql.SingleQueryForID(query, "inventory item",
 		e.Name(),
 		e.Location(),
 		e.IsAvailable(),
@@ -56,7 +57,7 @@ var DeleteByID = func(id entity.ID) error {
 	DELETE FROM inventory_item
 	WHERE 
 		id=$1;`
-	return ExecForSingleItem(query, id)
+	return sql.ExecForSingleItem(query, id)
 }
 
 // Update persists new data for all fields in the given inventory item,
@@ -68,7 +69,7 @@ var Update = func(e entity.InventoryItem) error {
 		name=$1, location=$2, available=$3
 	WHERE 
 		id=$4;`
-	return ExecForSingleItem(query,
+	return sql.ExecForSingleItem(query,
 		e.Name(),
 		e.Location(),
 		e.IsAvailable(),
@@ -80,7 +81,7 @@ func singleEntityQuery(query string, args ...interface{}) (entity.InventoryItem,
 	var result entity.InventoryItem
 
 	// Run the query to get a row
-	err := SingleRowQuery(query, func(row Row) error {
+	err := sql.SingleRowQuery(query, func(row sql.Row) error {
 		res, err := scanInventoryItem(row)
 		result = res
 		return err
@@ -93,7 +94,7 @@ func manyEntityQuery(query string, args ...interface{}) ([]entity.InventoryItem,
 	var results []entity.InventoryItem
 
 	// Run the query to get a row
-	err := ManyRowsQuery(query, func(row Row) error {
+	err := sql.ManyRowsQuery(query, func(row sql.Row) error {
 		res, err := scanInventoryItem(row)
 		if res != nil {
 			results = append(results, res)
@@ -107,7 +108,7 @@ func manyEntityQuery(query string, args ...interface{}) ([]entity.InventoryItem,
 	return results, nil
 }
 
-func scanInventoryItem(row Row) (entity.InventoryItem, error) {
+func scanInventoryItem(row sql.Row) (entity.InventoryItem, error) {
 	var id entity.ID
 	var name string
 	var location string

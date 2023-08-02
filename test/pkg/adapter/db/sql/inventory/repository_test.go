@@ -11,20 +11,21 @@ import (
 	entityMocks "github.com/liampulles/matchstick-video/test/mock/pkg/domain/entity"
 
 	"github.com/liampulles/matchstick-video/pkg/adapter/db/sql"
+	"github.com/liampulles/matchstick-video/pkg/adapter/db/sql/inventory"
 	"github.com/liampulles/matchstick-video/pkg/domain/entity"
 )
 
-type InventoryRepositoryTestSuite struct {
+type RepositoryTestSuite struct {
 	suite.Suite
 	db     *goSql.DB
 	mockDb sqlmock.Sqlmock
 }
 
-func TestInventoryRepositoryTestSuite(t *testing.T) {
-	suite.Run(t, new(InventoryRepositoryTestSuite))
+func TestRepositoryTestSuite(t *testing.T) {
+	suite.Run(t, new(RepositoryTestSuite))
 }
 
-func (suite *InventoryRepositoryTestSuite) SetupTest() {
+func (suite *RepositoryTestSuite) SetupTest() {
 	db, mock, err := sqlmock.New()
 	if err != nil {
 		panic(err)
@@ -33,7 +34,7 @@ func (suite *InventoryRepositoryTestSuite) SetupTest() {
 	suite.mockDb = mock
 }
 
-func (suite *InventoryRepositoryTestSuite) TestFindByID_WhenHelperServiceFails_ShouldFail() {
+func (suite *RepositoryTestSuite) TestFindByID_WhenHelperServiceFails_ShouldFail() {
 	// Setup fixture
 	idFixture := entity.ID(101)
 
@@ -59,13 +60,13 @@ func (suite *InventoryRepositoryTestSuite) TestFindByID_WhenHelperServiceFails_S
 	}
 
 	// Exercise SUT
-	_, err := sql.FindByID(idFixture)
+	_, err := inventory.FindByID(idFixture)
 
 	// Verify results
 	suite.EqualError(err, expectedErr)
 }
 
-func (suite *InventoryRepositoryTestSuite) TestFindAll_WhenHelperServiceFails_ShouldFail() {
+func (suite *RepositoryTestSuite) TestFindAll_WhenHelperServiceFails_ShouldFail() {
 	// Setup expectations
 	expectedSql := `
 	SELECT 
@@ -85,14 +86,14 @@ func (suite *InventoryRepositoryTestSuite) TestFindAll_WhenHelperServiceFails_Sh
 	}
 
 	// Exercise SUT
-	actual, err := sql.FindAll()
+	actual, err := inventory.FindAll()
 
 	// Verify results
 	suite.Nil(actual)
 	suite.EqualError(err, expectedErr)
 }
 
-func (suite *InventoryRepositoryTestSuite) TestFindAll_WhenHelperServicePasses_ShouldPass() {
+func (suite *RepositoryTestSuite) TestFindAll_WhenHelperServicePasses_ShouldPass() {
 	// Setup expectations
 	expectedSql := `
 	SELECT 
@@ -110,13 +111,13 @@ func (suite *InventoryRepositoryTestSuite) TestFindAll_WhenHelperServicePasses_S
 	}
 
 	// Exercise SUT
-	_, err := sql.FindAll()
+	_, err := inventory.FindAll()
 
 	// Verify results
 	suite.NoError(err)
 }
 
-func (suite *InventoryRepositoryTestSuite) TestCreate_WhenHelperServiceFails_ShouldFail() {
+func (suite *RepositoryTestSuite) TestCreate_WhenHelperServiceFails_ShouldFail() {
 	// Setup expectations
 	expectedSql := `
 	INSERT INTO inventory_item
@@ -145,14 +146,14 @@ func (suite *InventoryRepositoryTestSuite) TestCreate_WhenHelperServiceFails_Sho
 	}
 
 	// Exercise SUT
-	actual, err := sql.Create(mockEntity)
+	actual, err := inventory.Create(mockEntity)
 
 	// Verify results
 	suite.Equal(actual, entity.InvalidID)
 	suite.EqualError(err, expectedErr)
 }
 
-func (suite *InventoryRepositoryTestSuite) TestCreate_WhenHelperServiceSucceeds_ShouldReturnID() {
+func (suite *RepositoryTestSuite) TestCreate_WhenHelperServiceSucceeds_ShouldReturnID() {
 	// Setup expectations
 	expectedSql := `
 	INSERT INTO inventory_item
@@ -180,14 +181,14 @@ func (suite *InventoryRepositoryTestSuite) TestCreate_WhenHelperServiceSucceeds_
 	}
 
 	// Exercise SUT
-	actual, err := sql.Create(mockEntity)
+	actual, err := inventory.Create(mockEntity)
 
 	// Verify results
 	suite.NoError(err)
 	suite.Equal(expectedID, actual)
 }
 
-func (suite *InventoryRepositoryTestSuite) TestDeleteByID_WhenHelperServiceFails_ShouldFail() {
+func (suite *RepositoryTestSuite) TestDeleteByID_WhenHelperServiceFails_ShouldFail() {
 	// Setup fixture
 	idFixture := entity.ID(101)
 
@@ -207,13 +208,13 @@ func (suite *InventoryRepositoryTestSuite) TestDeleteByID_WhenHelperServiceFails
 	}
 
 	// Exercise SUT
-	err := sql.DeleteByID(idFixture)
+	err := inventory.DeleteByID(idFixture)
 
 	// Verify results
 	suite.EqualError(err, expectedErr)
 }
 
-func (suite *InventoryRepositoryTestSuite) TestDeleteByID_WhenHelperServicePasses_ShouldPass() {
+func (suite *RepositoryTestSuite) TestDeleteByID_WhenHelperServicePasses_ShouldPass() {
 	// Setup fixture
 	idFixture := entity.ID(101)
 
@@ -231,13 +232,13 @@ func (suite *InventoryRepositoryTestSuite) TestDeleteByID_WhenHelperServicePasse
 	}
 
 	// Exercise SUT
-	err := sql.DeleteByID(idFixture)
+	err := inventory.DeleteByID(idFixture)
 
 	// Verify results
 	suite.NoError(err)
 }
 
-func (suite *InventoryRepositoryTestSuite) TestUpdate_WhenHelperServiceFails_ShouldFail() {
+func (suite *RepositoryTestSuite) TestUpdate_WhenHelperServiceFails_ShouldFail() {
 	// Setup expectations
 	expectedSql := `
 	UPDATE inventory_item
@@ -264,13 +265,13 @@ func (suite *InventoryRepositoryTestSuite) TestUpdate_WhenHelperServiceFails_Sho
 	}
 
 	// Exercise SUT
-	err := sql.Update(mockEntity)
+	err := inventory.Update(mockEntity)
 
 	// Verify results
 	suite.EqualError(err, expectedErr)
 }
 
-func (suite *InventoryRepositoryTestSuite) TestUpdate_WhenHelperServicePasses_ShouldPass() {
+func (suite *RepositoryTestSuite) TestUpdate_WhenHelperServicePasses_ShouldPass() {
 	// Setup expectations
 	expectedSql := `
 	UPDATE inventory_item
@@ -295,7 +296,7 @@ func (suite *InventoryRepositoryTestSuite) TestUpdate_WhenHelperServicePasses_Sh
 	}
 
 	// Exercise SUT
-	err := sql.Update(mockEntity)
+	err := inventory.Update(mockEntity)
 
 	// Verify results
 	suite.NoError(err)

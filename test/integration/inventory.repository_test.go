@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/liampulles/matchstick-video/pkg/adapter/config"
-	"github.com/liampulles/matchstick-video/pkg/adapter/db/sql"
+	"github.com/liampulles/matchstick-video/pkg/adapter/db/sql/inventory"
 	"github.com/liampulles/matchstick-video/pkg/domain/entity"
 )
 
@@ -39,11 +39,11 @@ func (suite *InventoryRepositoryTestSuite) TestFindByID_WhenDoesExist_ShouldPass
 	e := entity.TestInventoryItemImplConstructor(
 		entity.InvalidID, "some.find.name", "some.find.location", true,
 	)
-	id, err := sql.Create(e)
+	id, err := inventory.Create(e)
 	suite.NoError(err)
 
 	// Exercise SUT
-	_, err = sql.FindByID(id)
+	_, err = inventory.FindByID(id)
 
 	// Verify results
 	suite.NoError(err)
@@ -51,7 +51,7 @@ func (suite *InventoryRepositoryTestSuite) TestFindByID_WhenDoesExist_ShouldPass
 
 func (suite *InventoryRepositoryTestSuite) TestFindAll_ShouldPass() {
 	// Exercise SUT
-	_, err := sql.FindAll()
+	_, err := inventory.FindAll()
 
 	// Verify results
 	suite.NoError(err)
@@ -64,7 +64,7 @@ func (suite *InventoryRepositoryTestSuite) TestCreate_ShouldPass() {
 	)
 
 	// Exercise SUT
-	_, err := sql.Create(e)
+	_, err := inventory.Create(e)
 
 	// Verify results
 	suite.NoError(err)
@@ -75,11 +75,11 @@ func (suite *InventoryRepositoryTestSuite) TestDeleteById_WhenDoesExist_ShouldPa
 	e := entity.TestInventoryItemImplConstructor(
 		entity.InvalidID, "some.delete.name", "some.delete.location", true,
 	)
-	id, err := sql.Create(e)
+	id, err := inventory.Create(e)
 	suite.NoError(err)
 
 	// Exercise SUT
-	err = sql.DeleteByID(id)
+	err = inventory.DeleteByID(id)
 
 	// Verify results
 	suite.NoError(err)
