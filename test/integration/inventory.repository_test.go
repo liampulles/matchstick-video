@@ -1,3 +1,4 @@
+//go:build integration
 // +build integration
 
 package integration_test
@@ -26,8 +27,7 @@ func TestInventoryRepositoryTestSuite(t *testing.T) {
 }
 
 func (suite *InventoryRepositoryTestSuite) SetupTest() {
-
-	source := goConfig.MapSource(map[string]string{
+	config.Load(goConfig.MapSource{
 		"PORT":             "9010",
 		"MIGRATION_SOURCE": "file://../../migrations",
 		"DB_USER":          "integration",
@@ -35,14 +35,9 @@ func (suite *InventoryRepositoryTestSuite) SetupTest() {
 		"DB_NAME":          "integration",
 		"DB_PORT":          "5050",
 	})
-
-	configStore, err := config.NewStoreImpl(source)
-	if err != nil {
-		panic(err)
-	}
 	errorParser := adapterDb.NewErrorParserImpl()
 
-	dbService, err := db.NewDatabaseServiceImpl(configStore)
+	dbService, err := db.NewDatabaseServiceImpl()
 	if err != nil {
 		panic(err)
 	}

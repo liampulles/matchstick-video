@@ -4,7 +4,6 @@ import (
 	goSql "database/sql"
 	"fmt"
 
-	"github.com/liampulles/matchstick-video/pkg/adapter/config"
 	"github.com/liampulles/matchstick-video/pkg/adapter/db/sql"
 )
 
@@ -16,15 +15,15 @@ type DatabaseServiceImpl struct {
 var _ sql.DatabaseService = &DatabaseServiceImpl{}
 
 // NewDatabaseServiceImpl is a constructor
-func NewDatabaseServiceImpl(configStore config.Store) (*DatabaseServiceImpl, error) {
+func NewDatabaseServiceImpl() (*DatabaseServiceImpl, error) {
 	// Bring up DB
-	db, err := newPostgreSQLDB(configStore)
+	db, err := newPostgreSQLDB()
 	if err != nil {
 		return nil, fmt.Errorf("could not create database service - could not init db: %w", err)
 	}
 
 	// Perform migrations
-	err = migratePostgreSQLDB(configStore, db)
+	err = migratePostgreSQLDB(db)
 	if err != nil {
 		return nil, fmt.Errorf("could not create database service - could not migrate db: %w", err)
 	}

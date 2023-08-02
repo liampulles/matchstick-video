@@ -1,9 +1,6 @@
 package wire
 
 import (
-	goConfig "github.com/liampulles/go-config"
-
-	"github.com/liampulles/matchstick-video/pkg/adapter/config"
 	adapterDb "github.com/liampulles/matchstick-video/pkg/adapter/db"
 	"github.com/liampulles/matchstick-video/pkg/adapter/db/sql"
 	"github.com/liampulles/matchstick-video/pkg/adapter/http"
@@ -17,8 +14,8 @@ import (
 
 // CreateApp creates a runnable for the entrypoint of the
 // application
-func CreateApp(source goConfig.Source) domain.Runnable {
-	factory, err := CreateServerFactory(source)
+func CreateApp() domain.Runnable {
+	factory, err := CreateServerFactory()
 	if err != nil {
 		return func() error {
 			return err
@@ -29,21 +26,13 @@ func CreateApp(source goConfig.Source) domain.Runnable {
 
 // CreateServerFactory injects all the dependencies needed to create
 // http.ServerFactory
-func CreateServerFactory(source goConfig.Source) (http.ServerFactory, error) {
+func CreateServerFactory() (http.ServerFactory, error) {
 	// Each "tap" below indicates a level of dependency
-	configStore, err := config.NewStoreImpl(
-		source,
-	)
-	if err != nil {
-		return nil, err
-	}
 	errorParser := adapterDb.NewErrorParserImpl()
 
 	// --- NEXT TAP ---
 	helperService := sql.NewHelperServiceImpl(errorParser)
-	databaseService, err := db.NewDatabaseServiceImpl(
-		configStore,
-	)
+	databaseService, err := db.NewDatabaseServiceImpl()
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +78,6 @@ func CreateServerFactory(source goConfig.Source) (http.ServerFactory, error) {
 		parameterConverter,
 	)
 	serverConfiguration := mux.NewServerConfigurationImpl(
-		configStore,
 		handlerMapper,
 		muxWrapper,
 	)

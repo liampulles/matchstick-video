@@ -11,7 +11,6 @@ import (
 
 // ServerConfigurationImpl implements ServerConfiguration with gorilla/mux
 type ServerConfigurationImpl struct {
-	configStore   config.Store
 	handlerMapper HandlerMapper
 	muxWrapper    Wrapper
 }
@@ -21,13 +20,11 @@ var _ http.ServerConfiguration = &ServerConfigurationImpl{}
 
 // NewServerConfigurationImpl is a constructor
 func NewServerConfigurationImpl(
-	configStore config.Store,
 	handlerMapper HandlerMapper,
 	muxWrapper Wrapper,
 ) *ServerConfigurationImpl {
 
 	return &ServerConfigurationImpl{
-		configStore:   configStore,
 		handlerMapper: handlerMapper,
 		muxWrapper:    muxWrapper,
 	}
@@ -58,5 +55,5 @@ func (m *ServerConfigurationImpl) CreateRunnable(handlers map[http.HandlerPatter
 }
 
 func (m *ServerConfigurationImpl) getPort() string {
-	return fmt.Sprintf(":%d", m.configStore.GetPort())
+	return fmt.Sprintf(":%d", config.GetPort())
 }

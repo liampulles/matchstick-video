@@ -1,25 +1,49 @@
 package config
 
 import (
-	"fmt"
-
 	goConfig "github.com/liampulles/go-config"
+	"github.com/rs/zerolog/log"
 )
 
-// Store encapsulates configuration properties
-// to be injected
-type Store interface {
-	GetPort() int
-	GetMigrationSource() string
-	GetDbUser() string
-	GetDbPassword() string
-	GetDbHost() string
-	GetDbPort() int
-	GetDbName() string
+// GetPort returns the configured port for the server
+func GetPort() int {
+	return lazyGet().port
 }
 
-// StoreImpl implements store
-type StoreImpl struct {
+// GetMigrationSource returns the source for database migrations to run
+func GetMigrationSource() string {
+	return lazyGet().migrationSource
+}
+
+// GetDbUser returns the database user
+func GetDbUser() string {
+	return lazyGet().dbUser
+}
+
+// GetDbPassword returns the database password
+func GetDbPassword() string {
+	return lazyGet().dbPassword
+}
+
+// GetDbHost returns the database host
+func GetDbHost() string {
+	return lazyGet().dbHost
+}
+
+// GetDbPort returns the database port
+func GetDbPort() int {
+	return lazyGet().dbPort
+}
+
+// GetDbName returns the database name
+func GetDbName() string {
+	return lazyGet().dbName
+}
+
+// --- Backing ---
+
+// Config state
+type state struct {
 	port            int
 	migrationSource string
 	dbUser          string
@@ -29,14 +53,28 @@ type StoreImpl struct {
 	dbName          string
 }
 
-// Check we implement the interface
-var _ Store = &StoreImpl{}
+var (
+	defaultSource = goConfig.NewEnvSource()
+	loaded        = false
+	loadedState   state
+)
 
-// NewStoreImpl is a constructor
-func NewStoreImpl(source goConfig.Source) (*StoreImpl, error) {
+func lazyGet() state {
+	if !loaded {
+		if err := Load(defaultSource); err != nil {
+			log.Err(err).Msg("could not load config")
+			panic(err)
+		}
+	}
+
+	return loadedState
+}
+
+// Load the global config.
+func Load(source goConfig.Source) error {
 	typedSource := goConfig.NewTypedSource(source)
 	// Set defaults
-	store := &StoreImpl{
+	s := state{
 		port:            8080,
 		migrationSource: "file://migrations",
 		dbUser:          "matchvid",
@@ -48,51 +86,17 @@ func NewStoreImpl(source goConfig.Source) (*StoreImpl, error) {
 
 	// Read in from source
 	if err := goConfig.LoadProperties(typedSource,
-		goConfig.IntProp("PORT", &store.port, false),
-		goConfig.StrProp("MIGRATION_SOURCE", &store.migrationSource, false),
-		goConfig.StrProp("DB_USER", &store.dbUser, false),
-		goConfig.StrProp("DB_PASSWORD", &store.dbPassword, false),
-		goConfig.StrProp("DB_HOST", &store.dbHost, false),
-		goConfig.IntProp("DB_PORT", &store.dbPort, false),
-		goConfig.StrProp("DB_NAME", &store.dbName, false),
+		goConfig.IntProp("PORT", &s.port, false),
+		goConfig.StrProp("MIGRATION_SOURCE", &s.migrationSource, false),
+		goConfig.StrProp("DB_USER", &s.dbUser, false),
+		goConfig.StrProp("DB_PASSWORD", &s.dbPassword, false),
+		goConfig.StrProp("DB_HOST", &s.dbHost, false),
+		goConfig.IntProp("DB_PORT", &s.dbPort, false),
+		goConfig.StrProp("DB_NAME", &s.dbName, false),
 	); err != nil {
-		return nil, fmt.Errorf("could not fetch config: %w", err)
+		return err
 	}
 
-	return store, nil
-}
-
-// GetPort returns the configured port for the server
-func (s *StoreImpl) GetPort() int {
-	return s.port
-}
-
-// GetMigrationSource returns the source for database migrations to run
-func (s *StoreImpl) GetMigrationSource() string {
-	return s.migrationSource
-}
-
-// GetDbUser returns the database user
-func (s *StoreImpl) GetDbUser() string {
-	return s.dbUser
-}
-
-// GetDbPassword returns the database password
-func (s *StoreImpl) GetDbPassword() string {
-	return s.dbPassword
-}
-
-// GetDbHost returns the database host
-func (s *StoreImpl) GetDbHost() string {
-	return s.dbHost
-}
-
-// GetDbPort returns the database port
-func (s *StoreImpl) GetDbPort() int {
-	return s.dbPort
-}
-
-// GetDbName returns the database name
-func (s *StoreImpl) GetDbName() string {
-	return s.dbName
+	loadedState, loaded = s, true
+	return nil
 }

@@ -15,8 +15,8 @@ import (
 	"github.com/liampulles/matchstick-video/pkg/adapter/config"
 )
 
-func newPostgreSQLDB(cfg config.Store) (*sql.DB, error) {
-	connStr := getConnectionString(cfg)
+func newPostgreSQLDB() (*sql.DB, error) {
+	connStr := getConnectionString()
 	db, err := sql.Open("pgx", connStr)
 	if err != nil {
 		return nil, fmt.Errorf("could not create postgres db - open error: %w", err)
@@ -25,7 +25,7 @@ func newPostgreSQLDB(cfg config.Store) (*sql.DB, error) {
 	return db, nil
 }
 
-func migratePostgreSQLDB(cfg config.Store, sqlDB *sql.DB) error {
+func migratePostgreSQLDB(sqlDB *sql.DB) error {
 	// Get migration driver
 	driver, err := postgres.WithInstance(sqlDB, &postgres.Config{})
 	if err != nil {
@@ -33,7 +33,7 @@ func migratePostgreSQLDB(cfg config.Store, sqlDB *sql.DB) error {
 	}
 
 	// Get migration instance
-	source := cfg.GetMigrationSource()
+	source := config.GetMigrationSource()
 	m, err := migrate.NewWithDatabaseInstance(source, "postgres", driver)
 	if err != nil {
 		return fmt.Errorf("could not migrate postgres db - migrate init error: %w", err)
@@ -54,12 +54,12 @@ func migratePostgreSQLDB(cfg config.Store, sqlDB *sql.DB) error {
 	return nil
 }
 
-func getConnectionString(cfg config.Store) string {
-	host := cfg.GetDbHost()
-	port := cfg.GetDbPort()
-	user := cfg.GetDbUser()
-	pass := cfg.GetDbPassword()
-	name := cfg.GetDbName()
+func getConnectionString() string {
+	host := config.GetDbHost()
+	port := config.GetDbPort()
+	user := config.GetDbUser()
+	pass := config.GetDbPassword()
+	name := config.GetDbName()
 
 	return fmt.Sprintf("user=%s password=%s host=%s port=%d database=%s sslmode=disable",
 		user, pass, host, port, name,

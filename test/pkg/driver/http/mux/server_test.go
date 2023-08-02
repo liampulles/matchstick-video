@@ -4,19 +4,17 @@ import (
 	goHttp "net/http"
 	"testing"
 
-	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/suite"
-
-	configMocks "github.com/liampulles/matchstick-video/test/mock/pkg/adapter/config"
-	muxMocks "github.com/liampulles/matchstick-video/test/mock/pkg/driver/http/mux"
-
+	goConfig "github.com/liampulles/go-config"
+	"github.com/liampulles/matchstick-video/pkg/adapter/config"
 	"github.com/liampulles/matchstick-video/pkg/adapter/http"
 	muxDriver "github.com/liampulles/matchstick-video/pkg/driver/http/mux"
+	muxMocks "github.com/liampulles/matchstick-video/test/mock/pkg/driver/http/mux"
+	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/suite"
 )
 
 type ServerConfigurationImplTestSuite struct {
 	suite.Suite
-	mockConfigStore   *configMocks.MockStore
 	mockHandlerMapper *muxMocks.MockHandlerMapper
 	mockMuxWrapper    *muxMocks.MockWrapper
 	sut               *muxDriver.ServerConfigurationImpl
@@ -27,11 +25,9 @@ func TestServerConfigurationImplTestSuite(t *testing.T) {
 }
 
 func (suite *ServerConfigurationImplTestSuite) SetupTest() {
-	suite.mockConfigStore = &configMocks.MockStore{}
 	suite.mockHandlerMapper = &muxMocks.MockHandlerMapper{}
 	suite.mockMuxWrapper = &muxMocks.MockWrapper{}
 	suite.sut = muxDriver.NewServerConfigurationImpl(
-		suite.mockConfigStore,
 		suite.mockHandlerMapper,
 		suite.mockMuxWrapper,
 	)
@@ -40,11 +36,11 @@ func (suite *ServerConfigurationImplTestSuite) SetupTest() {
 func (suite *ServerConfigurationImplTestSuite) TestCreateRunnable_ShouldMapAllHandlers() {
 	// Setup fixture
 	fixture := map[http.HandlerPattern]http.Handler{
-		http.HandlerPattern{
+		{
 			Method:      "method.1",
 			PathPattern: "path.pattern.1",
 		}: mockHander1,
-		http.HandlerPattern{
+		{
 			Method:      "method.2",
 			PathPattern: "path.pattern.2",
 		}: mockHander2,
@@ -66,8 +62,9 @@ func (suite *ServerConfigurationImplTestSuite) TestCreateRunnable_ShouldMapAllHa
 		Return(mockRoute2)
 	mockRoute2.On("Methods", []string{"method.2"}).
 		Return(nil)
-	suite.mockConfigStore.On("GetPort").
-		Return(101)
+	config.Load(goConfig.MapSource{
+		"PORT": "101",
+	})
 
 	// Exercise SUT
 	suite.sut.CreateRunnable(fixture)

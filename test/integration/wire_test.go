@@ -1,3 +1,4 @@
+//go:build integration
 // +build integration
 
 package integration
@@ -9,12 +10,13 @@ import (
 
 	goConfig "github.com/liampulles/go-config"
 
+	"github.com/liampulles/matchstick-video/pkg/adapter/config"
 	"github.com/liampulles/matchstick-video/pkg/wire"
 )
 
 func TestCreateServerFactory_GivenValidIntegrationConfig_ShouldPass(t *testing.T) {
 	// Setup fixture
-	fixture := goConfig.MapSource(map[string]string{
+	config.Load(goConfig.MapSource{
 		"PORT":             "9010",
 		"MIGRATION_SOURCE": "file://../../migrations",
 		"DB_USER":          "integration",
@@ -24,7 +26,7 @@ func TestCreateServerFactory_GivenValidIntegrationConfig_ShouldPass(t *testing.T
 	})
 
 	// Exercise SUT
-	actual, err := wire.CreateServerFactory(fixture)
+	actual, err := wire.CreateServerFactory()
 
 	// Verify results
 	assert.NotNil(t, actual)
@@ -33,7 +35,7 @@ func TestCreateServerFactory_GivenValidIntegrationConfig_ShouldPass(t *testing.T
 
 func TestCreateApp_SmokeTest(t *testing.T) {
 	// Setup fixture
-	fixture := goConfig.MapSource(map[string]string{
+	config.Load(goConfig.MapSource{
 		"PORT":             "9010",
 		"MIGRATION_SOURCE": "file://../../migrations",
 		"DB_USER":          "integration",
@@ -43,5 +45,5 @@ func TestCreateApp_SmokeTest(t *testing.T) {
 	})
 
 	// Exercise SUT
-	wire.CreateApp(fixture)
+	wire.CreateApp()
 }
