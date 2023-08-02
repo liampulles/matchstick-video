@@ -8,15 +8,15 @@ import (
 	"github.com/liampulles/matchstick-video/pkg/domain/entity"
 )
 
-type InventoryItemConstructorTestSuite struct {
+type InventoryConstructorsTestSuite struct {
 	suite.Suite
 }
 
-func TestInventoryItemConstructorTestSuite(t *testing.T) {
-	suite.Run(t, new(InventoryItemConstructorTestSuite))
+func TestInventoryConstructorsTestSuite(t *testing.T) {
+	suite.Run(t, new(InventoryConstructorsTestSuite))
 }
 
-func (suite *InventoryItemConstructorTestSuite) TestNewAvailable_WhenNameValidationFails_ShouldFail() {
+func (suite *InventoryConstructorsTestSuite) TestNewAvailable_WhenNameValidationFails_ShouldFail() {
 	// Setup fixture
 	nameFixture := "some.name "
 	locationFixture := "some.location"
@@ -32,7 +32,7 @@ func (suite *InventoryItemConstructorTestSuite) TestNewAvailable_WhenNameValidat
 	suite.Nil(actual)
 }
 
-func (suite *InventoryItemConstructorTestSuite) TestNewAvailable_WhenLocationValidationFails_ShouldFail() {
+func (suite *InventoryConstructorsTestSuite) TestNewAvailable_WhenLocationValidationFails_ShouldFail() {
 	// Setup fixture
 	nameFixture := "some.name"
 	locationFixture := "some.location "
@@ -48,7 +48,7 @@ func (suite *InventoryItemConstructorTestSuite) TestNewAvailable_WhenLocationVal
 	suite.Nil(actual)
 }
 
-func (suite *InventoryItemConstructorTestSuite) TestNewAvailable_WhenValidationPasses_ShouldCreateAvailableEntity() {
+func (suite *InventoryConstructorsTestSuite) TestNewAvailable_WhenValidationPasses_ShouldCreateAvailableEntity() {
 	// Setup fixture
 	nameFixture := "some.name"
 	locationFixture := "some.location"
@@ -64,7 +64,7 @@ func (suite *InventoryItemConstructorTestSuite) TestNewAvailable_WhenValidationP
 	suite.True(actual.IsAvailable())
 }
 
-func (suite *InventoryItemConstructorTestSuite) TestReincarnate_ShouldCreateGivenEntity() {
+func (suite *InventoryConstructorsTestSuite) TestReincarnate_ShouldCreateGivenEntity() {
 	// Setup fixture
 	idFixture := entity.ID(101)
 	nameFixture := "some.name"
