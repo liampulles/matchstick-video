@@ -3,6 +3,7 @@ package inventory
 import (
 	"fmt"
 
+	"github.com/liampulles/matchstick-video/pkg/adapter/db/sql"
 	"github.com/liampulles/matchstick-video/pkg/domain/entity"
 )
 
@@ -20,10 +21,9 @@ type Service interface {
 
 // ServiceImpl implements Service
 type ServiceImpl struct {
-	inventoryRepository Repository
-	entityFactory       EntityFactory
-	entityModifier      EntityModifier
-	voFactory           VOFactory
+	entityFactory  EntityFactory
+	entityModifier EntityModifier
+	voFactory      VOFactory
 }
 
 // Make sure ServiceImpl implements Service!
@@ -31,15 +31,13 @@ var _ Service = &ServiceImpl{}
 
 // NewServiceImpl is a constructor
 func NewServiceImpl(
-	inventoryRepository Repository,
 	entityFactory EntityFactory,
 	entityModifier EntityModifier,
 	voFactory VOFactory) *ServiceImpl {
 	return &ServiceImpl{
-		inventoryRepository: inventoryRepository,
-		entityFactory:       entityFactory,
-		entityModifier:      entityModifier,
-		voFactory:           voFactory,
+		entityFactory:  entityFactory,
+		entityModifier: entityModifier,
+		voFactory:      voFactory,
 	}
 }
 
@@ -52,7 +50,7 @@ func (s *ServiceImpl) Create(vo *CreateItemVO) (entity.ID, error) {
 	}
 
 	// Persist it
-	id, err := s.inventoryRepository.Create(e)
+	id, err := sql.Create(e)
 	if err != nil {
 		return entity.InvalidID, fmt.Errorf("could not create inventory item - repository create error: %w", err)
 	}
@@ -63,7 +61,7 @@ func (s *ServiceImpl) Create(vo *CreateItemVO) (entity.ID, error) {
 // ReadDetails retrieves an entity and returns a view of it.
 func (s *ServiceImpl) ReadDetails(id entity.ID) (*ViewVO, error) {
 	// Retrieve entity
-	found, err := s.inventoryRepository.FindByID(id)
+	found, err := sql.FindByID(id)
 	if err != nil {
 		return nil, fmt.Errorf("could not read inventory item - repository find error: %w", err)
 	}
@@ -77,7 +75,7 @@ func (s *ServiceImpl) ReadDetails(id entity.ID) (*ViewVO, error) {
 // ReadAll retrieves all entities and returns views of them.
 func (s *ServiceImpl) ReadAll() ([]ThinViewVO, error) {
 	// Retrieve entity
-	found, err := s.inventoryRepository.FindAll()
+	found, err := sql.FindAll()
 	if err != nil {
 		return nil, fmt.Errorf("could not read inventory items - repository find error: %w", err)
 	}
@@ -92,7 +90,7 @@ func (s *ServiceImpl) ReadAll() ([]ThinViewVO, error) {
 // persists the changes.
 func (s *ServiceImpl) Update(id entity.ID, vo *UpdateItemVO) error {
 	// Retrieve entity
-	found, err := s.inventoryRepository.FindByID(id)
+	found, err := sql.FindByID(id)
 	if err != nil {
 		return fmt.Errorf("could not update inventory item - repository find error: %w", err)
 	}
@@ -103,7 +101,7 @@ func (s *ServiceImpl) Update(id entity.ID, vo *UpdateItemVO) error {
 	}
 
 	// Persist it
-	err = s.inventoryRepository.Update(found)
+	err = sql.Update(found)
 	if err != nil {
 		return fmt.Errorf("could not update inventory item - repository update error: %w", err)
 	}
@@ -112,7 +110,7 @@ func (s *ServiceImpl) Update(id entity.ID, vo *UpdateItemVO) error {
 
 // Delete wipes the entity from storage.
 func (s *ServiceImpl) Delete(id entity.ID) error {
-	if err := s.inventoryRepository.DeleteByID(id); err != nil {
+	if err := sql.DeleteByID(id); err != nil {
 		return fmt.Errorf("could not delete inventory item - repository delete error: %w", err)
 	}
 	return nil
@@ -121,7 +119,7 @@ func (s *ServiceImpl) Delete(id entity.ID) error {
 // Checkout marks an entity as unavailable, and persists that information.
 func (s *ServiceImpl) Checkout(id entity.ID) error {
 	// Retrieve entity
-	found, err := s.inventoryRepository.FindByID(id)
+	found, err := sql.FindByID(id)
 	if err != nil {
 		return fmt.Errorf("could not checkout inventory item - repository find error: %w", err)
 	}
@@ -133,7 +131,7 @@ func (s *ServiceImpl) Checkout(id entity.ID) error {
 	}
 
 	// Persist the updated entity
-	err = s.inventoryRepository.Update(found)
+	err = sql.Update(found)
 	if err != nil {
 		return fmt.Errorf("could not checkout inventory item - repository update error: %w", err)
 	}
@@ -143,7 +141,7 @@ func (s *ServiceImpl) Checkout(id entity.ID) error {
 // CheckIn marks an entity as available, and persists that information.
 func (s *ServiceImpl) CheckIn(id entity.ID) error {
 	// Retrieve the entity
-	found, err := s.inventoryRepository.FindByID(id)
+	found, err := sql.FindByID(id)
 	if err != nil {
 		return fmt.Errorf("could not check in inventory item - repository find error: %w", err)
 	}
@@ -155,7 +153,7 @@ func (s *ServiceImpl) CheckIn(id entity.ID) error {
 	}
 
 	// Persist the modified entity
-	err = s.inventoryRepository.Update(found)
+	err = sql.Update(found)
 	if err != nil {
 		return fmt.Errorf("could not check in inventory item - repository update error: %w", err)
 	}

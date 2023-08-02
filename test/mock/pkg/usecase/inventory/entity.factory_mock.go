@@ -19,3 +19,10 @@ func (m *MockEntityFactory) CreateFromVO(vo *inventory.CreateItemVO) (entity.Inv
 	args := m.Called(vo)
 	return safeArgsGetInventoryItem(args, 0), args.Error(1)
 }
+
+func safeArgsGetInventoryItem(args mock.Arguments, idx int) entity.InventoryItem {
+	if val, ok := args.Get(idx).(entity.InventoryItem); ok {
+		return val
+	}
+	return nil
+}

@@ -17,7 +17,6 @@ import (
 
 type InventoryRepositoryTestSuite struct {
 	suite.Suite
-	sut *sql.InventoryRepositoryImpl
 }
 
 func TestInventoryRepositoryTestSuite(t *testing.T) {
@@ -33,8 +32,6 @@ func (suite *InventoryRepositoryTestSuite) SetupTest() {
 		"DB_NAME":          "integration",
 		"DB_PORT":          "5050",
 	})
-
-	suite.sut = sql.NewInventoryRepositoryImpl()
 }
 
 func (suite *InventoryRepositoryTestSuite) TestFindByID_WhenDoesExist_ShouldPass() {
@@ -42,11 +39,11 @@ func (suite *InventoryRepositoryTestSuite) TestFindByID_WhenDoesExist_ShouldPass
 	e := entity.TestInventoryItemImplConstructor(
 		entity.InvalidID, "some.find.name", "some.find.location", true,
 	)
-	id, err := suite.sut.Create(e)
+	id, err := sql.Create(e)
 	suite.NoError(err)
 
 	// Exercise SUT
-	_, err = suite.sut.FindByID(id)
+	_, err = sql.FindByID(id)
 
 	// Verify results
 	suite.NoError(err)
@@ -54,7 +51,7 @@ func (suite *InventoryRepositoryTestSuite) TestFindByID_WhenDoesExist_ShouldPass
 
 func (suite *InventoryRepositoryTestSuite) TestFindAll_ShouldPass() {
 	// Exercise SUT
-	_, err := suite.sut.FindAll()
+	_, err := sql.FindAll()
 
 	// Verify results
 	suite.NoError(err)
@@ -67,7 +64,7 @@ func (suite *InventoryRepositoryTestSuite) TestCreate_ShouldPass() {
 	)
 
 	// Exercise SUT
-	_, err := suite.sut.Create(e)
+	_, err := sql.Create(e)
 
 	// Verify results
 	suite.NoError(err)
@@ -78,11 +75,11 @@ func (suite *InventoryRepositoryTestSuite) TestDeleteById_WhenDoesExist_ShouldPa
 	e := entity.TestInventoryItemImplConstructor(
 		entity.InvalidID, "some.delete.name", "some.delete.location", true,
 	)
-	id, err := suite.sut.Create(e)
+	id, err := sql.Create(e)
 	suite.NoError(err)
 
 	// Exercise SUT
-	err = suite.sut.DeleteByID(id)
+	err = sql.DeleteByID(id)
 
 	// Verify results
 	suite.NoError(err)

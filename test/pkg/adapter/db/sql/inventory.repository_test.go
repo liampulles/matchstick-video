@@ -18,7 +18,6 @@ type InventoryRepositoryTestSuite struct {
 	suite.Suite
 	db     *goSql.DB
 	mockDb sqlmock.Sqlmock
-	sut    *sql.InventoryRepositoryImpl
 }
 
 func TestInventoryRepositoryTestSuite(t *testing.T) {
@@ -32,7 +31,6 @@ func (suite *InventoryRepositoryTestSuite) SetupTest() {
 	}
 	suite.db = db
 	suite.mockDb = mock
-	suite.sut = sql.NewInventoryRepositoryImpl()
 }
 
 func (suite *InventoryRepositoryTestSuite) TestFindByID_WhenHelperServiceFails_ShouldFail() {
@@ -61,7 +59,7 @@ func (suite *InventoryRepositoryTestSuite) TestFindByID_WhenHelperServiceFails_S
 	}
 
 	// Exercise SUT
-	_, err := suite.sut.FindByID(idFixture)
+	_, err := sql.FindByID(idFixture)
 
 	// Verify results
 	suite.EqualError(err, expectedErr)
@@ -87,7 +85,7 @@ func (suite *InventoryRepositoryTestSuite) TestFindAll_WhenHelperServiceFails_Sh
 	}
 
 	// Exercise SUT
-	actual, err := suite.sut.FindAll()
+	actual, err := sql.FindAll()
 
 	// Verify results
 	suite.Nil(actual)
@@ -112,7 +110,7 @@ func (suite *InventoryRepositoryTestSuite) TestFindAll_WhenHelperServicePasses_S
 	}
 
 	// Exercise SUT
-	_, err := suite.sut.FindAll()
+	_, err := sql.FindAll()
 
 	// Verify results
 	suite.NoError(err)
@@ -147,7 +145,7 @@ func (suite *InventoryRepositoryTestSuite) TestCreate_WhenHelperServiceFails_Sho
 	}
 
 	// Exercise SUT
-	actual, err := suite.sut.Create(mockEntity)
+	actual, err := sql.Create(mockEntity)
 
 	// Verify results
 	suite.Equal(actual, entity.InvalidID)
@@ -182,7 +180,7 @@ func (suite *InventoryRepositoryTestSuite) TestCreate_WhenHelperServiceSucceeds_
 	}
 
 	// Exercise SUT
-	actual, err := suite.sut.Create(mockEntity)
+	actual, err := sql.Create(mockEntity)
 
 	// Verify results
 	suite.NoError(err)
@@ -209,7 +207,7 @@ func (suite *InventoryRepositoryTestSuite) TestDeleteByID_WhenHelperServiceFails
 	}
 
 	// Exercise SUT
-	err := suite.sut.DeleteByID(idFixture)
+	err := sql.DeleteByID(idFixture)
 
 	// Verify results
 	suite.EqualError(err, expectedErr)
@@ -233,7 +231,7 @@ func (suite *InventoryRepositoryTestSuite) TestDeleteByID_WhenHelperServicePasse
 	}
 
 	// Exercise SUT
-	err := suite.sut.DeleteByID(idFixture)
+	err := sql.DeleteByID(idFixture)
 
 	// Verify results
 	suite.NoError(err)
@@ -266,7 +264,7 @@ func (suite *InventoryRepositoryTestSuite) TestUpdate_WhenHelperServiceFails_Sho
 	}
 
 	// Exercise SUT
-	err := suite.sut.Update(mockEntity)
+	err := sql.Update(mockEntity)
 
 	// Verify results
 	suite.EqualError(err, expectedErr)
@@ -297,7 +295,7 @@ func (suite *InventoryRepositoryTestSuite) TestUpdate_WhenHelperServicePasses_Sh
 	}
 
 	// Exercise SUT
-	err := suite.sut.Update(mockEntity)
+	err := sql.Update(mockEntity)
 
 	// Verify results
 	suite.NoError(err)

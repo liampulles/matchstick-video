@@ -32,7 +32,6 @@ func CreateServerFactory() (http.ServerFactory, error) {
 	muxWrapper := mux.NewWrapperImpl()
 
 	// --- NEXT TAP ---
-	inventoryRepository := sql.NewInventoryRepositoryImpl()
 	entityFactory := inventory.NewEntityFactoryImpl()
 	entityModifier := inventory.NewEntityModifierImpl()
 	voFactory := inventory.NewVOFactoryImpl()
@@ -42,7 +41,6 @@ func CreateServerFactory() (http.ServerFactory, error) {
 
 	// --- NEXT TAP ---
 	inventoryService := inventory.NewServiceImpl(
-		inventoryRepository,
 		entityFactory,
 		entityModifier,
 		voFactory,
