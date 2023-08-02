@@ -8,7 +8,6 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/stretchr/testify/suite"
 
-	sqlMocks "github.com/liampulles/matchstick-video/test/mock/pkg/adapter/db/sql"
 	entityMocks "github.com/liampulles/matchstick-video/test/mock/pkg/domain/entity"
 
 	"github.com/liampulles/matchstick-video/pkg/adapter/db/sql"
@@ -19,7 +18,6 @@ type InventoryRepositoryTestSuite struct {
 	suite.Suite
 	db              *goSql.DB
 	mockDb          sqlmock.Sqlmock
-	mockDbService   *sqlMocks.MockDatabaseStore
 	mockConstructor *entityMocks.MockInventoryItemConstructor
 	sut             *sql.InventoryRepositoryImpl
 }
@@ -35,10 +33,9 @@ func (suite *InventoryRepositoryTestSuite) SetupTest() {
 	}
 	suite.db = db
 	suite.mockDb = mock
-	suite.mockDbService = &sqlMocks.MockDatabaseStore{}
 	suite.mockConstructor = &entityMocks.MockInventoryItemConstructor{}
 	suite.sut = sql.NewInventoryRepositoryImpl(
-		suite.mockDbService, suite.mockConstructor,
+		suite.mockConstructor,
 	)
 }
 
@@ -60,8 +57,7 @@ func (suite *InventoryRepositoryTestSuite) TestFindByID_WhenHelperServiceFails_S
 
 	// Setup mocks
 	mockErr := fmt.Errorf("mock.error")
-	suite.mockDbService.On("Get").Return(suite.db)
-	sql.SingleRowQuery = func(goDB *goSql.DB, query string, scanFunc sql.ScanFunc, _type string, args ...interface{}) error {
+	sql.SingleRowQuery = func(query string, scanFunc sql.ScanFunc, _type string, args ...interface{}) error {
 		suite.Equal(expectedSql, query)
 		suite.Equal(_type, "inventory item")
 		suite.Equal(args[0], idFixture)
@@ -88,8 +84,7 @@ func (suite *InventoryRepositoryTestSuite) TestFindAll_WhenHelperServiceFails_Sh
 
 	// Setup mocks
 	mockErr := fmt.Errorf("mock.error")
-	suite.mockDbService.On("Get").Return(suite.db)
-	sql.ManyRowsQuery = func(goDB *goSql.DB, query string, scanFunc sql.ScanFunc, _type string, args ...interface{}) error {
+	sql.ManyRowsQuery = func(query string, scanFunc sql.ScanFunc, _type string, args ...interface{}) error {
 		suite.Equal(expectedSql, query)
 		suite.Equal(_type, "inventory item")
 		return mockErr
@@ -114,8 +109,7 @@ func (suite *InventoryRepositoryTestSuite) TestFindAll_WhenHelperServicePasses_S
 	FROM inventory_item;`
 
 	// Setup mocks
-	suite.mockDbService.On("Get").Return(suite.db)
-	sql.ManyRowsQuery = func(goDB *goSql.DB, query string, scanFunc sql.ScanFunc, _type string, args ...interface{}) error {
+	sql.ManyRowsQuery = func(query string, scanFunc sql.ScanFunc, _type string, args ...interface{}) error {
 		suite.Equal(expectedSql, query)
 		suite.Equal(_type, "inventory item")
 		return nil
@@ -144,11 +138,10 @@ func (suite *InventoryRepositoryTestSuite) TestCreate_WhenHelperServiceFails_Sho
 	// Setup mocks
 	mockEntity := &entityMocks.MockInventoryItem{}
 	mockErr := fmt.Errorf(expectedErr)
-	suite.mockDbService.On("Get").Return(suite.db)
 	mockEntity.On("Name").Return("some.name").
 		On("Location").Return("some.location").
 		On("IsAvailable").Return(true)
-	sql.SingleQueryForID = func(db *goSql.DB, query, _type string, args ...interface{}) (entity.ID, error) {
+	sql.SingleQueryForID = func(query, _type string, args ...interface{}) (entity.ID, error) {
 		suite.Equal(expectedSql, query)
 		suite.Equal(_type, "inventory item")
 		suite.Equal("some.name", args[0])
@@ -180,11 +173,10 @@ func (suite *InventoryRepositoryTestSuite) TestCreate_WhenHelperServiceSucceeds_
 
 	// Setup mocks
 	mockEntity := &entityMocks.MockInventoryItem{}
-	suite.mockDbService.On("Get").Return(suite.db)
 	mockEntity.On("Name").Return("some.name").
 		On("Location").Return("some.location").
 		On("IsAvailable").Return(true)
-	sql.SingleQueryForID = func(db *goSql.DB, query, _type string, args ...interface{}) (entity.ID, error) {
+	sql.SingleQueryForID = func(query, _type string, args ...interface{}) (entity.ID, error) {
 		suite.Equal(expectedSql, query)
 		suite.Equal(_type, "inventory item")
 		suite.Equal("some.name", args[0])
@@ -214,8 +206,7 @@ func (suite *InventoryRepositoryTestSuite) TestDeleteByID_WhenHelperServiceFails
 
 	// Setup mocks
 	mockErr := fmt.Errorf("mock.error")
-	suite.mockDbService.On("Get").Return(suite.db)
-	sql.ExecForSingleItem = func(d *goSql.DB, query string, args ...interface{}) error {
+	sql.ExecForSingleItem = func(query string, args ...interface{}) error {
 		suite.Equal(expectedSql, query)
 		suite.Equal(idFixture, args[0])
 		return mockErr
@@ -239,8 +230,7 @@ func (suite *InventoryRepositoryTestSuite) TestDeleteByID_WhenHelperServicePasse
 		id=$1;`
 
 	// Setup mocks
-	suite.mockDbService.On("Get").Return(suite.db)
-	sql.ExecForSingleItem = func(d *goSql.DB, query string, args ...interface{}) error {
+	sql.ExecForSingleItem = func(query string, args ...interface{}) error {
 		suite.Equal(expectedSql, query)
 		suite.Equal(idFixture, args[0])
 		return nil
@@ -266,12 +256,11 @@ func (suite *InventoryRepositoryTestSuite) TestUpdate_WhenHelperServiceFails_Sho
 	// Setup mocks
 	mockEntity := &entityMocks.MockInventoryItem{}
 	mockErr := fmt.Errorf("mock.error")
-	suite.mockDbService.On("Get").Return(suite.db)
 	mockEntity.On("ID").Return(entity.ID(101)).
 		On("Name").Return("some.name").
 		On("Location").Return("some.location").
 		On("IsAvailable").Return(true)
-	sql.ExecForSingleItem = func(d *goSql.DB, query string, args ...interface{}) error {
+	sql.ExecForSingleItem = func(query string, args ...interface{}) error {
 		suite.Equal(expectedSql, query)
 		suite.Equal("some.name", args[0])
 		suite.Equal("some.location", args[1])
@@ -298,12 +287,11 @@ func (suite *InventoryRepositoryTestSuite) TestUpdate_WhenHelperServicePasses_Sh
 
 	// Setup mocks
 	mockEntity := &entityMocks.MockInventoryItem{}
-	suite.mockDbService.On("Get").Return(suite.db)
 	mockEntity.On("ID").Return(entity.ID(101)).
 		On("Name").Return("some.name").
 		On("Location").Return("some.location").
 		On("IsAvailable").Return(true)
-	sql.ExecForSingleItem = func(d *goSql.DB, query string, args ...interface{}) error {
+	sql.ExecForSingleItem = func(query string, args ...interface{}) error {
 		suite.Equal(expectedSql, query)
 		suite.Equal("some.name", args[0])
 		suite.Equal("some.location", args[1])

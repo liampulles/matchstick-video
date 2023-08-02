@@ -26,17 +26,15 @@ func CreateApp() domain.Runnable {
 // CreateServerFactory injects all the dependencies needed to create
 // http.ServerFactory
 func CreateServerFactory() (http.ServerFactory, error) {
+	// Set default impls
+	sql.Load = db.NewPostgresDB
+
 	// Each "tap" below indicates a level of dependency
-	databaseService, err := db.NewDatabaseServiceImpl()
-	if err != nil {
-		return nil, err
-	}
 	inventoryItemConstructor := entity.NewInventoryItemConstructorImpl()
 	muxWrapper := mux.NewWrapperImpl()
 
 	// --- NEXT TAP ---
 	inventoryRepository := sql.NewInventoryRepositoryImpl(
-		databaseService,
 		inventoryItemConstructor,
 	)
 	entityFactory := inventory.NewEntityFactoryImpl(

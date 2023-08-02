@@ -2,7 +2,6 @@ package sql
 
 import (
 	"context"
-	"database/sql"
 	goSql "database/sql"
 	"fmt"
 
@@ -29,9 +28,9 @@ type ScanFunc func(row Row) error
 
 // ExecForSingleItem will perform exec type SQL and verify a single row
 // is affected.
-var ExecForSingleItem = func(d *goSql.DB, query string, args ...interface{}) error {
+var ExecForSingleItem = func(query string, args ...interface{}) error {
 	// Run exec to get rows affected
-	rows, err := execForRowsAffected(d, query, args...)
+	rows, err := execForRowsAffected(query, args...)
 	if err != nil {
 		return fmt.Errorf("cannot execute exec - db exec error: %w", err)
 	}
@@ -47,10 +46,10 @@ var ExecForSingleItem = func(d *goSql.DB, query string, args ...interface{}) err
 }
 
 // SingleRowQuery will run a query type SQL which gives a single Row
-var SingleRowQuery = func(goDB *goSql.DB, query string, scanFunc ScanFunc, _type string, args ...interface{}) error {
+var SingleRowQuery = func(query string, scanFunc ScanFunc, _type string, args ...interface{}) error {
 	// Prepare the query
 	ctx := context.TODO()
-	stmt, err := goDB.PrepareContext(ctx, query)
+	stmt, err := GetDB().PrepareContext(ctx, query)
 	if err != nil {
 		return fmt.Errorf("cannot execute query - db prepare error: %w", err)
 	}
@@ -67,10 +66,10 @@ var SingleRowQuery = func(goDB *goSql.DB, query string, scanFunc ScanFunc, _type
 }
 
 // ManyRowsQuery will run a query type SQL which gives many rows
-var ManyRowsQuery = func(goDB *goSql.DB, query string, scanFunc ScanFunc, _type string, args ...interface{}) error {
+var ManyRowsQuery = func(query string, scanFunc ScanFunc, _type string, args ...interface{}) error {
 	// Prepare the query
 	ctx := context.TODO()
-	stmt, err := goDB.PrepareContext(ctx, query)
+	stmt, err := GetDB().PrepareContext(ctx, query)
 	if err != nil {
 		return fmt.Errorf("cannot execute query - db prepare error: %w", err)
 	}
@@ -97,11 +96,11 @@ var ManyRowsQuery = func(goDB *goSql.DB, query string, scanFunc ScanFunc, _type 
 
 // SingleQueryForID will run SQL which returns an id, and return the entity form of
 // the id
-var SingleQueryForID = func(db *goSql.DB, query string, _type string, args ...interface{}) (entity.ID, error) {
+var SingleQueryForID = func(query string, _type string, args ...interface{}) (entity.ID, error) {
 	var id entity.ID
 
 	// Map the ID, if we can
-	err := SingleRowQuery(db, query, func(row Row) error {
+	err := SingleRowQuery(query, func(row Row) error {
 		return row.Scan(&id)
 	}, _type, args...)
 
@@ -112,9 +111,9 @@ var SingleQueryForID = func(db *goSql.DB, query string, _type string, args ...in
 	return id, nil
 }
 
-func execForRowsAffected(db *goSql.DB, query string, args ...interface{}) (int64, error) {
+func execForRowsAffected(query string, args ...interface{}) (int64, error) {
 	// Perform the exec
-	res, err := exec(db, query, args...)
+	res, err := exec(query, args...)
 	if err != nil {
 		return -1, err
 	}
@@ -123,10 +122,10 @@ func execForRowsAffected(db *goSql.DB, query string, args ...interface{}) (int64
 	return res.RowsAffected()
 }
 
-func exec(db *goSql.DB, query string, args ...interface{}) (sql.Result, error) {
+func exec(query string, args ...interface{}) (goSql.Result, error) {
 	// Prepare the exec
 	ctx := context.TODO()
-	stmt, err := db.PrepareContext(ctx, query)
+	stmt, err := GetDB().PrepareContext(ctx, query)
 	if err != nil {
 		return nil, err
 	}

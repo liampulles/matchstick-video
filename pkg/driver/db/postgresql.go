@@ -1,7 +1,7 @@
 package db
 
 import (
-	"database/sql"
+	goSql "database/sql"
 	"fmt"
 
 	"github.com/golang-migrate/migrate/v4"
@@ -15,9 +15,27 @@ import (
 	"github.com/liampulles/matchstick-video/pkg/adapter/config"
 )
 
-func newPostgreSQLDB() (*sql.DB, error) {
+// NewPostgresDB is a constructor
+func NewPostgresDB() (*goSql.DB, error) {
+	// Bring up DB
+	db, err := newPostgreSQLDB()
+	if err != nil {
+		return nil, fmt.Errorf("could not create database service - could not init db: %w", err)
+	}
+
+	// Perform migrations
+	err = migratePostgreSQLDB(db)
+	if err != nil {
+		return nil, fmt.Errorf("could not create database service - could not migrate db: %w", err)
+	}
+
+	// Return ready-to-use DB
+	return db, nil
+}
+
+func newPostgreSQLDB() (*goSql.DB, error) {
 	connStr := getConnectionString()
-	db, err := sql.Open("pgx", connStr)
+	db, err := goSql.Open("pgx", connStr)
 	if err != nil {
 		return nil, fmt.Errorf("could not create postgres db - open error: %w", err)
 	}
@@ -25,7 +43,7 @@ func newPostgreSQLDB() (*sql.DB, error) {
 	return db, nil
 }
 
-func migratePostgreSQLDB(sqlDB *sql.DB) error {
+func migratePostgreSQLDB(sqlDB *goSql.DB) error {
 	// Get migration driver
 	driver, err := postgres.WithInstance(sqlDB, &postgres.Config{})
 	if err != nil {

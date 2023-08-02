@@ -13,7 +13,6 @@ import (
 	"github.com/liampulles/matchstick-video/pkg/adapter/config"
 	"github.com/liampulles/matchstick-video/pkg/adapter/db/sql"
 	"github.com/liampulles/matchstick-video/pkg/domain/entity"
-	"github.com/liampulles/matchstick-video/pkg/driver/db"
 )
 
 type InventoryRepositoryTestSuite struct {
@@ -35,14 +34,10 @@ func (suite *InventoryRepositoryTestSuite) SetupTest() {
 		"DB_PORT":          "5050",
 	})
 
-	dbService, err := db.NewDatabaseServiceImpl()
-	if err != nil {
-		panic(err)
-	}
 	constructor := entity.NewInventoryItemConstructorImpl()
 
 	suite.sut = sql.NewInventoryRepositoryImpl(
-		dbService, constructor,
+		constructor,
 	)
 }
 
