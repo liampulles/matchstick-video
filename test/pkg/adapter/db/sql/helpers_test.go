@@ -14,17 +14,17 @@ import (
 	"github.com/liampulles/matchstick-video/pkg/domain/entity"
 )
 
-type HelperServiceTestSuite struct {
+type HelpersTestSuite struct {
 	suite.Suite
 	db     *goSql.DB
 	mockDb sqlmock.Sqlmock
 }
 
-func TestHelperServiceTestSuite(t *testing.T) {
-	suite.Run(t, new(HelperServiceTestSuite))
+func TestHelpersTestSuite(t *testing.T) {
+	suite.Run(t, new(HelpersTestSuite))
 }
 
-func (suite *HelperServiceTestSuite) SetupTest() {
+func (suite *HelpersTestSuite) SetupTest() {
 	d, mock, err := sqlmock.New()
 	if err != nil {
 		panic(err)
@@ -36,7 +36,7 @@ func (suite *HelperServiceTestSuite) SetupTest() {
 	sql.DB = d
 }
 
-func (suite *HelperServiceTestSuite) TestExecForSingleItem_WhenPrepareContextFails_ShouldFail() {
+func (suite *HelpersTestSuite) TestExecForSingleItem_WhenPrepareContextFails_ShouldFail() {
 	// Setup fixture
 	queryFixture := "some.query"
 	arg1Fixture := "arg.1"
@@ -57,7 +57,7 @@ func (suite *HelperServiceTestSuite) TestExecForSingleItem_WhenPrepareContextFai
 	suite.EqualError(err, expectedErr)
 }
 
-func (suite *HelperServiceTestSuite) TestExecForSingleItem_WhenExecContextFails_ShouldFail() {
+func (suite *HelpersTestSuite) TestExecForSingleItem_WhenExecContextFails_ShouldFail() {
 	// Setup fixture
 	queryFixture := "some.query"
 	arg1Fixture := "arg.1"
@@ -80,7 +80,7 @@ func (suite *HelperServiceTestSuite) TestExecForSingleItem_WhenExecContextFails_
 	suite.EqualError(err, expectedErr)
 }
 
-func (suite *HelperServiceTestSuite) TestExecForSingleItem_WhenRowsAffectedFails_ShouldFail() {
+func (suite *HelpersTestSuite) TestExecForSingleItem_WhenRowsAffectedFails_ShouldFail() {
 	// Setup fixture
 	queryFixture := "some.query"
 	arg1Fixture := "arg.1"
@@ -105,7 +105,7 @@ func (suite *HelperServiceTestSuite) TestExecForSingleItem_WhenRowsAffectedFails
 	suite.EqualError(err, expectedErr)
 }
 
-func (suite *HelperServiceTestSuite) TestExecForSingleItem_WhenRowsAffectedIsZero_ShouldFail() {
+func (suite *HelpersTestSuite) TestExecForSingleItem_WhenRowsAffectedIsZero_ShouldFail() {
 	// Setup fixture
 	queryFixture := "some.query"
 	arg1Fixture := "arg.1"
@@ -129,7 +129,7 @@ func (suite *HelperServiceTestSuite) TestExecForSingleItem_WhenRowsAffectedIsZer
 	suite.EqualError(err, expectedErr)
 }
 
-func (suite *HelperServiceTestSuite) TestExecForSingleItem_WhenRowsAffectedIsMoreThanOne_ShouldFail() {
+func (suite *HelpersTestSuite) TestExecForSingleItem_WhenRowsAffectedIsMoreThanOne_ShouldFail() {
 	// Setup fixture
 	queryFixture := "some.query"
 	arg1Fixture := "arg.1"
@@ -153,7 +153,7 @@ func (suite *HelperServiceTestSuite) TestExecForSingleItem_WhenRowsAffectedIsMor
 	suite.EqualError(err, expectedErr)
 }
 
-func (suite *HelperServiceTestSuite) TestExecForSingleItem_WhenRowsAffectedIsOne_ShouldPass() {
+func (suite *HelpersTestSuite) TestExecForSingleItem_WhenRowsAffectedIsOne_ShouldPass() {
 	// Setup fixture
 	queryFixture := "some.query"
 	arg1Fixture := "arg.1"
@@ -174,7 +174,7 @@ func (suite *HelperServiceTestSuite) TestExecForSingleItem_WhenRowsAffectedIsOne
 	suite.NoError(err)
 }
 
-func (suite *HelperServiceTestSuite) TestSingleRowQuery_WhenPrepareContextFails_ShouldFail() {
+func (suite *HelpersTestSuite) TestSingleRowQuery_WhenPrepareContextFails_ShouldFail() {
 	// Setup fixture
 	queryFixture := "some.query"
 	arg1Fixture := "arg.1"
@@ -198,7 +198,7 @@ func (suite *HelperServiceTestSuite) TestSingleRowQuery_WhenPrepareContextFails_
 	suite.EqualError(err, expectedErr)
 }
 
-func (suite *HelperServiceTestSuite) TestSingleRowQuery_WhenScanFuncFails_ShouldFail() {
+func (suite *HelpersTestSuite) TestSingleRowQuery_WhenScanFuncFails_ShouldFail() {
 	// Setup fixture
 	queryFixture := "some.query"
 	arg1Fixture := "arg.1"
@@ -231,7 +231,7 @@ func (suite *HelperServiceTestSuite) TestSingleRowQuery_WhenScanFuncFails_Should
 	suite.EqualError(err, expectedErr)
 }
 
-func (suite *HelperServiceTestSuite) TestSingleRowQuery_WhenScanFuncPasses_ShouldPass() {
+func (suite *HelpersTestSuite) TestSingleRowQuery_WhenScanFuncPasses_ShouldPass() {
 	// Setup fixture
 	queryFixture := "some.query"
 	arg1Fixture := "arg.1"
@@ -255,7 +255,7 @@ func (suite *HelperServiceTestSuite) TestSingleRowQuery_WhenScanFuncPasses_Shoul
 	suite.NoError(err)
 }
 
-func (suite *HelperServiceTestSuite) TestSingleQueryForID_WhenPrepareContextFails_ShouldFail() {
+func (suite *HelpersTestSuite) TestSingleQueryForID_WhenPrepareContextFails_ShouldFail() {
 	// Setup fixture
 	queryFixture := "some.query"
 	arg1Fixture := "arg.1"
@@ -277,7 +277,7 @@ func (suite *HelperServiceTestSuite) TestSingleQueryForID_WhenPrepareContextFail
 	suite.EqualError(err, expectedErr)
 }
 
-func (suite *HelperServiceTestSuite) TestSingleQueryForID_WhenScanFails_ShouldFail() {
+func (suite *HelpersTestSuite) TestSingleQueryForID_WhenScanFails_ShouldFail() {
 	// Setup fixture
 	queryFixture := "some.query"
 	arg1Fixture := "arg.1"
@@ -306,7 +306,7 @@ func (suite *HelperServiceTestSuite) TestSingleQueryForID_WhenScanFails_ShouldFa
 	suite.EqualError(err, expectedErr)
 }
 
-func (suite *HelperServiceTestSuite) TestSingleQueryForID_WhenScanPasses_ShouldReturnID() {
+func (suite *HelpersTestSuite) TestSingleQueryForID_WhenScanPasses_ShouldReturnID() {
 	// Setup fixture
 	queryFixture := "some.query"
 	arg1Fixture := "arg.1"
@@ -328,7 +328,7 @@ func (suite *HelperServiceTestSuite) TestSingleQueryForID_WhenScanPasses_ShouldR
 	suite.Equal(entity.ID(101), actual)
 }
 
-func (suite *HelperServiceTestSuite) TestManyRowsQuery_WhenPrepareContextFails_ShouldFail() {
+func (suite *HelpersTestSuite) TestManyRowsQuery_WhenPrepareContextFails_ShouldFail() {
 	// Setup fixture
 	queryFixture := "some.query"
 	arg1Fixture := "arg.1"
@@ -352,7 +352,7 @@ func (suite *HelperServiceTestSuite) TestManyRowsQuery_WhenPrepareContextFails_S
 	suite.EqualError(err, expectedErr)
 }
 
-func (suite *HelperServiceTestSuite) TestManyRowsQuery_WhenQueryRowContextFails_ShouldFail() {
+func (suite *HelpersTestSuite) TestManyRowsQuery_WhenQueryRowContextFails_ShouldFail() {
 	// Setup fixture
 	queryFixture := "some.query"
 	arg1Fixture := "arg.1"
@@ -378,7 +378,7 @@ func (suite *HelperServiceTestSuite) TestManyRowsQuery_WhenQueryRowContextFails_
 	suite.EqualError(err, expectedErr)
 }
 
-func (suite *HelperServiceTestSuite) TestManyRowsQuery_WhenScanFuncFails_ShouldFail() {
+func (suite *HelpersTestSuite) TestManyRowsQuery_WhenScanFuncFails_ShouldFail() {
 	// Setup fixture
 	queryFixture := "some.query"
 	arg1Fixture := "arg.1"
@@ -410,7 +410,7 @@ func (suite *HelperServiceTestSuite) TestManyRowsQuery_WhenScanFuncFails_ShouldF
 	suite.EqualError(err, expectedErr)
 }
 
-func (suite *HelperServiceTestSuite) TestManyRowsQuery_WhenFirstRowScanFails_ShouldFail() {
+func (suite *HelpersTestSuite) TestManyRowsQuery_WhenFirstRowScanFails_ShouldFail() {
 	// Setup fixture
 	queryFixture := "some.query"
 	arg1Fixture := "arg.1"
@@ -445,7 +445,7 @@ func (suite *HelperServiceTestSuite) TestManyRowsQuery_WhenFirstRowScanFails_Sho
 	suite.EqualError(err, expectedErr)
 }
 
-func (suite *HelperServiceTestSuite) TestManyRowsQuery_WhenSecondRowScanFails_ShouldFail() {
+func (suite *HelpersTestSuite) TestManyRowsQuery_WhenSecondRowScanFails_ShouldFail() {
 	// Setup fixture
 	queryFixture := "some.query"
 	arg1Fixture := "arg.1"
@@ -481,7 +481,7 @@ func (suite *HelperServiceTestSuite) TestManyRowsQuery_WhenSecondRowScanFails_Sh
 	suite.EqualError(err, expectedErr)
 }
 
-func (suite *HelperServiceTestSuite) TestManyRowsQuery_WhenIterationPasses_ShouldPass() {
+func (suite *HelpersTestSuite) TestManyRowsQuery_WhenIterationPasses_ShouldPass() {
 	// Setup fixture
 	queryFixture := "some.query"
 	arg1Fixture := "arg.1"
