@@ -8,9 +8,8 @@ import (
 // InventoryRepositoryImpl implements Repository to make use
 // of SQL databases which have an associated driver.
 type InventoryRepositoryImpl struct {
-	dbService     DatabaseService
-	helperService HelperService
-	constructor   entity.InventoryItemConstructor
+	dbService   DatabaseService
+	constructor entity.InventoryItemConstructor
 }
 
 // Check we implement the interface
@@ -19,13 +18,11 @@ var _ usecaseInventory.Repository = &InventoryRepositoryImpl{}
 // NewInventoryRepositoryImpl is a constructor
 func NewInventoryRepositoryImpl(
 	dbService DatabaseService,
-	helperService HelperService,
 	constructor entity.InventoryItemConstructor,
 ) *InventoryRepositoryImpl {
 	return &InventoryRepositoryImpl{
-		dbService:     dbService,
-		helperService: helperService,
-		constructor:   constructor,
+		dbService:   dbService,
+		constructor: constructor,
 	}
 }
 
@@ -67,7 +64,7 @@ func (s *InventoryRepositoryImpl) Create(e entity.InventoryItem) (entity.ID, err
 		)
 	VALUES ($1, $2, $3)
 	RETURNING id;`
-	return s.helperService.SingleQueryForID(s.dbService.Get(), query, "inventory item",
+	return SingleQueryForID(s.dbService.Get(), query, "inventory item",
 		e.Name(),
 		e.Location(),
 		e.IsAvailable(),
@@ -81,7 +78,7 @@ func (s *InventoryRepositoryImpl) DeleteByID(id entity.ID) error {
 	DELETE FROM inventory_item
 	WHERE 
 		id=$1;`
-	return s.helperService.ExecForSingleItem(s.dbService.Get(), query, id)
+	return ExecForSingleItem(s.dbService.Get(), query, id)
 }
 
 // Update persists new data for all fields in the given inventory item,
@@ -93,7 +90,7 @@ func (s *InventoryRepositoryImpl) Update(e entity.InventoryItem) error {
 		name=$1, location=$2, available=$3
 	WHERE 
 		id=$4;`
-	return s.helperService.ExecForSingleItem(s.dbService.Get(), query,
+	return ExecForSingleItem(s.dbService.Get(), query,
 		e.Name(),
 		e.Location(),
 		e.IsAvailable(),
@@ -105,7 +102,7 @@ func (s *InventoryRepositoryImpl) singleEntityQuery(query string, args ...interf
 	var result entity.InventoryItem
 
 	// Run the query to get a row
-	err := s.helperService.SingleRowQuery(s.dbService.Get(), query, func(row Row) error {
+	err := SingleRowQuery(s.dbService.Get(), query, func(row Row) error {
 		res, err := s.scanInventoryItem(row)
 		result = res
 		return err
@@ -118,7 +115,7 @@ func (s *InventoryRepositoryImpl) manyEntityQuery(query string, args ...interfac
 	var results []entity.InventoryItem
 
 	// Run the query to get a row
-	err := s.helperService.ManyRowsQuery(s.dbService.Get(), query, func(row Row) error {
+	err := ManyRowsQuery(s.dbService.Get(), query, func(row Row) error {
 		res, err := s.scanInventoryItem(row)
 		if res != nil {
 			results = append(results, res)

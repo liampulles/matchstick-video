@@ -4,23 +4,19 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/stretchr/testify/suite"
-
 	"github.com/liampulles/matchstick-video/pkg/adapter/db"
+	"github.com/stretchr/testify/suite"
 )
 
 type ErrorParserTestSuite struct {
 	suite.Suite
-	sut *db.ErrorParserImpl
 }
 
 func TestErrorParserTestSuite(t *testing.T) {
 	suite.Run(t, new(ErrorParserTestSuite))
 }
 
-func (suite *ErrorParserTestSuite) SetupTest() {
-	suite.sut = db.NewErrorParserImpl()
-}
+func (suite *ErrorParserTestSuite) SetupTest() {}
 
 func (suite *ErrorParserTestSuite) TestFromDBRowScan_WhenIsUniquenessConstraint_ShouldReturnUniquenessConstraintError() {
 	// Setup fixture
@@ -30,7 +26,7 @@ func (suite *ErrorParserTestSuite) TestFromDBRowScan_WhenIsUniquenessConstraint_
 	expectedErr := "uniqueness constraint error: something violates unique constraint"
 
 	// Exercise SUT
-	err := suite.sut.FromDBRowScan(fixture, "some.type")
+	err := db.FromDBRowScan(fixture, "some.type")
 
 	// Verify results
 	suite.EqualError(err, expectedErr)
@@ -44,7 +40,7 @@ func (suite *ErrorParserTestSuite) TestFromDBRowScan_WhenIsNoRowsError_ShouldRet
 	expectedErr := "entity not found: type=[some.type]"
 
 	// Exercise SUT
-	err := suite.sut.FromDBRowScan(fixture, "some.type")
+	err := db.FromDBRowScan(fixture, "some.type")
 
 	// Verify results
 	suite.EqualError(err, expectedErr)
@@ -58,7 +54,7 @@ func (suite *ErrorParserTestSuite) TestFromDBRowScan_WhenIsArbitraryError_Should
 	expectedErr := "some random error"
 
 	// Exercise SUT
-	err := suite.sut.FromDBRowScan(fixture, "some.type")
+	err := db.FromDBRowScan(fixture, "some.type")
 
 	// Verify results
 	suite.EqualError(err, expectedErr)

@@ -1,7 +1,6 @@
 package wire
 
 import (
-	adapterDb "github.com/liampulles/matchstick-video/pkg/adapter/db"
 	"github.com/liampulles/matchstick-video/pkg/adapter/db/sql"
 	"github.com/liampulles/matchstick-video/pkg/adapter/http"
 	"github.com/liampulles/matchstick-video/pkg/adapter/http/json"
@@ -28,10 +27,6 @@ func CreateApp() domain.Runnable {
 // http.ServerFactory
 func CreateServerFactory() (http.ServerFactory, error) {
 	// Each "tap" below indicates a level of dependency
-	errorParser := adapterDb.NewErrorParserImpl()
-
-	// --- NEXT TAP ---
-	helperService := sql.NewHelperServiceImpl(errorParser)
 	databaseService, err := db.NewDatabaseServiceImpl()
 	if err != nil {
 		return nil, err
@@ -42,7 +37,6 @@ func CreateServerFactory() (http.ServerFactory, error) {
 	// --- NEXT TAP ---
 	inventoryRepository := sql.NewInventoryRepositoryImpl(
 		databaseService,
-		helperService,
 		inventoryItemConstructor,
 	)
 	entityFactory := inventory.NewEntityFactoryImpl(

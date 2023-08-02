@@ -11,7 +11,6 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/liampulles/matchstick-video/pkg/adapter/config"
-	adapterDb "github.com/liampulles/matchstick-video/pkg/adapter/db"
 	"github.com/liampulles/matchstick-video/pkg/adapter/db/sql"
 	"github.com/liampulles/matchstick-video/pkg/domain/entity"
 	"github.com/liampulles/matchstick-video/pkg/driver/db"
@@ -35,17 +34,15 @@ func (suite *InventoryRepositoryTestSuite) SetupTest() {
 		"DB_NAME":          "integration",
 		"DB_PORT":          "5050",
 	})
-	errorParser := adapterDb.NewErrorParserImpl()
 
 	dbService, err := db.NewDatabaseServiceImpl()
 	if err != nil {
 		panic(err)
 	}
-	helperService := sql.NewHelperServiceImpl(errorParser)
 	constructor := entity.NewInventoryItemConstructorImpl()
 
 	suite.sut = sql.NewInventoryRepositoryImpl(
-		dbService, helperService, constructor,
+		dbService, constructor,
 	)
 }
 
