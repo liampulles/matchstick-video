@@ -7,20 +7,14 @@ import (
 
 // InventoryRepositoryImpl implements Repository to make use
 // of SQL databases which have an associated driver.
-type InventoryRepositoryImpl struct {
-	constructor entity.InventoryItemConstructor
-}
+type InventoryRepositoryImpl struct{}
 
 // Check we implement the interface
 var _ usecaseInventory.Repository = &InventoryRepositoryImpl{}
 
 // NewInventoryRepositoryImpl is a constructor
-func NewInventoryRepositoryImpl(
-	constructor entity.InventoryItemConstructor,
-) *InventoryRepositoryImpl {
-	return &InventoryRepositoryImpl{
-		constructor: constructor,
-	}
+func NewInventoryRepositoryImpl() *InventoryRepositoryImpl {
+	return &InventoryRepositoryImpl{}
 }
 
 // FindByID finds an inventory item matching the given id
@@ -138,6 +132,6 @@ func (s *InventoryRepositoryImpl) scanInventoryItem(row Row) (entity.InventoryIt
 	}
 
 	// Restore the entity from the extracted data (bypassing validations).
-	result := s.constructor.Reincarnate(id, name, location, available)
+	result := entity.Reincarnate(id, name, location, available)
 	return result, nil
 }

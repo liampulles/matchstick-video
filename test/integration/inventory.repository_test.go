@@ -34,11 +34,7 @@ func (suite *InventoryRepositoryTestSuite) SetupTest() {
 		"DB_PORT":          "5050",
 	})
 
-	constructor := entity.NewInventoryItemConstructorImpl()
-
-	suite.sut = sql.NewInventoryRepositoryImpl(
-		constructor,
-	)
+	suite.sut = sql.NewInventoryRepositoryImpl()
 }
 
 func (suite *InventoryRepositoryTestSuite) TestFindByID_WhenDoesExist_ShouldPass() {

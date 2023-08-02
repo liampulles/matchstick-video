@@ -5,7 +5,6 @@ import (
 	"github.com/liampulles/matchstick-video/pkg/adapter/http"
 	"github.com/liampulles/matchstick-video/pkg/adapter/http/json"
 	"github.com/liampulles/matchstick-video/pkg/domain"
-	"github.com/liampulles/matchstick-video/pkg/domain/entity"
 	"github.com/liampulles/matchstick-video/pkg/driver/db"
 	"github.com/liampulles/matchstick-video/pkg/driver/http/mux"
 	"github.com/liampulles/matchstick-video/pkg/usecase/inventory"
@@ -30,16 +29,11 @@ func CreateServerFactory() (http.ServerFactory, error) {
 	sql.Load = db.NewPostgresDB
 
 	// Each "tap" below indicates a level of dependency
-	inventoryItemConstructor := entity.NewInventoryItemConstructorImpl()
 	muxWrapper := mux.NewWrapperImpl()
 
 	// --- NEXT TAP ---
-	inventoryRepository := sql.NewInventoryRepositoryImpl(
-		inventoryItemConstructor,
-	)
-	entityFactory := inventory.NewEntityFactoryImpl(
-		inventoryItemConstructor,
-	)
+	inventoryRepository := sql.NewInventoryRepositoryImpl()
+	entityFactory := inventory.NewEntityFactoryImpl()
 	entityModifier := inventory.NewEntityModifierImpl()
 	voFactory := inventory.NewVOFactoryImpl()
 	ioMapper := mux.NewIOMapperImpl(

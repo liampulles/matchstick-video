@@ -16,10 +16,9 @@ import (
 
 type InventoryRepositoryTestSuite struct {
 	suite.Suite
-	db              *goSql.DB
-	mockDb          sqlmock.Sqlmock
-	mockConstructor *entityMocks.MockInventoryItemConstructor
-	sut             *sql.InventoryRepositoryImpl
+	db     *goSql.DB
+	mockDb sqlmock.Sqlmock
+	sut    *sql.InventoryRepositoryImpl
 }
 
 func TestInventoryRepositoryTestSuite(t *testing.T) {
@@ -33,10 +32,7 @@ func (suite *InventoryRepositoryTestSuite) SetupTest() {
 	}
 	suite.db = db
 	suite.mockDb = mock
-	suite.mockConstructor = &entityMocks.MockInventoryItemConstructor{}
-	suite.sut = sql.NewInventoryRepositoryImpl(
-		suite.mockConstructor,
-	)
+	suite.sut = sql.NewInventoryRepositoryImpl()
 }
 
 func (suite *InventoryRepositoryTestSuite) TestFindByID_WhenHelperServiceFails_ShouldFail() {

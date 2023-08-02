@@ -10,15 +10,10 @@ import (
 
 type InventoryItemConstructorTestSuite struct {
 	suite.Suite
-	sut *entity.InventoryItemConstructorImpl
 }
 
 func TestInventoryItemConstructorTestSuite(t *testing.T) {
 	suite.Run(t, new(InventoryItemConstructorTestSuite))
-}
-
-func (suite *InventoryItemConstructorTestSuite) SetupTest() {
-	suite.sut = entity.NewInventoryItemConstructorImpl()
 }
 
 func (suite *InventoryItemConstructorTestSuite) TestNewAvailable_WhenNameValidationFails_ShouldFail() {
@@ -30,7 +25,7 @@ func (suite *InventoryItemConstructorTestSuite) TestNewAvailable_WhenNameValidat
 	expectedErr := "validation error: field=[name], problem=[must not have whitespace at the beginning or the end]"
 
 	// Exercise SUT
-	actual, err := suite.sut.NewAvailable(nameFixture, locationFixture)
+	actual, err := entity.NewAvailable(nameFixture, locationFixture)
 
 	// Verify results
 	suite.EqualError(err, expectedErr)
@@ -46,7 +41,7 @@ func (suite *InventoryItemConstructorTestSuite) TestNewAvailable_WhenLocationVal
 	expectedErr := "validation error: field=[location], problem=[must not have whitespace at the beginning or the end]"
 
 	// Exercise SUT
-	actual, err := suite.sut.NewAvailable(nameFixture, locationFixture)
+	actual, err := entity.NewAvailable(nameFixture, locationFixture)
 
 	// Verify results
 	suite.EqualError(err, expectedErr)
@@ -59,7 +54,7 @@ func (suite *InventoryItemConstructorTestSuite) TestNewAvailable_WhenValidationP
 	locationFixture := "some.location"
 
 	// Exercise SUT
-	actual, err := suite.sut.NewAvailable(nameFixture, locationFixture)
+	actual, err := entity.NewAvailable(nameFixture, locationFixture)
 
 	// Verify results
 	suite.NoError(err)
@@ -77,7 +72,7 @@ func (suite *InventoryItemConstructorTestSuite) TestReincarnate_ShouldCreateGive
 	availableFixture := true
 
 	// Exercise SUT
-	actual := suite.sut.Reincarnate(idFixture, nameFixture, locationFixture, availableFixture)
+	actual := entity.Reincarnate(idFixture, nameFixture, locationFixture, availableFixture)
 
 	// Verify results
 	suite.Equal(actual.ID(), idFixture)
