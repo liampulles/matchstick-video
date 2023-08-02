@@ -21,5 +21,5 @@ func NewEntityFactoryImpl() *EntityFactoryImpl {
 
 // CreateFromVO creates a new entity from a vo
 func (e *EntityFactoryImpl) CreateFromVO(vo *CreateItemVO) (entity.InventoryItem, error) {
-	return entity.NewAvailable(vo.Name, vo.Location)
+	return entity.NewAvailableInventory(vo.Name, vo.Location)
 }

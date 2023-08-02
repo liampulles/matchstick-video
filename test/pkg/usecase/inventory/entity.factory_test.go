@@ -35,7 +35,7 @@ func (suite *EntityFactoryTestSuite) TestCreateFromVO_ShouldCallConstructorAndRe
 	// Setup mocks
 	mockEntity := &entityMocks.MockInventoryItem{}
 	mockError := fmt.Errorf("some.error")
-	entity.NewAvailable = func(name, location string) (entity.InventoryItem, error) {
+	entity.NewAvailableInventory = func(name, location string) (entity.InventoryItem, error) {
 		suite.Equal("some.name", name)
 		suite.Equal("some.location", location)
 		return mockEntity, mockError

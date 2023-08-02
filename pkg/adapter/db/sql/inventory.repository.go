@@ -132,6 +132,6 @@ func (s *InventoryRepositoryImpl) scanInventoryItem(row Row) (entity.InventoryIt
 	}
 
 	// Restore the entity from the extracted data (bypassing validations).
-	result := entity.Reincarnate(id, name, location, available)
+	result := entity.ReincarnateInventory(id, name, location, available)
 	return result, nil
 }
